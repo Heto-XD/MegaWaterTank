@@ -1,3 +1,15 @@
-dist/
+# Build artifacts
 bin/
 obj/
+
+# Unity / MelonLoader
+*.tmp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# User secrets
+usersecrets/
+.env
