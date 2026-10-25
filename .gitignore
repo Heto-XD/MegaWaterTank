@@ -2,6 +2,11 @@
 bin/
 obj/
 
+# IDE / tooling junk
+.vs/
+*.user
+*.suo
+
 # Unity / MelonLoader
 *.tmp
 *.log
