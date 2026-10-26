@@ -1,3 +1,9 @@
+# Obsidian vault (ObsidianVault/)：笔记入库，运行时状态与第三方插件不入库
+ObsidianVault/.obsidian/plugins/
+ObsidianVault/.obsidian/workspace.json
+ObsidianVault/.obsidian/workspace-mobile.json
+ObsidianVault/.trash/
+
 # Build artifacts
 bin/
 obj/
