@@ -24,3 +24,11 @@ Thumbs.db
 # User secrets
 usersecrets/
 .env
+
+# 2026-10-26 E2 索引瘦身防回归（根锚定，不影响子仓同名路径）
+# IDE 状态目录（曾被跟踪 15 文件；bin/obj 同上级已忽略）
+/.vs/
+# 空 git init 残留备份（曾被跟踪 18 文件）
+/.git.bak-empty-init/
+# 根 dist 发布 zip（曾入库 10 个；zip 由 _release\publish.ps1 随时重生成，不入库）
+/dist/*.zip
