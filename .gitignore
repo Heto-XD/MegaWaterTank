@@ -32,3 +32,7 @@ usersecrets/
 /.git.bak-empty-init/
 # 根 dist 发布 zip（曾入库 10 个；zip 由 _release\publish.ps1 随时重生成，不入库）
 /dist/*.zip
+
+# 2026-10-28 防回归：脚本误用 %SystemDrive% 字面量（PowerShell 不展开 %VAR%）时
+# 会在仓根生成同名垃圾目录（本次清掉一份 Windows 字体缓存 db）。根锚定，不影响子仓。
+/%SystemDrive%/
