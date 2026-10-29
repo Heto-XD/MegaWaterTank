@@ -36,3 +36,6 @@ usersecrets/
 # 2026-10-28 防回归：脚本误用 %SystemDrive% 字面量（PowerShell 不展开 %VAR%）时
 # 会在仓根生成同名垃圾目录（本次清掉一份 Windows 字体缓存 db）。根锚定，不影响子仓。
 /%SystemDrive%/
+
+# 2026-10-29: full game source (local only, never commit)
+/probably stolen 1.0.0/
