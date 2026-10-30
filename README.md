@@ -19,6 +19,7 @@
 | 编译 + 部署某个 mod（主 DLL + Core DLL 一起进 `Mods\`） | `dotnet build <Mod>\src\<Mod>.csproj -c Release` |
 | 只验编译、不碰游戏目录 | 追加 `-p:SkipDeploy=true` |
 | 部署完整性体检（13 仓，只读，exit 1 = 不能双 DLL 交付） | `pwsh -NoProfile -File _modkit\check-deploy.ps1` |
+| 补丁目标本地化门禁（只读，exit 1 = 该补丁会把游戏本地化打崩） | `pwsh -NoProfile -File _modkit\check-patch-cctor.ps1`（`-SelfTest` 自证；`-Projects A,B` 指定仓） |
 | 发布 zip | `_release\publish.ps1`（产物 → `dist\<Product>-v<版本>.zip`；推远端默认停用） |
 | 目录审计 | `_modkit\audit-mods.ps1` |
 | ContainerSuite 回归 | `ContainerSuite\_regress\regress.ps1` |
