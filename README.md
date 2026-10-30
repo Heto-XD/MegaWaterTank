@@ -1,13 +1,14 @@
 # 工作区总索引 · `D:\games\open code work`
 
-> PS 游戏（Probably Stolen Demo）**多 mod 仓 + 工具脚本**的集合。本仓（superproject）**无 remote，永不上云**。
+> PS 游戏（Probably Stolen **1.0.0 正式版**；Demo/IL2CPP 形态仅作历史参考）**多 mod 仓 + 工具脚本**的集合。本仓（superproject）**无 remote，永不上云**。
 > 动手前先读 `AGENTS.md`（规则）和 `docs\工作区目录规范.md`（目录/部署纪律）。
 
-## 先看这三份
+## 先看这四份
 
 | 文件 | 内容 |
 |---|---|
 | `AGENTS.md` | 工作区规则：什么要先问、什么直接做、本机坑、反编译库红线 |
+| `docs\游戏资料索引.md` | **游戏源码 + 官方 kit 的统一查法**（按任务 → 文件:行号 / 章节），含事实校正表 |
 | `docs\工作区目录规范.md` | 根目录白名单、mod 仓 canonical 结构、R8 双 DLL 部署纪律、现状偏差表 |
 | `docs\Migration_Playbook.md` | Core 拆分迁移手册（13 仓已迁移） |
 
@@ -21,7 +22,7 @@
 | 发布 zip | `_release\publish.ps1`（产物 → `dist\<Product>-v<版本>.zip`；推远端默认停用） |
 | 目录审计 | `_modkit\audit-mods.ps1` |
 | ContainerSuite 回归 | `ContainerSuite\_regress\regress.ps1` |
-| 反编译数据库（字段/RVA/dump） | `游戏数据反编译\`（本地专属，禁止外传） |
+| 游戏源码 / 反编译结论 | `probably stolen 1.0.0\`（931 个 `.cs`，本地专属，禁止外传）；查法见 `docs\游戏资料索引.md` |
 
 ## mod 仓
 
