@@ -34,6 +34,6 @@
 
 - 工具：`_modkit\` `_release\`
 - 文档：`docs\`（跨仓）· 各仓 `docs\`（专属）
-- 知识库：`游戏数据反编译\`（**永不上云**）
+- 知识库：`docs\游戏资料索引.md`（索引）/ `probably stolen 1.0.0\`（游戏源码，**永不上云**）
 - 外部资料：`mod模板\` `probably-stolen-modding-main\` `开发者提示词指南\` `UnityExplorer汉化\` `自定义拾荒窗口\` `自动测试mod工具\`
 - 探针/临时（`_` 前缀 = 可随时重建）：`_perkanalyze\` `_refpack\` `_sigprobe\` `_probe_api\` `_review\`
