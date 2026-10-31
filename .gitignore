@@ -39,3 +39,4 @@ usersecrets/
 
 # 2026-10-29: full game source (local only, never commit)
 /probably stolen 1.0.0/
+_decomp/
