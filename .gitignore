@@ -43,3 +43,18 @@ _decomp/
 
 # 本地归档（二进制备份，不入库）
 _archive/
+
+# ── 2026-11-02 快照清理：本地工具 / 可再生产物 / 独立仓，均不入工作区仓 ──
+# 反编译与调试工具（第三方二进制，可随时重下，体积大）
+/ILSpy/
+/dnSpy/
+/Notepad++/
+# 运行时导出的数据（可重跑脚本再生：analyze_runtime_tags.py / build_item_table.py 等）
+/ItemDump/
+/_refpack/items/
+# 知识库：**独立 git 仓**（有自己的历史与远端），父仓只引用不跟踪
+/game-kb/
+# 他人框架副本（第三方文档，不入本地仓）
+/何小鲁框架正式版本/
+# 一次性备份包（原目录已删除，包放库外）
+/GroundWindowDrag_backup_*.zip
