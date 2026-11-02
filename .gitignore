@@ -64,3 +64,11 @@ _archive/
 /_probe_api/npc_recs.json
 /_probe_api/npc_recs_enriched.json
 /_probe_api/npc_rows.tsv
+# 2026-11-02 NPC 档案 / 本地化提取会话的中间件（游戏二进制派生 + 可重跑，不入库）
+/_probe_api/clientname_zh.json
+/_probe_api/clientname_en.json
+/_probe_api/npc_eligible.json
+/_probe_api/npc_groupA*.json
+/_probe_api/npc_groupB.json
+/_probe_api/_lct.py
+/_probe_api/clientname_zh.bin
