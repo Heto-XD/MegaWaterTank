@@ -58,3 +58,9 @@ _archive/
 /何小鲁框架正式版本/
 # 一次性备份包（原目录已删除，包放库外）
 /GroundWindowDrag_backup_*.zip
+# 2026-11-02 NPC 档案抽取中间件（原始 JSON/TSV 可由 _probe_api\npc-extract.ps1 重跑再生；入库的只有 docs 底账与成品）
+/_probe_api/npc_types_generated.json
+/_probe_api/npc_methods.json
+/_probe_api/npc_recs.json
+/_probe_api/npc_recs_enriched.json
+/_probe_api/npc_rows.tsv
