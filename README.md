@@ -22,19 +22,20 @@
 | 补丁目标本地化门禁（只读，exit 1 = 该补丁会把游戏本地化打崩） | `pwsh -NoProfile -File _modkit\check-patch-cctor.ps1`（`-SelfTest` 自证；`-Projects A,B` 指定仓） |
 | 发布 zip | `_release\publish.ps1`（产物 → `dist\<Product>-v<版本>.zip`；推远端默认停用） |
 | 目录审计 | `_modkit\audit-mods.ps1` |
-| ContainerSuite 回归 | `ContainerSuite\_regress\regress.ps1` |
-| 游戏源码 / 反编译结论 | `probably stolen 1.0.0\`（931 个 `.cs`，本地专属，禁止外传）；查法见 `docs\游戏资料索引.md` |
+| PowerManager 回归（现存唯一 `_regress`） | `PowerManager\_regress\regress.ps1` |
+| 游戏源码 / 反编译结论 | `probably stolen 1.0.0\`（`Assembly-CSharp.dll` + `GAME_DATA_INDEX.md`；931 个 `.cs` 已归档 `_decomp\src_1.0.0.5.zip`，分版本源码 `_decomp\1.0.0.5\`/`1.0.0.6\`，本地专属，禁止外传）；查法见 `docs\游戏资料索引.md` |
 
 ## mod 仓
 
-`BlackPrinter` `BuyHouse` `ContainerSuite` `EmptyNukeBarrel` `ItemProbe` `ItemStacking` `NewbieGift`
-`PowerManager` `PowerProbe` `RealPrinter` `ratprinter`(= custom_rat_printer) `SecretAdmirerMod`
-`SentinelTracker` `p特性拓展（核桃）`(= PPerkPack)
+`BlackPrinter` `ContainerManager` `ContainerMerchant` `EmptyNukeBarrel` `ItemProbe` `ItemStacking`
+`NewbieGift` `PowerManager` `RealPrinter` `SecretAdmirerMod` `SentinelTracker`
+（旧仓 BuyHouse / ContainerSuite / PowerProbe / ratprinter / p特性拓展 已于 2026-10-31~11-02 迁出或停用；完整快照 = 根目录同名 `*.zip`，不再展开目录。）
 
 ## 工具 / 资料 / 临时
 
 - 工具：`_modkit\` `_release\`
 - 文档：`docs\`（跨仓）· 各仓 `docs\`（专属）
-- 知识库：`docs\游戏资料索引.md`（索引）/ `probably stolen 1.0.0\`（游戏源码，**永不上云**）
-- 外部资料：`mod模板\` `probably-stolen-modding-main\` `开发者提示词指南\` `UnityExplorer汉化\` `自定义拾荒窗口\` `自动测试mod工具\`
-- 探针/临时（`_` 前缀 = 可随时重建）：`_perkanalyze\` `_refpack\` `_sigprobe\` `_probe_api\` `_review\`
+- 知识库：`game-kb\`（条目化证据库，**独立 git 仓**）/ `docs\游戏资料索引.md`（源码 + kit 查法索引）/ `ObsidianVault\`（方法论笔记）/ `probably stolen 1.0.0\`（游戏源码，**永不上云**）
+- 外部资料：`mod模板\`（可构建脚手架，`scripts\new-mod.ps1` 生成新仓）/ `templates\ModProject\`（官方壳结构母版，占位不可构建）/ `probably-stolen-modding-main\`（官方 kit）/ `开发者提示词指南\`（外部教材）/ `何小鲁框架正式版本\`（他人框架副本，其 `docs\`/`knowledge\` 只服务该目录自身，工作区主链以 `docs\` 为准）
+- 工具：`_modkit\` `_release\` `_decomp\`（分版本反编译 + `dump.ps1`/`diff.ps1`）
+- 探针/临时/本地归档（`_` 前缀 = 可随时重建）：`_perkanalyze\` `_refpack\` `_sigprobe\` `_probe_api\` `_review\` `_archive\`；`ItemDump\`（运行时导出，可重跑再生）
