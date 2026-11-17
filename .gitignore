@@ -72,3 +72,7 @@ _archive/
 /_probe_api/npc_groupB.json
 /_probe_api/_lct.py
 /_probe_api/clientname_zh.bin
+
+# 2026-11-17: Python 分析脚本缓存不入库
+__pycache__/
+*.pyc
