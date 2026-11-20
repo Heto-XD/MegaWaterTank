@@ -1,87 +1,67 @@
-# 巨型水箱 / Mega Water Tank
+# Mega Water Tank / 巨型水箱
 
-> 工作区在研 mod。**当前 v0.9.5（2026-11-20），已构建 + 已部署 + 多轮实机通过**。
-> 身份：`manifest.xml` `<ID>megatank` / 程序集 `MegaTank.dll` / 作者 核桃 / 部署目录 `Mods\megatank\`。
-> 尚未建根仓 gitlink（工作目录未纳入子模块）；发布前再定。
+A water-storage mod for **Probably Stolen** (Unity / Mono, official built-in ModLoader).
+一个给《Probably Stolen》用的储水 mod（官方内置 ModLoader）。
 
-## 它做什么
+- **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 1.9 t at max, **32.3 t** fully loaded
+- **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back when it drops below 90%
+- **Real water** — hydroponics, purifiers and the water scanner recognise it through the vanilla rules
+- **Water tint** — the water colour follows the liquid inside, using the same computation as vanilla bottles
+- **Phone ordering** — the "Hetao Water Co." contact (#21474836#) opens the service page; capacity expands +100 L per purchase (18 steps), no cooldown
+- **Localisation** — Chinese / English / Russian
 
-一个 1.9 吨主池 + 16 个各 1.9 吨内胆槽（满配 32.3 吨）的巨型储水装置。水走原版容器语义：
-水培机 / 净水机 / 水质检测仪 / 水龙头都按原版规则识别，不需要额外设置。
+---
 
-- **R1 溢出**：主池满后继续灌，多出的水进空内胆
-- **R2 回补**：主池低于 90% 自动从内胆抽回，帧末统一刷新（约 0.25 s 一次）
-- **水质着色（v0.5.0）**：主池/内胆按内容物实时变色，复用原版 `WaterHelper.GetLiquidContainerColor`
-  的平均色算法，**0 个新增补丁**，逐字节一致
-- **电话服务**：快速拨号 `21474836`（冲突时退让），三条可复购服务（水箱 500 / 内胆 250 冷却 1 天；
-  扩容 150 无冷却），见 `src/Phone/Services.cs`
-- **三语**：zh / en / ru，走官方本地化表 + Ready 闸（返回英文优先于读未就绪的 locale）
-- **日志开关**：主菜单 `Diagnostics → Verbose log`（默认关）。`Log.Info` 门控、`Log.Once`
-  警告始终输出；配置在 **`IMod.Init` 加载期**定义（主菜单面板才能列出），
-  section 用字面量、label 走 lambda，加载期不读语言
+## Install
 
-玩家可见说明见 [`PlayerReadme.md`](PlayerReadme.md) / [`PlayerReadme.en.md`](PlayerReadme.en.md)。
+1. Make sure the game's own mod loader is active (the game ships with it; no MelonLoader needed).
+2. Copy the `megatank` folder into `Probably Stolen\Mods\`:
 
-## 版本与文档入口
-
-| 要什么 | 去哪 |
-|---|---|
-| 逐版改动与技术细节 | [`CHANGELOG.md`](CHANGELOG.md)（0.1 → 0.9.5） |
-| 当前状态 / 验证证据 / 未验项 | [`STATUS.md`](STATUS.md) |
-| **启停与卸载验收单（P4-04，已闭环）** | [`docs/验收单-P4-04-启停与卸载.md`](docs/验收单-P4-04-启停与卸载.md) |
-| **兼容矩阵验收单（P4-01，已 9/9 通过）** | [`docs/验收单-P4-01-兼容矩阵.md`](docs/验收单-P4-01-兼容矩阵.md) |
-| **水质着色逐种对照（已 6 组通过）** | [`docs/验收单-水质着色对照.md`](docs/验收单-水质着色对照.md) |
-| **发布清单（上架前核对）** | [`docs/发布清单.md`](docs/发布清单.md) |
-| 工坊预览图 | `preview.png`（660×410，`python tools\make_preview.py` 可重生成） |
-| 验色小工具（按成分算期望 hex） | `pwsh -File tools\expect-color.ps1 -Mix "water:100,heavy_metal:20"` || 踩坑账 / 开发经验（开工必读） | [`docs/LESSONS.md`](docs/LESSONS.md) |
-| 设计硬约束 / 否决方案 / 信心分级 | `..\docs\方案-巨型水箱mod.md` |
-| 排工与批次出口条件 | `..\docs\排工-巨型水箱mod.md` |
-| 水质着色机制与方案 A | `..\docs\可行性-水质贴图着色.md` |
-| Workshop 同类 mod 可借鉴点与合规边界 | `..\docs\分析-workshop优化mod可借鉴思路.md` |
-| 游戏侧水/液体机制（1.0.0.16 源码级） | `..\docs\domain\D07-水与液体系统.md` + `..\game-kb\items\水与液体容器.md` |
-| 构建→部署→验证门禁口径 | `..\AGENTS.md` + `..\docs\工作区工作流标准.md` |
-
-## 构建 / 验证 / 部署
-
-```bash
-# 只验编译，不碰游戏目录
-dotnet build MegaTank.csproj -c Release -p:SkipDeploy=true
-
-# 纯函数边界测试（49 条断言，dotnet run 退出码即结果）
-dotnet run --project tests/PureCheck/PureCheck.csproj
-
-# 构建期自动门禁（no skip）：版本同步 → 玩家文档三件套 → 符号核对 → CopyToMods
-# 跳过部署：加 -p:SkipDeploy=true；跳过符号核对：加 -p:SkipSymbolCheck=true
+```
+Mods\megatank\
+    MegaTank.dll
+    manifest.xml
+    Localization\
+    Textures\
 ```
 
-> **符号核对需要游戏反编译源码**（默认找 `..\_decomp`）。没有这份本地资料时会自动跳过，
-> 其余门禁照常运行；需要核对时传 `-p:DecompDir=<你的反编译目录>`。
-> 该目录是本机私有资料，**不在本仓库内、也不会随发行包分发**。
+3. Start the game. The main menu **Modding** panel should list *巨型水箱 / Mega Water Tank*.
 
-- 入口：`src/Mod.cs` 的 `ModEntry : IMod`（`Init` / `OnEnable` / `OnDisable` 逐项 `Step()` 兜底）。
-- **没有 `[HarmonyPatch]` 特性补丁**：4 个补丁由 `src/Core/LatePatches.cs` 手动安装并核对 owner；
-  **两条进档路径都要装**——读档走 `OnGameLoadedLate`，新开局走 `OnNewGameStarted`
-  （`OnGameLoaded*` 只在 `PlayerStore.LoadGame()` 里触发，新开局一条都不发，见 `docs/LESSONS.md` A10）。
-  加载期 PatchAll 会触发 `Liquid` 静态本地化 cctor 并永久损坏本地化（见 `src/Mod.cs` 头部注释）。
-  **第 5 个补丁（配置面板语言）例外，装在 `OnEnable`**：主菜单 Modding 面板进档前就能打开，
-  等 `OnGameLoadedLate` 就晚了；目标 `ModConfigWindow` 无静态字段，提前装无 cctor 风险
-  （见 `src/Patches/ConfigSectionPatch.cs` 头注释与 `docs/LESSONS.md` A6）。
-- 部署布局：`Mods\megatank\` 下 `MegaTank.dll` + `manifest.xml` + `CHANGELOG.md` +
-  两份 PlayerReadme + `Localization\` + `Textures\`。**贴图只在 `mod.Sprites[纯文件名]`**，
-  不放 `mod.Textures`；`spritePath` 用纯文件名，先 `SetSpriteAndShapeFromMod` 再 `SetShape`。
-- 目标游戏：**Probably Stolen 1.0.0.16**（Unity Mono / 官方第一方加载器）；manifest
-  `<GameVersions>` 写前缀 `1.0`。`Probably Stolen Demo` 是 IL2CPP，**不能放 Mono DLL**。
+Uninstalling is safe: tanks left in a save become inert placeholder items, and the phone
+contact is removed automatically (the mod never stores it in the save).
 
-## 纪律
+## Compatibility
 
-- 遵守工作区根 `AGENTS.md`；本仓专属规则见 [`AGENTS.md`](AGENTS.md)。
-- **许可证 MPL 2.0**（`LICENSE`）：分发 DLL（工坊包）时必须能拿到源码 ——
-  仓库 `https://github.com/Heto-XD/MegaWaterTank` 即源码形式，工坊简介与玩家文档都已写明地址。
-  每个 `.cs` 文件头有 Exhibit A 声明，项目级说明在 `NOTICE`。
-- **AI 使用声明**：`AI-DISCLOSURE.md`（中英）。概述：代码/美术/文案大量由生成式 AI 辅助，
-  经人工审阅与实机测试；不含游戏本体素材、不捆绑第三方库；非官方作品。
-- 版本号按工作区规则升并全套同步：`manifest.xml` / `src/Core/Ids.cs` 的 `Ids.Version` /
-  `release.profile.json` / 两份 PlayerReadme / `CHANGELOG.md`；同时更新 manifest 的中英 Description。
-- 自动启动或重启游戏、发布类操作 → 先给方案 + diff 预览，用户点头再动。
-- 存档影响：水箱物品按原版 `SaveItemNode` 存档，但"用 mod 图"的标志不进档 ⇒ 载入后靠
-  `AttachLoadHook` 强制重贴（见 CHANGELOG 0.2.0）；`useSpriteFromMod` 不写档是硬事实，勿改判。
+Tested together with Item Stacking, Container Manager, Item Details and Water Machine Fix.
+Filled containers are frozen while stacked (same rule as vanilla liquid containers).
+Item Details keeps its water analysis for ordinary bottles; this mod keeps its own tooltip
+for its two items.
+
+## Build from source
+
+Requires the .NET SDK and a copy of the game's `Managed\` folder for assembly references
+(see `MegaTank.csproj` for the paths).
+
+```bash
+dotnet build MegaTank.csproj -c Release
+dotnet run --project tests/PureCheck/PureCheck.csproj   # 49 pure-logic assertions
+```
+
+> The optional symbol check compares game API usage against a local decompiled copy
+> (`-p:DecompDir=<path>`); it is skipped automatically when that copy is absent.
+
+## License
+
+**MPL 2.0** — see [`LICENSE`](LICENSE). Attribution and third-party notices are in [`NOTICE`](NOTICE).
+
+A large part of this project (code, artwork and text) was produced with **generative AI
+assistance** and then reviewed and play-tested by a human. Scope, quality notes and the
+copyright position are described in [`AI-DISCLOSURE.md`](AI-DISCLOSURE.md).
+
+## Credits / disclaimer
+
+- *Probably Stolen* and its assets belong to Questing Goose Studio. This is an unofficial
+  community mod, not affiliated with or endorsed by the developer. No game assets are
+  redistributed, and no third-party libraries are bundled (`0Harmony` / `Newtonsoft.Json`
+  come with the game).
+- Workshop page: *(link will be added after the first upload)*
