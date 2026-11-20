@@ -75,6 +75,11 @@ namespace MegaTank
                         "旧 spritePath 已重贴为当前基础图：" + item.identifier);
                 }
 
+                // 容量兜底：正常情况下 Boot / 购买时已对齐，这里只处理漏网
+                // （例如别的 mod 改了 tag、读档顺序异常）。ApplyTo 内部先比对再写，
+                // 值相同时零开销，不会每 0.25s 白跑一次 Validate。
+                if (!IsDragging(item)) Capacity.ApplyTo(item);
+
                 if (isTank) Refill(item);
                 SyncSprite(item);
             }

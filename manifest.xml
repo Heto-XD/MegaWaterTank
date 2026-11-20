@@ -8,13 +8,16 @@
   <ID>megatank</ID>                          <!-- a-z 0-9 _ - .，最多 64 字符，唯一，发布后不可随意变更 -->
   <Name>巨型水箱 / Mega Water Tank</Name>                     <!-- 显示名称，可与 ID 不同 -->
   <Author>核桃</Author>                <!-- 由使用者确认，不要填框架作者 -->
-  <ModVersion>0.8.3</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
+  <ModVersion>0.9.0</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
   <Description>
-大容量储水装置：1.9 吨主池 + 16 个内胆槽，满了自动溢出到内胆、不足时自动回补。
-装的是真水，水培机和净水机都认。水色会随水质变化。电话下单、每天可再买。设置面板支持中英俄三语。
+大容量储水装置：0.9 吨起步的主池 + 16 个内胆槽，满了自动溢出到内胆、不足时自动回补。
+装的是真水，水培机和净水机都认。水色会随水质变化。电话下单、每天可再买，
+还能重复购买扩容服务，每档 +100 升，升满 1.9 吨。设置面板支持中英俄三语。
 
-Large water tank: 1.9t pool + 16 insert cells, auto overflow and refill.
-Holds real water that hydroponics and purifiers recognize; colour changes with water quality. Order by phone, repeatable daily. Settings in Chinese, English and Russian.
+Large water tank: starts at 0.9 t with 16 insert cells, auto overflow and refill.
+Holds real water that hydroponics and purifiers recognize; colour changes with water quality.
+Order by phone, repeatable daily; expand capacity +100 L per purchase, up to 1.9 t.
+Settings in Chinese, English and Russian.
   </Description>
   <GameVersions>
     <Version>1.0</Version>  <!-- 闭区间：ModGameVersion 只认 1.0.0 / 1.0.0.14 / 1.0 这类写法；0.46 判 Legacy(灰)、1.0.0+ 判 Invalid(红) -->

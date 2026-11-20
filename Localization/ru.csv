@@ -16,6 +16,9 @@ megatank.svc.tank.desc,Доставляет один мега-бак и одну
 megatank.svc.cell.title,Дополнительная ячейка
 megatank.svc.cell.desc,Доставляет одну ячейку бака (1,9 т). Можно покупать повторно — заполните все 16 слотов.
 megatank.svc.repeat,Можно покупать повторно
+megatank.svc.expand.title,Расширить объём
+megatank.svc.expand.desc,Навсегда увеличивает объём каждого бака и ячейки на 100 л (до 1900 л). Действует на все контейнеры сразу. Можно покупать повторно.
+megatank.svc.expand.maxed,Достигнут предел {0} л
 
 megatank.cfg.sec.diagnostics,Диагностика
 megatank.cfg.verbose,Подробные логи

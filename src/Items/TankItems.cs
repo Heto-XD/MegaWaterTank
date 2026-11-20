@@ -28,9 +28,11 @@ namespace MegaTank
             item.unitValue = 0L;
 
             // 容量 / 水位 tag / 交互委托 / 化学意图，一次建好（isGraduated 让原版 tooltip 走 ml 显示）
+            // 容量按当前扩容等级给（0.9.0）：新造的容器立刻是"起步 + 已购档位"的容量，
+            // 不用等巡检校正。
             WaterHelper.InitLiquidContainerItem(
                 item,
-                capacityInMl: Ids.CapacityMl,
+                capacityInMl: Capacity.CurrentMl,
                 basePrice: 0,
                 isFilterContainer: false,
                 isGraduated: true,
@@ -68,7 +70,7 @@ namespace MegaTank
 
             WaterHelper.InitLiquidContainerItem(
                 item,
-                capacityInMl: Ids.CapacityMl,
+                capacityInMl: Capacity.CurrentMl,
                 basePrice: 0,
                 isFilterContainer: false,
                 isGraduated: true,

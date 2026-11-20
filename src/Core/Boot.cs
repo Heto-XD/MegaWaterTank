@@ -17,6 +17,15 @@ namespace MegaTank
             // 主菜单面板靠加载期的实例判定 HasSettings。
             Step("补丁", LatePatches.Install);
             Step("电话名片", PhoneCard.Install);
+
+            // 扩容等级：先清缓存（新档/读档可能是另一个值），再让老容器对齐当前档位。
+            // 放在服务注册之前——服务注册要看 CanUpgrade 决定满级置灰。
+            Step("扩容等级", () =>
+            {
+                Capacity.Invalidate();
+                Capacity.ApplyAll();
+            });
+
             Step("服务注册", Services.EnsureRegistered);
         }
 
@@ -31,6 +40,13 @@ namespace MegaTank
         {
             Step("本地化闸", Text.MarkReady);
             Step("新档电话名片", PhoneCard.Install);
+
+            // 新档没有 ModData ⇒ 0 档。清缓存回到 900 L，并把已生成的物品对齐。
+            Step("新档扩容等级", () =>
+            {
+                Capacity.Invalidate();
+                Capacity.ApplyAll();
+            });
         }
 
         private static void Step(string what, Action action)

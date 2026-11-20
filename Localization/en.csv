@@ -16,6 +16,9 @@ megatank.svc.tank.desc,Delivers one Mega Water Tank and one cell (3.8 t total). 
 megatank.svc.cell.title,Extra Tank Cell
 megatank.svc.cell.desc,Delivers one tank cell (1.9 t). Repeatable - fill all 16 slots.
 megatank.svc.repeat,Repeatable
+megatank.svc.expand.title,Expand Capacity
+megatank.svc.expand.desc,Permanently raises the capacity of every tank and cell by 100 L (up to 1900 L). Applies to all containers at once. Repeatable.
+megatank.svc.expand.maxed,Fully expanded to {0} L
 
 megatank.cfg.sec.diagnostics,Diagnostics
 megatank.cfg.verbose,Verbose log
