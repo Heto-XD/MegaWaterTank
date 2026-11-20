@@ -64,4 +64,4 @@ copyright position are described in [`AI-DISCLOSURE.md`](AI-DISCLOSURE.md).
   community mod, not affiliated with or endorsed by the developer. No game assets are
   redistributed, and no third-party libraries are bundled (`0Harmony` / `Newtonsoft.Json`
   come with the game).
-- Workshop page: *(link will be added after the first upload)*
+- Workshop page: <https://steamcommunity.com/sharedfiles/filedetails/?id=3842872840>
