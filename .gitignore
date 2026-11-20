@@ -76,3 +76,8 @@ _archive/
 # 2026-11-17: Python 分析脚本缓存不入库
 __pycache__/
 *.pyc
+
+# 2026-11-20：工作临时产物与一次性备份，不入库（根锚定，不影响子仓）
+/_tmp/
+/_review/
+/_release/modules.bak-*/
