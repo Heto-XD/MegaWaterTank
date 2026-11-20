@@ -62,6 +62,15 @@ In the main menu under **Modding → Mod settings**, the `Diagnostics` section h
 
 With it off the mod stays quiet during normal play. Warnings and errors are **always** logged regardless of this switch.
 
+## License and origin
+
+- **License: MPL 2.0** - source repository: `https://github.com/Heto-XD/MegaWaterTank`
+- Most of the **code, artwork and text of this mod were produced with generative AI
+  assistance**; everything was reviewed and play-tested by a human. See `AI-DISCLOSURE.md`
+  in the repository for the scope and the copyright position.
+- Unofficial community mod, not affiliated with the developer. No game assets are included
+  and no third-party libraries are bundled.
+
 ## Uninstall
 
 Delete the `Mods\megatank` folder. Existing tanks stay in saves as empty shells; saves are not corrupted.

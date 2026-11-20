@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // MegaTank 纯逻辑自检（P1b-07）
 //
 // 目的：把「改阈值 / 改公式时最容易静默改错」的几条锁住。

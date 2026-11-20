@@ -71,6 +71,11 @@ dotnet run --project tests/PureCheck/PureCheck.csproj
 ## 纪律
 
 - 遵守工作区根 `AGENTS.md`；本仓专属规则见 [`AGENTS.md`](AGENTS.md)。
+- **许可证 MPL 2.0**（`LICENSE`）：分发 DLL（工坊包）时必须能拿到源码 ——
+  仓库 `https://github.com/Heto-XD/MegaWaterTank` 即源码形式，工坊简介与玩家文档都已写明地址。
+  每个 `.cs` 文件头有 Exhibit A 声明，项目级说明在 `NOTICE`。
+- **AI 使用声明**：`AI-DISCLOSURE.md`（中英）。概述：代码/美术/文案大量由生成式 AI 辅助，
+  经人工审阅与实机测试；不含游戏本体素材、不捆绑第三方库；非官方作品。
 - 版本号按工作区规则升并全套同步：`manifest.xml` / `src/Core/Ids.cs` 的 `Ids.Version` /
   `release.profile.json` / 两份 PlayerReadme / `CHANGELOG.md`；同时更新 manifest 的中英 Description。
 - 自动启动或重启游戏、发布类操作 → 先给方案 + diff 预览，用户点头再动。

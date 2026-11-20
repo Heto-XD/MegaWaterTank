@@ -120,6 +120,9 @@
     <!-- 工坊预览图随包部署（与工作区其它 mod 一致；上传时 previewfile 仍指向同级文件） -->
     <Copy SourceFiles="$(MSBuildProjectDirectory)\preview.png" DestinationFolder="$(GameDir)\Mods\megatank"
           SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\preview.png')" />
+    <!-- 许可证与 AI 声明随包分发：工坊包只有 DLL，接收方必须能看到许可来源（MPL §3.2） -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\LICENSE;$(MSBuildProjectDirectory)\NOTICE;$(MSBuildProjectDirectory)\AI-DISCLOSURE.md"
+          DestinationFolder="$(GameDir)\Mods\megatank" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

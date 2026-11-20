@@ -19,3 +19,6 @@ Localization/*.csv.bak
 # 系统
 .DS_Store
 Thumbs.db
+
+# 预览图用的第三方素材（作者吉祥物，不随仓库公开）
+tools/assets/

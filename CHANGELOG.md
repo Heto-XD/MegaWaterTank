@@ -97,8 +97,8 @@
 `Translation Error 'megatank.phone' in ClientName`，服务页也没有那三条）。
 
 - **根因**：`ModHook.OnGameLoadedInit/Early/Normal/Late` **只在 `PlayerStore.LoadGame()`（读档）里触发**
-  （`PlayerStore.cs:1008/1026/1041/1115`）；新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`
-  （`NewGameData.cs:401`），一条 `OnGameLoaded*` 都不发。
+  （`PlayerStore.cs`）；新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`
+  （`NewGameData.cs`），一条 `OnGameLoaded*` 都不发。
   而 `Boot.OnNewGameStarted` 当时只补了名片与容量 ⇒ 延迟补丁（tooltip / R1 / 电话名 / 机器槽 / 存盘摘名片）
   与服务注册全部没装：
   - 电话名补丁缺席 ⇒ 名片 locID 查不到本地化 ⇒ `Translation Error`（对话本身能开，因为 `DialogFuncs` 是名片直接写的）；
@@ -220,7 +220,7 @@
 
 - `ExpandCooldownDays` 1 → **0**：当天可以连续买到满级，不用等 10 天。
 - **随之而来的坑已处理**：`cooldownDays = 0` 时官方的 `Unlock()` 不会把 `state` 从 2 打回 1
-  （`NetworkUpgrade.cs:889-896` 的条件是 `cooldownDuration != 0`），
+  （`NetworkUpgrade.cs` 的条件是 `cooldownDuration != 0`），
   于是买一次后 `IsUnlocked()` 恒为 true ⇒ 按钮直接置灰、再也买不了。
   现在 `GrantExpand` 在购买成功后手动把 `state` 复位成 1（未满级时），
   满级仍交给 `SyncExpandState` 保持 2。详见 `docs/LESSONS.md` A8。
@@ -259,7 +259,7 @@
 
 - 新增 `src/Core/Capacity.cs`：等级读写、`ApplyTo`/`ApplyAll`、满级判定。
   `ApplyTo` 先比对现值再写，值相同时零开销（0.25 s 巡检里不会白跑 `Validate`）。
-- **满级置灰零补丁**：官方 `WildNetworkUI.cs:520` 已有
+- **满级置灰零补丁**：官方 `WildNetworkUI.cs` 已有
   `value.isRepeatable && IsUnlocked()` 分支——把 `isRepeatable` 置 true 即可让购买按钮消失、
   改显示 `alreadyBought` 文案。`Services.SyncExpandState()` 负责切换。
 - **兜底退款**：万一满级仍被点到购买（竞态/其它 mod 干扰），`GrantExpand` 退等额现金并记日志，
@@ -316,7 +316,7 @@
 ## 0.8.1 — 2026-11-20
 
 **修 0.8.0 配置面板看不到设置项**：`DebugConfig.Init()` 原本挂在进档后（`Boot`），
-但官方主菜单 Modding 面板用 `ModConfig.Find(modId)`（`ModUIManager.cs:634/893`）判断
+但官方主菜单 Modding 面板用 `ModConfig.Find(modId)`（`ModUIManager.cs`）判断
 "有没有设置项"——只有 `GetConfig()` 创建过实例才为 true。主菜单还没进档 ⇒ 齿轮置灰 /
 点开提示 `has no configuration entries`。
 改为在 **`IMod.Init(manifest)` 加载期**定义配置（与 PowerManager / SentinelTracker 一致），

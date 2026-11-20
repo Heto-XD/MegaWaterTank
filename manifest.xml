@@ -13,11 +13,13 @@
 大容量储水装置：0.1 吨（100 升）起步的主池 + 16 个内胆槽，满了自动溢出到内胆、不足时自动回补，满配 32.3 吨。
 装的是真水，水培机和净水机都认；水色随水质变化（与原版水瓶同色）。电话「核桃水商」下单，
 扩容服务每档 +100 升、共 18 档升满 1.9 吨，无冷却可连买。设置与说明支持中英俄三语。
+开源（MPL 2.0）：github.com/Heto-XD/MegaWaterTank · 含生成式 AI 辅助制作内容。
 
 Large water tank: starts at 0.1 t (100 L) with 16 insert cells, auto overflow/refill, 32.3 t fully loaded.
 Holds real water that hydroponics and purifiers recognize; the tint follows the liquid (same as vanilla bottles).
 Order via the "Hetao Water Co." phone contact; capacity expands +100 L per purchase (18 steps up to 1.9 t, no cooldown).
 UI and docs in Chinese, English and Russian.
+Open source (MPL 2.0): github.com/Heto-XD/MegaWaterTank · built with generative AI assistance.
   </Description>
   <GameVersions>
     <Version>1.0</Version>  <!-- 闭区间：ModGameVersion 只认 1.0.0 / 1.0.0.14 / 1.0 这类写法；0.46 判 Legacy(灰)、1.0.0+ 判 Invalid(红) -->

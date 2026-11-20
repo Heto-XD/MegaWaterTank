@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 using System;
 
 namespace MegaTank
@@ -35,8 +39,8 @@ namespace MegaTank
         /// 新开局（NewGameData.FireOnNewGameStarted）。
         ///
         /// ★ **新开局不会触发 `OnGameLoadedLate`**：`ModHook.FireOnGameLoaded*` 只在
-        ///   `PlayerStore.LoadGame()`（读档）里调（PlayerStore.cs:1008/1026/1041/1115），
-        ///   新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`（NewGameData.cs:401）。
+        ///   `PlayerStore.LoadGame()`（读档）里调（PlayerStore.cs），
+        ///   新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`（NewGameData.cs）。
         ///   所以这里必须把"进档才装"的那几样**全部再装一次**（全部幂等）：
         ///   延迟补丁（tooltip / R1 / 电话名 / 存盘摘名片）、电话名片、扩容等级、服务注册。
         ///   少装补丁的表现（实机 2026-11-20 v0.10.0）：新开局电话簿里名片名字变成

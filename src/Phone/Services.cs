@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 using System;
 
 namespace MegaTank
@@ -42,7 +46,7 @@ namespace MegaTank
         ///
         /// 代价与对策（源码推导，动它之前先看这段）：
         ///   `AddNetworkUpgrade` 里 `cooldownDays=0` ⇒ `isRepeatable=false` + `cooldownDuration=0`
-        ///   （ModHelper.cs:338-339）。而 `Unlock()`（NetworkUpgrade.cs:882-896）只有在
+        ///   （ModHelper.cs）。而 `Unlock()`（NetworkUpgrade.cs）只有在
         ///   `cooldownDuration != 0` 时才会把 `state` 从 2 打回 1 ⇒ **不设冷却的话，
         ///   买一次后 state 停在 2，IsUnlocked() 恒 true，按钮从此置灰再也买不了**。
         ///   对策：`GrantExpand` 在购买成功后手动把 state 复位成 1（未满级时），
@@ -273,7 +277,7 @@ namespace MegaTank
         ///   而 `IsUnlocked()` 只认 `state == 2`。
         ///
         /// ★ 关键坑（第一版踩过）：光设 `state = 2` 不够——可重复项每次购买后
-        ///   `Unlock()` 会把 `state` 从 2 打回 1（NetworkUpgrade.cs:889-895，
+        ///   `Unlock()` 会把 `state` 从 2 打回 1（NetworkUpgrade.cs，
         ///   条件是 `cooldownDuration != 0`）。所以满级时必须**同时把
         ///   `cooldownDuration` 置 0**，state 才停得住。
         ///   未满级时恢复 `cooldownDuration = 1` + `state = 1`（正常可购买状态）。
