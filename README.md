@@ -1,47 +1,67 @@
-# 工作区总索引 · `D:\games\open code work`
+# Mega Water Tank / 巨型水箱
 
-> PS 游戏（Probably Stolen **1.0.0 正式版**；Demo/IL2CPP 形态仅作历史参考）**多 mod 仓 + 工具脚本**的集合。本仓（superproject）**无 remote，永不上云**。
-> 动手前先读 `AGENTS.md`（规则）和 `docs\工作区目录规范.md`（目录/部署纪律）。
+A water-storage mod for **Probably Stolen** (Unity / Mono, official built-in ModLoader).
+一个给《Probably Stolen》用的储水 mod（官方内置 ModLoader）。
 
-## 先看这四份
+- **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 1.9 t at max, **32.3 t** fully loaded
+- **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back when it drops below 90%
+- **Real water** — hydroponics, purifiers and the water scanner recognise it through the vanilla rules
+- **Water tint** — the water colour follows the liquid inside, using the same computation as vanilla bottles
+- **Phone ordering** — the "Hetao Water Co." contact (#21474836#) opens the service page; capacity expands +100 L per purchase (18 steps), no cooldown
+- **Localisation** — Chinese / English / Russian
 
-| 文件 | 内容 |
-|---|---|
-| `AGENTS.md` | 工作区规则：什么要先问、什么直接做、本机坑、反编译库红线 |
-| `docs\游戏资料索引.md` | **游戏源码 + 官方 kit 的统一查法**（按任务 → 文件:行号 / 章节），含事实校正表 |
-| `docs\工作区目录规范.md` | 根目录白名单、mod 仓结构、**官方加载器部署纪律**（`Mods\<模组名>\` + manifest）、收尾检查 |
-| `docs\README.md` | **文档总索引 + 事实等级（L1 权威 / L2 实证 / L3 推断 / L4 历史）**；先看这页再点开别的文档 |
+---
 
-## 常用入口
+## Install
 
-| 要做的事 | 命令 / 路径 |
-|---|---|
-| 编译 + 部署某个 mod（主 DLL + Core DLL 一起进 `Mods\`） | `dotnet build <Mod>\src\<Mod>.csproj -c Release` |
-| 只验编译、不碰游戏目录 | 追加 `-p:SkipDeploy=true` |
-| 部署体检（官方加载器布局：manifest/清单/dll/捆绑/pdb/版本漂移；只读，exit 1 = 会被加载器拒绝） | `pwsh -NoProfile -File _modkit\check-deploy.ps1` |
-| 补丁目标本地化门禁（只读，exit 1 = 该补丁会把游戏本地化打崩） | `pwsh -NoProfile -File _modkit\check-patch-cctor.ps1`（`-SelfTest` 自证；`-Projects A,B` 指定仓） |
-| 补丁目标符号核对（只读，核对方法/字段在指定游戏版本是否存在） | `pwsh -NoProfile -File _modkit\check-symbols.ps1` |
-| 游戏知识库门禁（条目/锚点校验） | `pwsh -NoProfile -File game-kb\tools\kb_check.ps1` · `kb_verify.ps1` |
-| 发布 zip | `_release\publish.ps1`（产物 → `dist\<Product>-v<版本>.zip`；推远端默认停用） |
-| 目录审计 | `_modkit\audit-mods.ps1` |
-| PowerManager 回归（现存唯一 `_regress`） | `PowerManager\_regress\regress.ps1` |
-| 游戏源码 / 反编译结论 | `probably stolen 1.0.0\`（`Assembly-CSharp.dll` + `GAME_DATA_INDEX.md`；931 个 `.cs` 已归档 `_decomp\src_1.0.0.5.zip`，分版本源码 `_decomp\1.0.0.5\`/`1.0.0.6\`，本地专属，禁止外传）；查法见 `docs\游戏资料索引.md` |
+1. Make sure the game's own mod loader is active (the game ships with it; no MelonLoader needed).
+2. Copy the `megatank` folder into `Probably Stolen\Mods\`:
 
-## mod 仓
+```
+Mods\megatank\
+    MegaTank.dll
+    manifest.xml
+    Localization\
+    Textures\
+```
 
-`ContainerManager` `ContainerMerchant` `ItemProbe` `ItemStacking` `MegaWaterTank`
-`NewbieGift` `PowerBlockExpansion` `PowerManager` `SecretAdmirerMod` `SentinelTracker`
-- 子模块（`.gitmodules` 9 条）：CM / ItemProbe / IS / NG / PBE / PM / SA / ST + 官方 kit；
-  非子模块工作目录：`ContainerMerchant\`、`MegaWaterTank\`（尚未建 gitlink）。
-- 已迁出：BuyHouse / ContainerSuite / PowerProbe / ratprinter / p特性拓展（2026-10-31~11-02）、
-  GroundWindowDrag（2026-11-14）、BlackPrinter / EmptyNukeBarrel / RealPrinter（2026-11-19 移除 gitlink，
-  仓库数据留在 `.git\modules\`，快照 `_archive\RealPrinter.zip` / `dist\BlackPrinter-v0.5.35.zip`）。
-  完整快照 = 根目录或 `_archive\` 的 `*.zip`，不再展开目录。
+3. Start the game. The main menu **Modding** panel should list *巨型水箱 / Mega Water Tank*.
 
-## 工具 / 资料 / 临时
+Uninstalling is safe: tanks left in a save become inert placeholder items, and the phone
+contact is removed automatically (the mod never stores it in the save).
 
-- 工具：`_modkit\`（审计/门禁/符号核对）`_release\`（发布）`_decomp\`（分版本反编译 + `dump.ps1`/`diff.ps1`）
-- 文档：`docs\`（跨仓）· 各仓 `docs\`（专属）· 入口 `docs\README.md`
-- 知识库：`game-kb\`（条目化证据库，**独立 git 仓**）/ `docs\游戏资料索引.md`（源码 + kit 查法索引）/ `ObsidianVault\`（方法论笔记）/ `probably stolen 1.0.0\`（游戏源码，**永不上云**）
-- 外部资料：`mod模板\`（可构建脚手架，`scripts\new-mod.ps1` 生成新仓）/ `templates\ModProject\`（官方壳结构母版，占位不可构建）/ `probably-stolen-modding-main\`（官方 kit）/ `开发者提示词指南\`（外部教材）/ `何小鲁框架正式版本\`（他人框架副本，其 `docs\`/`knowledge\` 只服务该目录自身，工作区主链以 `docs\` 为准）
-- 探针/临时/本地归档（`_` 前缀 = 可随时重建）：`_perkanalyze\` `_refpack\` `_sigprobe\` `_probe_api\` `_review\` `_archive\`；`ItemDump\`（运行时导出，可重跑再生）
+## Compatibility
+
+Tested together with Item Stacking, Container Manager, Item Details and Water Machine Fix.
+Filled containers are frozen while stacked (same rule as vanilla liquid containers).
+Item Details keeps its water analysis for ordinary bottles; this mod keeps its own tooltip
+for its two items.
+
+## Build from source
+
+Requires the .NET SDK and a copy of the game's `Managed\` folder for assembly references
+(see `MegaTank.csproj` for the paths).
+
+```bash
+dotnet build MegaTank.csproj -c Release
+dotnet run --project tests/PureCheck/PureCheck.csproj   # 49 pure-logic assertions
+```
+
+> The optional symbol check compares game API usage against a local decompiled copy
+> (`-p:DecompDir=<path>`); it is skipped automatically when that copy is absent.
+
+## License
+
+**MPL 2.0** — see [`LICENSE`](LICENSE). Attribution and third-party notices are in [`NOTICE`](NOTICE).
+
+A large part of this project (code, artwork and text) was produced with **generative AI
+assistance** and then reviewed and play-tested by a human. Scope, quality notes and the
+copyright position are described in [`AI-DISCLOSURE.md`](AI-DISCLOSURE.md).
+
+## Credits / disclaimer
+
+- *Probably Stolen* and its assets belong to Questing Goose Studio. This is an unofficial
+  community mod, not affiliated with or endorsed by the developer. No game assets are
+  redistributed, and no third-party libraries are bundled (`0Harmony` / `Newtonsoft.Json`
+  come with the game).
+- Workshop page: <https://steamcommunity.com/sharedfiles/filedetails/?id=3842872840>

@@ -1,0 +1,39 @@
+Mega Water Tank (巨型水箱)
+Copyright (c) 2026 Heto-XD
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+--------------------------------------------------------------------------------
+Source code (Source Code Form)
+--------------------------------------------------------------------------------
+
+    https://github.com/Heto-XD/MegaWaterTank
+
+Compiled builds of this mod are distributed in Executable Form on the Steam
+Workshop. The corresponding Source Code Form is the repository above.
+If you received a build and cannot reach that URL, open an issue on the
+repository (or the Workshop page) and a copy will be provided.
+
+--------------------------------------------------------------------------------
+Third-party components
+--------------------------------------------------------------------------------
+
+* HarmonyX (`0Harmony.dll`) and `Newtonsoft.Json.dll` are provided by the game
+  itself and are NOT bundled with this mod. No third-party libraries are
+  redistributed here.
+* No assets from the game "Probably Stolen" are redistributed. The game, its
+  name and its assets belong to Questing Goose Studio. This mod is an
+  unofficial community add-on and is not affiliated with or endorsed by the
+  developer or publisher.
+* Item artwork in `Textures/Items/` was produced for this mod (generated with
+  the help of AI tooling and then edited); see AI-DISCLOSURE.md.
+
+--------------------------------------------------------------------------------
+AI-generated content
+--------------------------------------------------------------------------------
+
+A large part of this project (code, documentation and artwork) was produced
+with generative AI assistance. See AI-DISCLOSURE.md for the scope, the
+limitations and the licensing position of AI-assisted parts.

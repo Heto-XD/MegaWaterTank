@@ -1,0 +1,26 @@
+# Mega Water Tank · Русский (формат загрузчика: key,value)
+megatank.item.tank.name,Мега-бак для воды
+megatank.item.tank.desc,Очень большой бак для воды с 16 слотами под вставные ячейки. Вода в нём настоящая: гидропоника и очистители её видят.
+megatank.item.cell.name,Ячейка бака
+megatank.item.cell.desc,Вставляется в Мега-бак и увеличивает его объём. Может использоваться и как отдельная канистра.
+megatank.tooltip.hint,Состав проверяется сканером воды
+megatank.tooltip.cells,Ячейки {0} / {1}
+megatank.tooltip.total,Всего {0} / {1} мл
+megatank.phone.name,Водная лавка Хэтао
+megatank.phone.greeting,Мы продаём только воду. Ничего больше.
+megatank.phone.offer,Баки и ячейки есть в списке. Берите столько, сколько выдержит ваш магазин.
+megatank.svc.tab,Вода
+megatank.svc.subtitle,Вода
+megatank.svc.tank.title,Мега-бак для воды
+megatank.svc.tank.desc,Доставляет один мега-бак и одну ячейку (всего 3,8 т). Можно покупать повторно.
+megatank.svc.cell.title,Дополнительная ячейка
+megatank.svc.cell.desc,Доставляет одну ячейку бака (1,9 т). Можно покупать повторно — заполните все 16 слотов.
+megatank.svc.repeat,Можно покупать повторно
+megatank.svc.expand.title,Расширить объём
+megatank.svc.expand.desc,Навсегда увеличивает объём каждого бака и ячейки на 100 л. Сейчас {0} л -> следующий {1} л (предел {2} л). Действует на все контейнеры сразу. Можно покупать повторно.
+megatank.svc.expand.desc.maxed,Достигнут предел {0} л, все контейнеры заполнены до максимума.
+megatank.svc.expand.maxed,Достигнут предел {0} л
+
+megatank.cfg.sec.diagnostics,Диагностика
+megatank.cfg.verbose,Подробные логи
+megatank.cfg.verbose.tip,Выкл. по умолчанию · Включает логи инициализации, патчей и регистрации предметов. Для отладки.

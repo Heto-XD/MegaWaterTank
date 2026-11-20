@@ -1,0 +1,129 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- <ModName> —— 官方 Mod API 正式版（Probably Stolen 1.0.0，Mono）。
+       单 DLL：源码并入；无 Core.dll / pdb。
+       部署：Mods\megatank\<AssemblyName>.dll + manifest.xml + Localization\。 -->
+
+  <PropertyGroup>
+    <AssemblyName>MegaTank</AssemblyName>
+    <RootNamespace>MegaTank</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == '' and '$(GamePath)' != ''">$(GamePath)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">D:\SteamLibrary\steamapps\common\Probably Stolen</GameDir>
+    <ManagedDir>$(GameDir)\Probably Stolen_Data\Managed</ManagedDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- tests\ 是独立的控制台自检工程，不能编进 mod 程序集 -->
+    <Compile Include="**\*.cs" Exclude="bin\**\*.cs;obj\**\*.cs;tests\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(ManagedDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ManagedDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 版本同步门禁（0.8.2 启用）：manifest <ModVersion> / src\Core\Ids.cs 的 Ids.Version /
+       release.profile.json / 两份 PlayerReadme 头部必须一致，漏一处即断构建。
+       与 PowerManager 等 6 个仓同款门禁；本仓脚本多校验两个 Readme 头部。 -->
+  <Target Name="CheckVersionSync" BeforeTargets="CopyToMods">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\check-version-sync.ps1&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
+  <!-- 玩家文档三件套（硬性规范：..\docs\玩家文档规范.md）。派生工程须同时复制 scripts\check-player-docs.ps1。
+       三件套放仓库根：PlayerReadme.md / PlayerReadme.en.md / CHANGELOG.md，随 dll 部署进 Mods\megatank\。 -->
+  <Target Name="CheckPlayerDocs" BeforeTargets="Build">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\check-player-docs.ps1&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
+  <!-- 依赖符号核对（P1b-08）：游戏热修改名会让延迟挂载的补丁静默失效，
+       所以在构建期就挡住。清单在 _modkit\lists\megatank.txt，随工作区维护。
+       显式指定反编译目录：脚本按名字排序会把 1.0.0.8 当成"比 1.0.0.16 新"（字符串序）。 -->
+  <PropertyGroup>
+    <!-- 开源仓里没有反编译目录：默认留空，符号核对自动跳过（本机可在命令行传 -p:DecompDir=...） -->
+    <DecompDir Condition="'$(DecompDir)' == ''">$(MSBuildProjectDirectory)\..\_decomp</DecompDir>
+  </PropertyGroup>
+
+  <Target Name="CheckSymbols" AfterTargets="Build"
+          Condition="'$(SkipSymbolCheck)' != 'true' And Exists('$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1') And Exists('$(DecompDir)')">
+    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1&quot; -List &quot;$(MSBuildProjectDirectory)\..\_modkit\lists\megatank.txt&quot; -GameSource &quot;$(DecompDir)&quot;" />
+  </Target>
+
+  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(SkipDeploy)' != 'true' And Exists('$(GameDir)') And Exists('$(GameDir)\Mods')">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\manifest.xml')"
+           Text="官方加载器红线：找不到 manifest.xml（$(MSBuildProjectDirectory)\manifest.xml）。" />
+    <Delete Files="$(GameDir)\Mods\megatank\MegaTank.pdb;$(GameDir)\Mods\megatank\MegaTank.Core.dll" TreatErrorsAsWarnings="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\Mods\megatank" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\manifest.xml" DestinationFolder="$(GameDir)\Mods\megatank" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\PlayerReadme.md;$(MSBuildProjectDirectory)\PlayerReadme.en.md;$(MSBuildProjectDirectory)\CHANGELOG.md"
+          DestinationFolder="$(GameDir)\Mods\megatank" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$(GameDir)\Mods\megatank\Localization" />
+    <!-- 贴图随 mod 部署：ModLoader 扫 Textures/Items/*.png -->
+    <ItemGroup>
+      <ModTextures Include="$(MSBuildProjectDirectory)\Textures\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModTextures)" DestinationFiles="@(ModTextures->'$(GameDir)\Mods\megatank\Textures\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Localization\zh.csv;$(MSBuildProjectDirectory)\Localization\en.csv;$(MSBuildProjectDirectory)\Localization\ru.csv"
+          DestinationFolder="$(GameDir)\Mods\megatank\Localization" SkipUnchangedFiles="true" />
+    <!-- 工坊预览图随包部署（与工作区其它 mod 一致；上传时 previewfile 仍指向同级文件） -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\preview.png" DestinationFolder="$(GameDir)\Mods\megatank"
+          SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\preview.png')" />
+    <!-- 许可证与 AI 声明随包分发：工坊包只有 DLL，接收方必须能看到许可来源（MPL §3.2） -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\LICENSE;$(MSBuildProjectDirectory)\NOTICE;$(MSBuildProjectDirectory)\AI-DISCLOSURE.md"
+          DestinationFolder="$(GameDir)\Mods\megatank" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

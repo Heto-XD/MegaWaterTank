@@ -1,0 +1,26 @@
+# 巨型水箱 · 简体中文（官方加载器格式：key,value；# 开头为注释）
+megatank.item.tank.name,巨型水箱
+megatank.item.tank.desc,超大容量储水装置，可插入 16 个内胆扩容。里面装的是真实的水，能被水培机和净水设备识别。
+megatank.item.cell.name,水箱内胆
+megatank.item.cell.desc,插进巨型水箱的槽位以扩容；也可以单独当水壶使用。
+megatank.tooltip.hint,成分请用水质检测仪查看
+megatank.tooltip.cells,内胆 {0} / {1}
+megatank.tooltip.total,合计 {0} / {1} ml
+megatank.phone.name,核桃水商
+megatank.phone.greeting,这里只卖水，不卖别的东西。
+megatank.phone.offer,水箱和内胆都在单子上，买多少看你店的胃口。
+megatank.svc.tab,储水
+megatank.svc.subtitle,储水
+megatank.svc.tank.title,巨型水箱
+megatank.svc.tank.desc,送一个巨型水箱和一个内胆（合计 3.8 吨容量）。可以重复购买。
+megatank.svc.cell.title,追加内胆
+megatank.svc.cell.desc,送一个水箱内胆（1.9 吨）。可以重复购买，用来填满水箱的 16 个槽位。
+megatank.svc.repeat,可重复购买
+megatank.svc.expand.title,扩容水箱
+megatank.svc.expand.desc,把水箱和内胆的容量永久提升 100 L。当前 {0} L → 下一档 {1} L（上限 {2} L）。全部容器同时生效，可重复购买。
+megatank.svc.expand.desc.maxed,已到上限 {0} L，全部容器都已满容量，无法继续扩建。
+megatank.svc.expand.maxed,已扩容至上限 {0} L
+
+megatank.cfg.sec.diagnostics,诊断
+megatank.cfg.verbose,详细日志
+megatank.cfg.verbose.tip,默认关 · 开启后输出初始化、补丁安装、物品注册等诊断日志；排障用

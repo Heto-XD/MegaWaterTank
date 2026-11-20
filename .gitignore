@@ -1,86 +1,24 @@
-# Obsidian vault (ObsidianVault/)：笔记入库，运行时状态与第三方插件不入库
-ObsidianVault/.obsidian/plugins/
-ObsidianVault/.obsidian/workspace.json
-ObsidianVault/.obsidian/workspace-mobile.json
-ObsidianVault/.trash/
-
-# Build artifacts
+# 构建产物
 bin/
 obj/
+*.pdb
+*.dll
 
-# IDE / tooling junk
+# 本地配置与部署（不进入仓库）
+release.profile.json
+release.confirmation.local.json
+Localization/*.csv.bak
+*.local.json
+
+# IDE
 .vs/
+.vscode/
 *.user
 *.suo
 
-# Unity / MelonLoader
-*.tmp
-*.log
-
-# OS
+# 系统
 .DS_Store
 Thumbs.db
 
-# User secrets
-usersecrets/
-.env
-
-# 2026-10-26 E2 索引瘦身防回归（根锚定，不影响子仓同名路径）
-# IDE 状态目录（曾被跟踪 15 文件；bin/obj 同上级已忽略）
-/.vs/
-# 空 git init 残留备份（曾被跟踪 18 文件）
-/.git.bak-empty-init/
-# 根 dist 发布 zip（曾入库 10 个；zip 由 _release\publish.ps1 随时重生成，不入库）
-/dist/*.zip
-
-# 2026-10-28 防回归：脚本误用 %SystemDrive% 字面量（PowerShell 不展开 %VAR%）时
-# 会在仓根生成同名垃圾目录（本次清掉一份 Windows 字体缓存 db）。根锚定，不影响子仓。
-/%SystemDrive%/
-
-# 2026-10-29: full game source (local only, never commit)
-/probably stolen 1.0.0/
-_decomp/
-
-# 本地归档（二进制备份，不入库）
-_archive/
-
-# ── 2026-11-02 快照清理：本地工具 / 可再生产物 / 独立仓，均不入工作区仓 ──
-# 反编译与调试工具（第三方二进制，可随时重下，体积大）
-/ILSpy/
-/dnSpy/
-/Notepad++/
-# 运行时导出的数据（可重跑脚本再生：analyze_runtime_tags.py / build_item_table.py 等）
-/ItemDump/
-/_refpack/items/
-# 知识库：**独立 git 仓**（有自己的历史与远端），父仓只引用不跟踪
-/game-kb/
-# 他人框架副本（第三方文档，不入本地仓）
-/何小鲁框架正式版本/
-# 一次性备份包（原目录已删除，包放库外）
-/GroundWindowDrag_backup_*.zip
-# 2026-11-02 NPC 档案抽取中间件（原始 JSON/TSV 可由 _probe_api\npc-extract.ps1 重跑再生；入库的只有 docs 底账与成品）
-/_probe_api/npc_types_generated.json
-/_probe_api/npc_methods.json
-/_probe_api/npc_recs.json
-/_probe_api/npc_recs_enriched.json
-/_probe_api/npc_rows.tsv
-# 2026-11-02 NPC 档案 / 本地化提取会话的中间件（游戏二进制派生 + 可重跑，不入库）
-/_probe_api/clientname_zh.json
-/_probe_api/clientname_en.json
-/_probe_api/npc_eligible.json
-/_probe_api/npc_groupA*.json
-/_probe_api/npc_groupB.json
-/_probe_api/_lct.py
-/_probe_api/clientname_zh.bin
-
-# 2026-11-17: Python 分析脚本缓存不入库
-__pycache__/
-*.pyc
-
-# 2026-11-20：工作临时产物与一次性备份，不入库（根锚定，不影响子仓）
-/_tmp/
-/_review/
-/_release/modules.bak-*/
-
-# 发布工具用的目录别名（junction → MegaWaterTank，仅本机）
-megatank/
+# 预览图用的第三方素材（作者吉祥物，不随仓库公开）
+tools/assets/
