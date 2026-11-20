@@ -14,6 +14,10 @@
 - 扩容服务单价与外框不变（150/次），满级总投入变为 150 × 18 = 2,700 元；文案里的数字全部由代码算，
   服务页仍显示「当前 X L → 下一档 Y L（上限 1900 L）」。
 - 文档同步：manifest 描述、两份 PlayerReadme（起步 100 L / 可买 18 次）、`docs` 与 `STATUS`。
+- **顺带加固**：`TankTooltip` 的 Prefix 改为 `Priority.First`。Item Details（工坊 `3828868413`）在同一个
+  `WaterHelper.CreateWaterContainerTooltip` 上也挂了 Prefix（`WaterContainerLine.Skip`，对所有可分析液体容器
+  `return false`），同优先级下谁先跑由装载顺序决定 ⇒ 本 mod 的 tooltip 可能被接管。现在主池/内胆固定走本 mod 格式，
+  其它容器一律 `return true` 放行给 Item Details。
 
 > 迁移只做一次（`cap_scheme` 已写就不再碰）；万一迁移失败会打 `扩容口径迁移失败（按现有等级继续）`
 > 并照常进档——此时老档容量会比原来小，重新买几档即可补上。

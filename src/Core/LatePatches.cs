@@ -117,8 +117,16 @@ namespace MegaTank
                 return false;
             }
 
-            _harmony.Patch(target,
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(TankTooltip), nameof(TankTooltip.Prefix))));
+            // ★ Priority.First：ItemDetails（工坊 3828868413）也在同一方法上挂了 Prefix
+            //   （`WaterContainerLine.Skip`，对**所有**可分析的液体容器 return false），
+            //   两边都是 400 时谁先跑取决于装载顺序 ⇒ 我们的主池/内胆 tooltip 可能被它接管。
+            //   这两个 item id 是本 mod 独有的，所以抢先执行、只对自家物品生效：
+            //   其它容器一律 return true，ItemDetails 照常处理（不影响它的功能）。
+            var hm = new HarmonyMethod(AccessTools.Method(typeof(TankTooltip), nameof(TankTooltip.Prefix)))
+            {
+                priority = Priority.First
+            };
+            _harmony.Patch(target, prefix: hm);
 
             return Verify(target, "CreateWaterContainerTooltip");
         }
