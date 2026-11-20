@@ -41,10 +41,21 @@ namespace MegaTank
                 string hex = WaterHelper.GetLiquidContainerColor(item);
                 Color tint = MetaHelper.HexToColor(hex);
 
-                var list = new List<ItemSpriteModifier>(1)
+                // 两层（对齐原版 WaterHelper.InitLiquidContainerItem 的写法，0.11.0）：
+                //   ① 水体：灰度 mask × 水质色（`color` 会被 image.color 乘上去）
+                //   ② 高光：**不带颜色**（color 留 default/白），玻璃反光与液面亮点保持白色，
+                //      不会被水色染成"亮色条"——单层版本就是因此显得扁平、横纹像条形码。
+                var list = new List<ItemSpriteModifier>(2)
                 {
                     new ItemSpriteModifier(mask, Vector2.zero, 0, false, 0, false, tint)
                 };
+
+                Sprite hl = TankSprites.Get(TankSprites.HighlightKey(id, bucket));
+                if (hl != null)
+                {
+                    list.Add(new ItemSpriteModifier(hl, Vector2.zero));
+                }
+
                 return list;
             }
             catch (Exception e)

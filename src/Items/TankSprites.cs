@@ -30,6 +30,19 @@ namespace MegaTank
             return itemId + "_liquid_" + (bucket * 10).ToString("000");
         }
 
+        /// <summary>
+        /// 高光层键：mega_water_tank_hl_070 …
+        /// <para>
+        /// 对齐原版 `WaterHelper.InitLiquidContainerItem` 的双层写法：
+        /// 水体层带 `ItemSpriteModifier.color`（被水质色乘），高光层**不带颜色**（原样叠加）。
+        /// 这样玻璃反光不会被水色染成"亮色条"，这也是 v8 单层看起来发平的根因。
+        /// </para>
+        /// </summary>
+        internal static string HighlightKey(string itemId, int bucket)
+        {
+            return itemId + "_hl_" + (bucket * 10).ToString("000");
+        }
+
         private static LoadedMod Self()
         {
             var mods = ModLoader.Mods;
@@ -119,6 +132,8 @@ namespace MegaTank
                 {
                     tried++;
                     if (Rescale(mod, LiquidKey(items[i], b), CellsWide(items[i]))) ok++;
+                    tried++;
+                    if (Rescale(mod, HighlightKey(items[i], b), CellsWide(items[i]))) ok++;
                 }
             }
 
