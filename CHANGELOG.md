@@ -1,5 +1,21 @@
 # 更新日志
 
+## 0.9.2 — 2026-11-20
+
+**修 0.9.1 没真正去掉冷却**（实机反馈：面板仍显示「冷却（1天）」，买一次还得等一天）。
+
+- **根因**：`SyncExpandState` 改的是 `NetworkUpgrade.GetDefinition(id)` 返回的**静态模板**，
+  而 UI（`WildNetworkUI.ShowInfo` / `RefreshSlot`）读的是
+  `PlayerStore.Instance.networkUpgrade[id]` 这个**运行时副本**。
+  运行时副本由 `CopyForRuntime()` 在首次注册时一次性拷出、之后随存档走，
+  `RegisterModUpgrade` 只在 key 不存在时才 Add ⇒ **已存在的副本永远不跟模板更新**。
+  所以老存档里 `cooldownDuration=1` 一直留着，改模板完全无效。
+- **修法**：新增 `Services.Runtime()` 取运行时副本，`SyncExpandState` / `GrantExpand`
+  全部改成操作它；同时把模板也同步一份（新存档首次注册要从模板拷贝）。
+  另外无条件清零 `cooldownCurrent`——只清 `cooldownDuration` 不够，
+  面板的「冷却（N天）」判定是 `cooldownDuration != 0 && cooldownCurrent != 0`。
+- 教训记入 `docs/LESSONS.md` A8 附二：**官方"模板 / 运行时副本"双层结构，改状态必须改运行时那份**。
+
 ## 0.9.1 — 2026-11-20
 
 **扩容服务取消每日冷却**（用户实机反馈后拍板：本 mod 不需要"按天"这种限制）。

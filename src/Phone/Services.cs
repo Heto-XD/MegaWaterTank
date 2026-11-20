@@ -138,6 +138,40 @@ namespace MegaTank
         /// 万一被点（竞态/其它 mod 改状态），这里直接拒绝且**不扣费**做不到（扣费在官方 UI），
         /// 所以补一次退款并提示。
         /// </summary>
+        /// <summary>
+        /// 取扩容项的**运行时副本**——这是 UI 真正读的那个对象。
+        ///
+        /// ★ 0.9.1 的坑：`NetworkUpgrade.GetDefinition(id)` 返回的是**静态模板**
+        ///   （`definitions` 字典），而 `WildNetworkUI` 全程读
+        ///   `PlayerStore.Instance.networkUpgrade[id]`（`ShowInfo` 的 L492、
+        ///   `RefreshSlot` 的 L396）。运行时副本由 `CopyForRuntime()` 在**首次注册**时
+        ///   一次性拷出、之后随存档走；`RegisterModUpgrade` 只在 key 不存在时才 Add
+        ///   （NetworkUpgrade.cs），**已存在的运行时副本永远不跟着模板更新**。
+        ///   所以老存档里 `cooldownDuration=1` 会一直留着，改模板完全无效
+        ///   （实机表现：日志无"状态已同步"、面板仍写"冷却（1天）"）。
+        ///
+        /// 结论：凡是改 state / cooldownDuration / cooldownCurrent，**必须改运行时副本**；
+        /// 模板只在"新存档第一次注册"时有意义。
+        /// </summary>
+        private static NetworkUpgrade Runtime()
+        {
+            try
+            {
+                var store = PlayerStore.Instance;
+                if (store?.networkUpgrade != null
+                    && store.networkUpgrade.TryGetValue(ExpandSvc, out var rt)
+                    && rt != null)
+                {
+                    return rt;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Once("expand-rt", "取扩容运行时副本失败：" + e.Message);
+            }
+            return NetworkUpgrade.GetDefinition(ExpandSvc);   // 兜底：刚注册还没进存档时
+        }
+
         private static void GrantExpand()
         {
             int lv = Capacity.Upgrade();
@@ -150,7 +184,7 @@ namespace MegaTank
                 {
                     try
                     {
-                        NetworkUpgrade def = NetworkUpgrade.GetDefinition(ExpandSvc);
+                        NetworkUpgrade def = Runtime();
                         if (def != null)
                         {
                             def.state = 1;
@@ -204,23 +238,39 @@ namespace MegaTank
         {
             try
             {
-                NetworkUpgrade def = NetworkUpgrade.GetDefinition(ExpandSvc);
-                if (def == null) return;
+                // ★ 必须改运行时副本，不能改 GetDefinition 返回的静态模板（见 Runtime() 注释）
+                NetworkUpgrade rt = Runtime();
+                if (rt == null) return;
 
                 bool maxed = !Capacity.CanUpgrade;
                 int wantState = maxed ? 2 : 1;
-                int wantCooldown = maxed ? 0 : ExpandCooldownDays;
+                int wantCooldownDur = maxed ? 0 : ExpandCooldownDays;   // 现在两条分支都是 0
+                bool wantRepeatable = maxed;
 
                 bool changed = false;
-                if (def.isRepeatable != maxed) { def.isRepeatable = maxed; changed = true; }
-                if (def.state != wantState) { def.state = wantState; changed = true; }
-                if (def.cooldownDuration != wantCooldown) { def.cooldownDuration = wantCooldown; changed = true; }
-                if (maxed && def.cooldownCurrent != 0) { def.cooldownCurrent = 0; changed = true; }
+                if (rt.isRepeatable != wantRepeatable) { rt.isRepeatable = wantRepeatable; changed = true; }
+                if (rt.state != wantState) { rt.state = wantState; changed = true; }
+                if (rt.cooldownDuration != wantCooldownDur) { rt.cooldownDuration = wantCooldownDur; changed = true; }
+                // 无冷却 ⇒ 残留的冷却计数必须清掉，否则面板仍会显示"冷却（N天）"
+                if (rt.cooldownCurrent != 0) { rt.cooldownCurrent = 0; changed = true; }
+
+                // 静态模板也同步一份：新存档首次注册会从它 CopyForRuntime()
+                try
+                {
+                    NetworkUpgrade tpl = NetworkUpgrade.GetDefinition(ExpandSvc);
+                    if (tpl != null && !ReferenceEquals(tpl, rt))
+                    {
+                        tpl.isRepeatable = wantRepeatable;
+                        tpl.cooldownDuration = wantCooldownDur;
+                    }
+                }
+                catch { }
 
                 if (changed)
                 {
-                    Log.Info("扩容服务状态已同步：满级=" + maxed
-                        + "（state=" + wantState + " cooldownDuration=" + wantCooldown + "）");
+                    Log.Info("扩容服务状态已同步（运行时副本）：满级=" + maxed
+                        + " state=" + rt.state + " cooldownDuration=" + rt.cooldownDuration
+                        + " cooldownCurrent=" + rt.cooldownCurrent);
                     try { WildNetworkUI.RefreshAll(); } catch { }
                 }
             }
