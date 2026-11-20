@@ -1,6 +1,6 @@
 # Mega Water Tank
 
-Version: 0.9.0 · 2026-11-20
+Version: 0.9.1 · 2026-11-20
 
 ## What it is
 
@@ -20,7 +20,7 @@ tap it, and the last line opens the service page. Order from the "Water" tab:
 | Extra Tank Cell | 250 | One cell (0.9 t to start) |
 | **Expand Capacity** | **150** | +100 L for every container, 10 times |
 
-All three are **repeatable**: bought today, available again tomorrow. Deliveries go to the back room.
+Tanks and cells are **repeatable once a day**; **expansion has no cooldown** — buy it back to back. Deliveries go to the back room.
 
 **Expand Capacity** works on your whole setup at once: each purchase makes your tank
 **and every cell** 100 L larger — no need to upgrade them one by one. Ten purchases reach

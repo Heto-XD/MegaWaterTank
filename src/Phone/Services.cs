@@ -10,6 +10,8 @@ namespace MegaTank
     ///     只在进档后（OnGameLoadedLate）调，且必须幂等（`GetDefinition` 判存在）。
     ///   · `cooldownDays > 0` ⇒ 官方自动设 `isRepeatable = true` + `cooldownDuration = N`，
     ///     买完当天冷却、次日恢复。这就是"可重复购买"，不需要 hack。
+    ///     **但扩容服务故意用 cooldownDays=0**（无冷却，当天可连买）——那种情况下
+    ///     Unlock() 不会把 state 打回 1，必须自己复位，见 ExpandCooldownDays 的注释。
     ///   · 扣款顺序由 `WildNetworkUI.OnUseClicked` 固定：先恩惠（wildFavor），不足扣现金。
     ///   · 发放走 `ModHelper.SpawnItem` + `MoveItemToBackCounter`（与官方 `water_guide` 同路径）。
     /// </summary>
@@ -34,8 +36,19 @@ namespace MegaTank
         /// </summary>
         internal const int ExpandCost = 150;
 
-        /// <summary>扩容服务的冷却天数（可重复购买靠它；满级时会被 SyncExpandState 临时置 0）。</summary>
-        internal const int ExpandCooldownDays = 1;
+        /// <summary>
+        /// 扩容服务的冷却天数：**0 = 不设冷却，可以当天连买**（用户 2026-11-20 拍板）。
+        ///
+        /// 代价与对策（源码推导，动它之前先看这段）：
+        ///   `AddNetworkUpgrade` 里 `cooldownDays=0` ⇒ `isRepeatable=false` + `cooldownDuration=0`
+        ///   （ModHelper.cs:338-339）。而 `Unlock()`（NetworkUpgrade.cs:882-896）只有在
+        ///   `cooldownDuration != 0` 时才会把 `state` 从 2 打回 1 ⇒ **不设冷却的话，
+        ///   买一次后 state 停在 2，IsUnlocked() 恒 true，按钮从此置灰再也买不了**。
+        ///   对策：`GrantExpand` 在购买成功后手动把 state 复位成 1（未满级时），
+        ///   满级时交给 `SyncExpandState` 保持 2（= 置灰）。onUnlock 是在 Unlock() 内部
+        ///   `state = 2` 之后才回调的（L884→L885），所以覆盖得住。
+        /// </summary>
+        internal const int ExpandCooldownDays = 0;
 
         private static bool _done;
 
@@ -130,6 +143,26 @@ namespace MegaTank
             int lv = Capacity.Upgrade();
             if (lv >= 0)
             {
+                // 无冷却（ExpandCooldownDays=0）时官方 Unlock() 不会把 state 打回 1，
+                // 买完就停在 2 ⇒ IsUnlocked() 恒 true ⇒ 按钮置灰、再也买不了。
+                // 这里手动复位：未满级回到可购买态(1)，满级留给 SyncExpandState 设成 2。
+                if (Capacity.CanUpgrade)
+                {
+                    try
+                    {
+                        NetworkUpgrade def = NetworkUpgrade.GetDefinition(ExpandSvc);
+                        if (def != null)
+                        {
+                            def.state = 1;
+                            def.cooldownCurrent = 0;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Once("expand-reset", "扩容后复位可购买态失败（可能需重进电话）：" + e.Message);
+                    }
+                }
+
                 SyncExpandState();
                 return;
             }
