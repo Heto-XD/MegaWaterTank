@@ -1,10 +1,10 @@
 # Mega Water Tank
 
-Version: 0.9.6 · 2026-11-20
+Version: 0.10.0 · 2026-11-20
 
 ## What it is
 
-A water tank that **starts at 0.9 t** and grows through the expansion service up to 1.9 t.
+A water tank that **starts at 0.1 t (100 L)** and grows through the expansion service up to 1.9 t.
 It takes up to 16 insert cells that grow the same way (32.3 t in total when maxed out).
 The water inside is **real**: hydroponics, purifiers and the water scanner all read it
 through the vanilla rules, no extra setup needed.
@@ -16,14 +16,14 @@ tap it, and the last line opens the service page. Order from the "Water" tab:
 
 | Service | Price | You get |
 |---|---:|---|
-| Mega Water Tank | 500 | One tank + one cell (1.8 t to start) |
-| Extra Tank Cell | 250 | One cell (0.9 t to start) |
-| **Expand Capacity** | **150** | +100 L for every container, 10 times |
+| Mega Water Tank | 500 | One tank + one cell (200 L to start) |
+| Extra Tank Cell | 250 | One cell (100 L to start) |
+| **Expand Capacity** | **150** | +100 L for every container, 18 times (100 to 1900 L) |
 
 Tanks and cells are **repeatable once a day**; **expansion has no cooldown** — buy it back to back. Deliveries go to the back room.
 
 **Expand Capacity** works on your whole setup at once: each purchase makes your tank
-**and every cell** 100 L larger — no need to upgrade them one by one. Ten purchases reach
+**and every cell** 100 L larger — no need to upgrade them one by one. Eighteen purchases reach
 the 1.9 t ceiling; the button then greys out and reads "Fully expanded to 1900 L".
 Any container you obtain later already carries your current level.
 

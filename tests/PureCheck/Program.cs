@@ -64,6 +64,21 @@ namespace MegaTank.PureCheck
             Check("Clamp(11,0,10)=10", WaterMath.Clamp(11, 0, 10), 10);
             Check("Clamp(5,0,10)=5", WaterMath.Clamp(5, 0, 10), 5);
 
+            // ── 容量阶梯（0.10.0 口径）：100 L 起步 / 每档 +100 L / 18 档满级 1900 L ──
+            Check("CapacityAt(0)=100L", Ids.CapacityAt(0), 100000);
+            Check("CapacityAt(1)=200L", Ids.CapacityAt(1), 200000);
+            Check("CapacityAt(max)=1900L", Ids.CapacityAt(Ids.MaxExpandLevel), 1900000);
+            Check("CapacityMl=1900L", Ids.CapacityMl, 1900000);
+            Check("MaxExpandLevel=18", Ids.MaxExpandLevel, 18);
+            Check("LegacyLevelOffset=8", Ids.LegacyLevelOffset, 8);
+            // 老档迁移等价性：旧公式 900 + 100×L 必须等于新公式 100 + 100×(L+8)
+            for (int lv = 0; lv <= 10; lv++)
+            {
+                Check("迁移 Lv." + lv + "→Lv." + (lv + Ids.LegacyLevelOffset),
+                      Ids.CapacityAt(lv + Ids.LegacyLevelOffset),
+                      Ids.LegacyBaseCapacityMl + lv * Ids.ExpandStepMl);
+            }
+
             Console.WriteLine();
             Console.WriteLine("TOTAL passed=" + _passed + " failed=" + _failed);
             return _failed == 0 ? 0 : 1;

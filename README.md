@@ -42,7 +42,7 @@
 # 只验编译，不碰游戏目录
 dotnet build MegaTank.csproj -c Release -p:SkipDeploy=true
 
-# 纯函数边界测试（32 条断言，dotnet run 退出码即结果）
+# 纯函数边界测试（49 条断言，dotnet run 退出码即结果）
 dotnet run --project tests/PureCheck/PureCheck.csproj
 
 # 构建期自动门禁（no skip）：版本同步 → 玩家文档三件套 → 符号核对 → CopyToMods

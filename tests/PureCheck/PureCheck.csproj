@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="..\..\src\Core\WaterMath.cs" Link="WaterMath.cs" />
+    <Compile Include="..\..\src\Core\Ids.cs" Link="Ids.cs" />
   </ItemGroup>
 
 </Project>

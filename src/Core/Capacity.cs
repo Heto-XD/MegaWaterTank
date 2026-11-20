@@ -11,7 +11,7 @@ namespace MegaTank
     ///   **随存档保存**，不是跨存档全局。所以：
     ///     · 同一个存档内，所有主池/内胆共享一个等级（买一次全部变大）；
     ///     · 不同存档各算各的；
-    ///     · 新档从 0 档（900 L）开始。
+    ///     · 新档从 0 档（100 L）开始。
     ///
     /// 三条纪律：
     ///   1. **只在进档后可读写**：ModDataStore 在没读档时返回 null（官方会打 Warning），
@@ -24,6 +24,11 @@ namespace MegaTank
     internal static class Capacity
     {
         private const string LevelKey = "expand_level";
+
+        /// <summary>容量口径版本。缺失/小于当前值 ⇒ 进档时按 <see cref="EnsureScheme"/> 迁移一次。</summary>
+        private const string SchemeKey = "cap_scheme";
+
+        private const int SchemeVersion = 2;
 
         private static int _cachedLevel;
         private static bool _cacheValid;
@@ -89,6 +94,40 @@ namespace MegaTank
             int applied = ApplyAll();
             Log.Info("扩容至 Lv." + next + "（" + Ids.CapacityAt(next) + " ml），已应用到 " + applied + " 个容器");
             return next;
+        }
+
+        /// <summary>扩容口径迁移（0.9.x → 0.10.0）：老档等级 +8 保住容量，只做一次。</summary>
+        internal static void EnsureScheme()
+        {
+            try
+            {
+                if (ModHelper.GetModDataInt(Ids.ModId, SchemeKey, 0) >= SchemeVersion) return;
+
+                int level = ModHelper.GetModDataInt(Ids.ModId, LevelKey, 0);
+                if (level < 0) level = 0;
+                if (level > Ids.MaxExpandLevel) level = Ids.MaxExpandLevel;
+
+                int old = level;
+                if (level > 0)
+                {
+                    level = Math.Min(level + Ids.LegacyLevelOffset, Ids.MaxExpandLevel);
+                    if (level != old) ModHelper.SetModDataInt(Ids.ModId, LevelKey, level);
+                }
+
+                ModHelper.SetModDataInt(Ids.ModId, SchemeKey, SchemeVersion);
+                Invalidate();
+
+                if (level != old)
+                {
+                    Log.Info("扩容等级已迁移到新口径：Lv." + old + " → Lv." + level +
+                             "（容量保持 " + Ids.CapacityAt(level) + " ml）");
+                }
+            }
+            catch (Exception e)
+            {
+                // 迁移失败不阻塞进档：按当前等级照常算（可能比旧容量小，但功能正常）
+                Log.Once("cap-scheme", "扩容口径迁移失败（按现有等级继续）：" + e.Message);
+            }
         }
 
         /// <summary>

@@ -18,8 +18,10 @@ namespace MegaTank
             Step("补丁", LatePatches.Install);
             Step("电话名片", PhoneCard.Install);
 
-            // 扩容等级：先清缓存（新档/读档可能是另一个值），再让老容器对齐当前档位。
+            // 扩容等级：先迁移老档口径（0.9.x → 0.10.0，等级 +8 保住容量），
+            // 再清缓存，最后让老容器对齐当前档位。
             // 放在服务注册之前——服务注册要看 CanUpgrade 决定满级置灰。
+            Step("扩容口径", Capacity.EnsureScheme);
             Step("扩容等级", () =>
             {
                 Capacity.Invalidate();
@@ -41,7 +43,9 @@ namespace MegaTank
             Step("本地化闸", Text.MarkReady);
             Step("新档电话名片", PhoneCard.Install);
 
-            // 新档没有 ModData ⇒ 0 档。清缓存回到 900 L，并把已生成的物品对齐。
+            // 新档没有 ModData ⇒ 0 档（100 L）。先落一次口径标记，避免下次进档误当成老档，
+            // 再把已生成的物品对齐。
+            Step("新档扩容口径", Capacity.EnsureScheme);
             Step("新档扩容等级", () =>
             {
                 Capacity.Invalidate();
