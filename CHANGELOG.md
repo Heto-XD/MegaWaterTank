@@ -1,5 +1,24 @@
 # 更新日志
 
+## 0.8.3 — 2026-11-20
+
+**修「存读档后水培系统窗口被撑大」**（截图反馈：水槽变成一根细长竖条、整个机器窗口拉高）。
+
+- **根因**：`TankSprites.ApplyBase`（读档重贴图）用 `SetSpriteAndShapeFromMod` 设置基础图，
+  而这个官方 API 会**按 sprite 的像素尺寸 ÷ gridSize 反推形状**——我们的基础图是 256×384 px，
+  于是一次就把 shape 从 2×3 污染成 **16×24**，并立刻 `ValidateShapeState()` 广播出去。
+  紧接着的 `SetShape(2×3)` 只修正物品自身，**上层缓存不回滚**：
+  `MachineryIntake` / `MachineryPanel` 的 `requestedWidth/Height` 已被写成 264×392，
+  窗口从此回不去。手动放入不走这条路径，所以**只有存读档后才坏**。
+- **修法**：改用 `SetSprite`（只写 `spriteAtlasPath` / `spritePath` / `spriteChanged` 三个字段，
+  **完全不碰 shape**），形状继续由 `SetShape` 单独给出。`ResolveSpriteByName` 靠
+  `useSpriteFromMod + spriteAtlasPath + spritePath` 取图，三者齐备即可。
+- **验证方式**：新增临时诊断补丁挂 `GameSlotInventory/Intake/Panel.Validate`，
+  实测抓到 `读档后 shape=16x24 → Intake 缓存 264×392 → Row 691×414` 的完整链路，
+  修完后用户实机确认**新档与旧存档均正常**。诊断补丁已在发版前删除。
+- `MachineSlotPatch` 保留（职责缩小为"2×3 物品放进 1×1 槽时槽不长到 2×3"），
+  注释同步厘清它与本次修复的分工。
+
 ## 0.8.2 — 2026-11-20
 
 **配置面板的语言适配**（截图反馈：中文界面里分组是 `DIAGNOSTICS` 大写英文、开关是 `Verbose log`）。

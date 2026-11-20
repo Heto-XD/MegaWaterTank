@@ -161,8 +161,21 @@ namespace MegaTank
         }
 
         /// <summary>
-        /// 给物品设置空瓶基础图 + 固定占格。
-        /// 顺序不能反：SetSpriteAndShapeFromMod 写 spritePath + 置 spriteChanged，再 SetShape 覆盖格数。
+        /// 给物品设置空瓶基础图 + 固定占格。**绝不能用 SetSpriteAndShapeFromMod**（0.8.3 实证）。
+        ///
+        /// 踩坑经过（Player.log 实测，[MTDIAG]）：
+        ///   旧写法是 SetSpriteAndShapeFromMod(...) 然后 SetShape(2×3) 覆盖格数。
+        ///   看起来"先污染后修正"没问题，但 SetSpriteAndShapeFromMod 内部会按 sprite 的
+        ///   **像素 rect ÷ gridSize** 反推形状（256×384 px ÷ 16 = 16×24 格）并调 ValidateShapeState()。
+        ///   那一次广播已经把 modifiedShape 变成 16×24，并沿 Validate 链把
+        ///   MachineryIntake / MachineryPanel 的 requestedWidth/Height 缓存写成 264×392。
+        ///   随后的 SetShape(2×3) 只把物品自身改回来，**上层缓存不会回滚** ⇒
+        ///   读到 32×48 的槽位仍被套进 264×392 的 intake，机器窗口被撑大。
+        ///   手动放入不走这条路径（UncheckedAccept 直接用正确 shape），所以只有存读档后才坏。
+        ///
+        /// 正确做法：SetSprite 只写 spriteAtlasPath / spritePath / spriteChanged 三个字段，
+        /// **完全不碰 shape**；形状用 SetShape 单独给一次。
+        /// ResolveSpriteByName 走 useSpriteFromMod + spriteAtlasPath + spritePath，三者齐备即可正常取图。
         /// </summary>
         internal static void ApplyBase(GameItem item)
         {
@@ -175,8 +188,8 @@ namespace MegaTank
                 return;
             }
 
-            item.useSpriteFromMod = true;   // 读档不恢复此标记，必须显式补（否则图标 ?）
-            item.SetSpriteAndShapeFromMod(Ids.ModId, key);
+            item.useSpriteFromMod = true;          // 读档不恢复此标记，必须显式补（否则图标 ?）
+            item.SetSprite(Ids.ModId, key);        // 只换图，不改 shape
             item.SetShape(item.identifier == Ids.Tank
                 ? new GridShapeBuilder().SetDataFill(Ids.TankW, Ids.TankH)
                 : new GridShapeBuilder().SetDataFill(Ids.CellW, Ids.CellH));

@@ -63,6 +63,9 @@ namespace MegaTank
             }
         }
 
+        /// <summary>当前日志开关状态（诊断补丁等模块按它决定是否打印）。</summary>
+        internal static bool VerboseLog => _verbose != null && _verbose.Value;
+
         private static void OnVerboseChanged(bool value)
         {
             Log.SetVerbose(value);
