@@ -8,7 +8,7 @@
   <ID>megatank</ID>                          <!-- a-z 0-9 _ - .，最多 64 字符，唯一，发布后不可随意变更 -->
   <Name>巨型水箱 / Mega Water Tank</Name>                     <!-- 显示名称，可与 ID 不同 -->
   <Author>核桃</Author>                <!-- 由使用者确认，不要填框架作者 -->
-  <ModVersion>0.11.2</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
+  <ModVersion>0.11.3</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
   <Description>
 大容量储水装置：0.1 吨（100 升）起步的主池 + 16 个内胆槽，满了自动溢出到内胆、不足时自动回补。
 装的是真水，水培机和净水机都认。水色会随水质变化。电话下单、每天可再买，
