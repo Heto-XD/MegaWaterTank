@@ -17,5 +17,6 @@ megatank.svc.cell.title,追加内胆
 megatank.svc.cell.desc,送一个水箱内胆（1.9 吨）。可以重复购买，用来填满水箱的 16 个槽位。
 megatank.svc.repeat,可重复购买
 
+megatank.cfg.sec.diagnostics,诊断
 megatank.cfg.verbose,详细日志
 megatank.cfg.verbose.tip,默认关 · 开启后输出初始化、补丁安装、物品注册等诊断日志；排障用

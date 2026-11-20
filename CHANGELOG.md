@@ -1,5 +1,32 @@
 # 更新日志
 
+## 0.8.2 — 2026-11-20
+
+**配置面板的语言适配**（截图反馈：中文界面里分组是 `DIAGNOSTICS` 大写英文、开关是 `Verbose log`）。
+
+- **分组名按语言显示**：官方 `ConfigEntry.Section` 是 string、在加载期就定死，没法用延迟 lambda。
+  现在 Init 期给「Diagnostics / 诊断」并排字面量（任何字体至少能渲染英文那半，绝不隐形），
+  面板打开前由新增补丁把它改写成当前语言的单语（zh「诊断」/ en "Diagnostics" / ru「Диагностика」）。
+- **开关标签也说中文**：主菜单打开面板时 `OnGameLoadedLate` 还没跑，本地化闸没开 ⇒
+  标签一直按英文兜底。现在打开面板前补开闸，中文玩家看到的是「详细日志」+ 中文说明。
+- **切语言立刻生效**：分组名每次打开面板都按当前语言重算，主菜单里实时切语言不用重启。
+- **安装时机（首版踩坑已修）**：补丁必须挂在 `OnEnable`（加载期），不能等 `OnGameLoadedLate`——
+  主菜单的 Modding 面板**进档前就能打开**，那时补丁还没装，前缀不执行，
+  实机表现为「门禁全绿 + 日志写 5/5 就绪，但面板仍是并排英文」。详见 `docs\LESSONS.md` A6。
+- **实现纪律**：走官方 `ModReflect.Set`（字面成员名，不触发 reflection-external 扫描）；
+  `Section` 只是运行时属性，**不进 `ModConfigs/megatank.json`**，不污染玩家配置；
+  目标方法缺失/签名变更只降级成并排原样，面板照常开。补丁数 4 → 5（仍全部延迟挂载，
+  无 `[HarmonyPatch]` 特性补丁）。
+- **三语补齐**：zh / en / ru 三份 CSV 各新增 `megatank.cfg.sec.diagnostics`。
+- ✅ **实机验证通过**（用户，2026-11-20）：中文「诊断 / 详细日志」、英文「Diagnostics / Verbose log」、
+  俄文「Диагностика / Подробные логи」均正确。
+
+### 工程
+
+- 补齐 `scripts\check-version-sync.ps1` 并在 `MegaTank.csproj` 启用 `CheckVersionSync` 门禁
+  （此前该门禁被注释、脚本也缺，版本同步靠人工核对；现在与其它 6 个 mod 一致，构建期自动拦）。
+- `STATUS.md` 修正陈旧项：部署版本 0.5.1 → 0.8.2；未验证清单按实际进展重排。
+
 ## 0.8.1 — 2026-11-20
 
 **修 0.8.0 配置面板看不到设置项**：`DebugConfig.Init()` 原本挂在进档后（`Boot`），

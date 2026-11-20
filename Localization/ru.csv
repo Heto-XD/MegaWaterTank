@@ -17,5 +17,6 @@ megatank.svc.cell.title,Дополнительная ячейка
 megatank.svc.cell.desc,Доставляет одну ячейку бака (1,9 т). Можно покупать повторно — заполните все 16 слотов.
 megatank.svc.repeat,Можно покупать повторно
 
+megatank.cfg.sec.diagnostics,Диагностика
 megatank.cfg.verbose,Подробные логи
 megatank.cfg.verbose.tip,Выкл. по умолчанию · Включает логи инициализации, патчей и регистрации предметов. Для отладки.

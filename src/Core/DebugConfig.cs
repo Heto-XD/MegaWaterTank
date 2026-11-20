@@ -10,16 +10,22 @@ namespace MegaTank
     ///      `ModConfig.Find(modId)` 判断有没有设置项，只有 `GetConfig()` 创建过实例才为 true。
     ///      放到进档后 ⇒ 主菜单齿轮置灰、点开提示 has no configuration entries（0.8.0 首版踩过）。
     ///      PowerManager / SentinelTracker 同样在 IMod.Init 里 Init 配置。
-    ///   2. **section 必须是字面量**：Define 的 section 参数在 Init 期就要给，若走 Text.T
+    ///   2. **section 必须是编译期字面量**：Define 的 section 参数在 Init 期就要给，若走 Text.T
     ///      会在启动阶段读 locale，把游戏本地化初始化搅坏并连累同一次启动里的其它 mod。
     ///      label / tooltip 是 Func&lt;string&gt;（面板打开时才调），用 lambda 包 Text.T；
     ///      Text.T 自带 Ready 闸，未就绪返回英文，安全。
-    ///   3. 不做"切语言免重启改写 section"——那需要 ModReflect/反射，会触发
-    ///      reflection-external 扫描（0.6.2 事故）；一个固定英文分组名的代价可接受。
+    ///   3. **section 的按语言切换在面板打开时做**（0.8.2）：Init 期给「English / 中文」并排，
+    ///      ConfigSectionPatch 在 ModConfigWindow.Open 之前调 CfgLocale.ApplyTo 改写成单语。
+    ///      走官方 ModReflect.Set（字面成员名，不触发 reflection-external 扫描），
+    ///      改的是 Section 这一运行时属性，**不进配置 JSON**，不污染玩家存档/配置。
+    ///      0.8.1 及以前的"固定英文分组名"由此作废。
     /// </summary>
     internal static class DebugConfig
     {
-        private const string Section = "Diagnostics";   // 字面量，Init 期绝不读语言
+        // Init 期必须给"编译期就存在"的字符串：这里返回「Diagnostics / 诊断」并排字面量
+        // （CfgLocale.Sec 只做字符串拼接 + 登记词条键，**不读 locale**，守 A3 / R-17）。
+        // 真正按语言切成单语发生在面板打开时——ConfigSectionPatch → CfgLocale.ApplyTo。
+        private static readonly string Section = CfgLocale.Sec("megatank.cfg.sec.diagnostics", "Diagnostics", "诊断");
         private const string Key = "VerboseLog";
 
         private static ConfigEntry<bool> _verbose;

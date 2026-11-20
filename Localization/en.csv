@@ -17,5 +17,6 @@ megatank.svc.cell.title,Extra Tank Cell
 megatank.svc.cell.desc,Delivers one tank cell (1.9 t). Repeatable - fill all 16 slots.
 megatank.svc.repeat,Repeatable
 
+megatank.cfg.sec.diagnostics,Diagnostics
 megatank.cfg.verbose,Verbose log
 megatank.cfg.verbose.tip,Off by default · Log init, patch install and item registration. For troubleshooting.

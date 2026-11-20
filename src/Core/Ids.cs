@@ -4,7 +4,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.8.1";
+        internal const string Version = "0.8.2";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
