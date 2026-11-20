@@ -20,6 +20,8 @@
 | 只验编译、不碰游戏目录 | 追加 `-p:SkipDeploy=true` |
 | 部署体检（官方加载器布局：manifest/清单/dll/捆绑/pdb/版本漂移；只读，exit 1 = 会被加载器拒绝） | `pwsh -NoProfile -File _modkit\check-deploy.ps1` |
 | 补丁目标本地化门禁（只读，exit 1 = 该补丁会把游戏本地化打崩） | `pwsh -NoProfile -File _modkit\check-patch-cctor.ps1`（`-SelfTest` 自证；`-Projects A,B` 指定仓） |
+| 补丁目标符号核对（只读，核对方法/字段在指定游戏版本是否存在） | `pwsh -NoProfile -File _modkit\check-symbols.ps1` |
+| 游戏知识库门禁（条目/锚点校验） | `pwsh -NoProfile -File game-kb\tools\kb_check.ps1` · `kb_verify.ps1` |
 | 发布 zip | `_release\publish.ps1`（产物 → `dist\<Product>-v<版本>.zip`；推远端默认停用） |
 | 目录审计 | `_modkit\audit-mods.ps1` |
 | PowerManager 回归（现存唯一 `_regress`） | `PowerManager\_regress\regress.ps1` |
@@ -27,15 +29,19 @@
 
 ## mod 仓
 
-`BlackPrinter` `ContainerManager` `ContainerMerchant` `EmptyNukeBarrel` `ItemProbe` `ItemStacking`
-`NewbieGift` `PowerManager` `RealPrinter` `SecretAdmirerMod` `SentinelTracker`
-（旧仓 BuyHouse / ContainerSuite / PowerProbe / ratprinter / p特性拓展 已于 2026-10-31~11-02 迁出或停用；完整快照 = 根目录同名 `*.zip`，不再展开目录。）
+`ContainerManager` `ContainerMerchant` `ItemProbe` `ItemStacking` `MegaWaterTank`
+`NewbieGift` `PowerBlockExpansion` `PowerManager` `SecretAdmirerMod` `SentinelTracker`
+- 子模块（`.gitmodules` 9 条）：CM / ItemProbe / IS / NG / PBE / PM / SA / ST + 官方 kit；
+  非子模块工作目录：`ContainerMerchant\`、`MegaWaterTank\`（尚未建 gitlink）。
+- 已迁出：BuyHouse / ContainerSuite / PowerProbe / ratprinter / p特性拓展（2026-10-31~11-02）、
+  GroundWindowDrag（2026-11-14）、BlackPrinter / EmptyNukeBarrel / RealPrinter（2026-11-19 移除 gitlink，
+  仓库数据留在 `.git\modules\`，快照 `_archive\RealPrinter.zip` / `dist\BlackPrinter-v0.5.35.zip`）。
+  完整快照 = 根目录或 `_archive\` 的 `*.zip`，不再展开目录。
 
 ## 工具 / 资料 / 临时
 
-- 工具：`_modkit\` `_release\`
-- 文档：`docs\`（跨仓）· 各仓 `docs\`（专属）
+- 工具：`_modkit\`（审计/门禁/符号核对）`_release\`（发布）`_decomp\`（分版本反编译 + `dump.ps1`/`diff.ps1`）
+- 文档：`docs\`（跨仓）· 各仓 `docs\`（专属）· 入口 `docs\README.md`
 - 知识库：`game-kb\`（条目化证据库，**独立 git 仓**）/ `docs\游戏资料索引.md`（源码 + kit 查法索引）/ `ObsidianVault\`（方法论笔记）/ `probably stolen 1.0.0\`（游戏源码，**永不上云**）
 - 外部资料：`mod模板\`（可构建脚手架，`scripts\new-mod.ps1` 生成新仓）/ `templates\ModProject\`（官方壳结构母版，占位不可构建）/ `probably-stolen-modding-main\`（官方 kit）/ `开发者提示词指南\`（外部教材）/ `何小鲁框架正式版本\`（他人框架副本，其 `docs\`/`knowledge\` 只服务该目录自身，工作区主链以 `docs\` 为准）
-- 工具：`_modkit\` `_release\` `_decomp\`（分版本反编译 + `dump.ps1`/`diff.ps1`）
 - 探针/临时/本地归档（`_` 前缀 = 可随时重建）：`_perkanalyze\` `_refpack\` `_sigprobe\` `_probe_api\` `_review\` `_archive\`；`ItemDump\`（运行时导出，可重跑再生）
