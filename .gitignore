@@ -81,3 +81,6 @@ __pycache__/
 /_tmp/
 /_review/
 /_release/modules.bak-*/
+
+# 发布工具用的目录别名（junction → MegaWaterTank，仅本机）
+megatank/
