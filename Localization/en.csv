@@ -1,0 +1,21 @@
+# Mega Water Tank · English (official loader format: key,value)
+megatank.item.tank.name,Mega Water Tank
+megatank.item.tank.desc,A very large water tank that takes up to 16 insert cells. The water inside is real: hydroponics and purifiers can read it.
+megatank.item.cell.name,Tank Cell
+megatank.item.cell.desc,Slots into a Mega Water Tank to expand it. Works as a water canister on its own too.
+megatank.tooltip.hint,Use a water scanner to inspect the contents
+megatank.tooltip.cells,Cells {0} / {1}
+megatank.tooltip.total,Total {0} / {1} ml
+megatank.phone.name,Hetao Water Co.
+megatank.phone.greeting,We sell water. Nothing else.
+megatank.phone.offer,Tanks and cells are both on the list. Buy as many as your store can swallow.
+megatank.svc.tab,Water
+megatank.svc.subtitle,Water
+megatank.svc.tank.title,Mega Water Tank
+megatank.svc.tank.desc,Delivers one Mega Water Tank and one cell (3.8 t total). Repeatable.
+megatank.svc.cell.title,Extra Tank Cell
+megatank.svc.cell.desc,Delivers one tank cell (1.9 t). Repeatable - fill all 16 slots.
+megatank.svc.repeat,Repeatable
+
+megatank.cfg.verbose,Verbose log
+megatank.cfg.verbose.tip,Off by default · Log init, patch install and item registration. For troubleshooting.

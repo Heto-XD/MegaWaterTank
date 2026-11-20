@@ -1,0 +1,21 @@
+# 构建产物
+bin/
+obj/
+*.pdb
+*.dll
+
+# 本地配置与部署（不进入仓库）
+release.profile.json
+release.confirmation.local.json
+Localization/*.csv.bak
+*.local.json
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# 系统
+.DS_Store
+Thumbs.db
