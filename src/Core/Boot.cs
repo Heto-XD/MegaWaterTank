@@ -33,14 +33,22 @@ namespace MegaTank
 
         /// <summary>
         /// 新开局（NewGameData.FireOnNewGameStarted）。
-        /// 新档只走这条，不走 OnGameLoadedLate——所以必须在这里补一次名片，
-        /// 否则新档电话簿里没有水商。此时 PhoneClientDict 已在 StartNewGame() 里
-        /// 用 InitPhoneClientDict() 建好（源码 NewGameData.cs:401 / PlayerStore.cs:822）。
-        /// 补丁/服务在 OnLoadedLate 已装且幂等，新开局不必重装。
+        ///
+        /// ★ **新开局不会触发 `OnGameLoadedLate`**：`ModHook.FireOnGameLoaded*` 只在
+        ///   `PlayerStore.LoadGame()`（读档）里调（PlayerStore.cs:1008/1026/1041/1115），
+        ///   新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`（NewGameData.cs:401）。
+        ///   所以这里必须把"进档才装"的那几样**全部再装一次**（全部幂等）：
+        ///   延迟补丁（tooltip / R1 / 电话名 / 机器槽 / 存盘摘名片）、电话名片、扩容等级、服务注册。
+        ///   少装补丁的表现（实机 2026-11-20 v0.10.0）：新开局电话簿里名片名字变成
+        ///   `Translation Error 'megatank.phone' in ClientName`，且服务页没有那三条。
+        ///
+        /// 安全性：此时已在游戏内（主菜单之后），本地化已初始化，手动 patch 不会触发
+        /// `Liquid..cctor` 的坏句柄问题；仍按 LatePatches 的纪律逐项 `Step` 兜底。
         /// </summary>
         internal static void OnNewGameStarted()
         {
             Step("本地化闸", Text.MarkReady);
+            Step("补丁", LatePatches.Install);
             Step("新档电话名片", PhoneCard.Install);
 
             // 新档没有 ModData ⇒ 0 档（100 L）。先落一次口径标记，避免下次进档误当成老档，
@@ -51,6 +59,8 @@ namespace MegaTank
                 Capacity.Invalidate();
                 Capacity.ApplyAll();
             });
+
+            Step("新档服务注册", Services.EnsureRegistered);
         }
 
         private static void Step(string what, Action action)

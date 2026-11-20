@@ -1,5 +1,21 @@
 # 更新日志
 
+## 0.10.1 — 2026-11-20
+
+**修"重启后第一个新开局"功能缺一半**（实机反馈：新档电话簿名片显示
+`Translation Error 'megatank.phone' in ClientName`，服务页也没有那三条）。
+
+- **根因**：`ModHook.OnGameLoadedInit/Early/Normal/Late` **只在 `PlayerStore.LoadGame()`（读档）里触发**
+  （`PlayerStore.cs:1008/1026/1041/1115`）；新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`
+  （`NewGameData.cs:401`），一条 `OnGameLoaded*` 都不发。
+  而 `Boot.OnNewGameStarted` 当时只补了名片与容量 ⇒ 延迟补丁（tooltip / R1 / 电话名 / 机器槽 / 存盘摘名片）
+  与服务注册全部没装：
+  - 电话名补丁缺席 ⇒ 名片 locID 查不到本地化 ⇒ `Translation Error`（对话本身能开，因为 `DialogFuncs` 是名片直接写的）；
+  - 服务三条只在 `Services.EnsureRegistered` 里注册 ⇒ 服务页空。
+- **改法**：`Boot.OnNewGameStarted` 现在按顺序补：本地化闸 → **延迟补丁** → 名片 → 扩容口径/等级 → **服务注册**
+  （全部幂等，且此后读档也不会重复注册）。位置在游戏内、本地化已就绪，不会触发 `Liquid..cctor` 坏句柄问题。
+- 教训记入 `LESSONS.md` A10：**`OnGameLoadedLate` ≠ "进档后"**，新开局是另一条路。
+
 ## 0.10.0 — 2026-11-20
 
 **容量口径重做**（用户要求）：**100 L 起步**、每档 +100 L、**18 档**满级 1900 L。

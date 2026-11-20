@@ -51,9 +51,10 @@ dotnet run --project tests/PureCheck/PureCheck.csproj
 ```
 
 - 入口：`src/Mod.cs` 的 `ModEntry : IMod`（`Init` / `OnEnable` / `OnDisable` 逐项 `Step()` 兜底）。
-- **没有 `[HarmonyPatch]` 特性补丁**：5 个补丁由 `src/Core/LatePatches.cs` 在
-  `OnGameLoadedLate`（本地化就绪）后手动安装并核对 owner；加载期 PatchAll 会触发 `Liquid` 静态
-  本地化 cctor 并永久损坏本地化（见 `src/Mod.cs` 头部注释）。
+- **没有 `[HarmonyPatch]` 特性补丁**：5 个补丁由 `src/Core/LatePatches.cs` 手动安装并核对 owner；
+  **两条进档路径都要装**——读档走 `OnGameLoadedLate`，新开局走 `OnNewGameStarted`
+  （`OnGameLoaded*` 只在 `PlayerStore.LoadGame()` 里触发，新开局一条都不发，见 `docs/LESSONS.md` A10）。
+  加载期 PatchAll 会触发 `Liquid` 静态本地化 cctor 并永久损坏本地化（见 `src/Mod.cs` 头部注释）。
   **第 6 个补丁（配置面板语言）例外，装在 `OnEnable`**：主菜单 Modding 面板进档前就能打开，
   等 `OnGameLoadedLate` 就晚了；目标 `ModConfigWindow` 无静态字段，提前装无 cctor 风险
   （见 `src/Patches/ConfigSectionPatch.cs` 头注释与 `docs/LESSONS.md` A6）。
