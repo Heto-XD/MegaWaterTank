@@ -4,7 +4,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.10.1";
+        internal const string Version = "0.10.2";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
@@ -12,13 +12,13 @@ namespace MegaTank
         internal const string TankTag = "MEGA_TANK_TAG";
         internal const string CellTag = "MEGA_CELL_TAG";
 
-        // ── 容量（0.10.1 起：100 L 起步，逐档 +100 L，满级仍是 1900 L）──
+        // ── 容量（0.10.2 起：100 L 起步，逐档 +100 L，满级仍是 1900 L）──
         // 主池与每个内胆共用同一容量；扩容等级是**存档级全局**（ModData），
         // 买一次所有容器同时变大。满配：1900 L × 17 个容器 = 32.3 吨（与原设计一致）。
         // 注意上限：WaterHelper.InitLiquidContainerItem 对 >2147483 ml 会报错并夹取，
         // 我们的 1900 L 远低于它；part 值 = ml × 1000 = 1.9e9，仍在 int 内（约 2.1e9 顶）。
 
-        /// <summary>起步容量 100 L（0.10.1 起；0.9.x 是 900 L，老档由 <c>Capacity.EnsureScheme</c> 迁过来）。</summary>
+        /// <summary>起步容量 100 L（0.10.2 起；0.9.x 是 900 L，老档由 <c>Capacity.EnsureScheme</c> 迁过来）。</summary>
         internal const int BaseCapacityMl = 100000;
 
         /// <summary>0.9.x 的起步容量，仅用于把老档等级换算到新口径。</summary>

@@ -24,3 +24,6 @@ megatank.svc.expand.maxed,Fully expanded to {0} L
 megatank.cfg.sec.diagnostics,Diagnostics
 megatank.cfg.verbose,Verbose log
 megatank.cfg.verbose.tip,Off by default · Log init, patch install and item registration. For troubleshooting.
+
+megatank.cfg.slotexpand,Machine slot follows item size
+megatank.cfg.slotexpand.tip,On (default) · Vanilla behaviour: the slot grows to the item's 2x3 shape and centres it; Off · Force a 1x1 slot, only if a machine window gets stretched

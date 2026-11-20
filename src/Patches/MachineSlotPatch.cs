@@ -6,21 +6,21 @@ using UnityEngine;
 namespace MegaTank
 {
     /// <summary>
-    /// 把放了本 mod 物品的机器单格槽尺寸钉回 1×1。
+    /// 机器单格槽尺寸策略（**默认不介入**）。
     ///
-    /// 原版 GameSlotInventory.Validate() 把单格槽的尺寸设成放入物品的
-    /// modifiedShape.globalWidth × gridSize（源码 :253-254）。普通水壶 1×1 没事；
-    /// 巨型水箱是 2×3 ⇒ 槽按 2×3 扩张 ⇒ MachineryIntake/MachineryPanel.Validate()
-    /// 读 content.widthPixels ⇒ 整个机器窗口被撑大。
+    /// ★ 0.10.2 起默认跟随原版：原版对任何尺寸的水容器都是
+    ///   `GameSlotInventory.Validate()` 按 `currentItem.modifiedShape.globalWidth/Height × gridSize`
+    ///   扩大槽位，再由 `MachineryPanel/Intake` 读 `widthPixels` 自适应窗口 ⇒ 小壶和大桶都能
+    ///   "槽位变大 + 居中"。我们是 2×3 的水箱，理应与原版大水容器同待遇。
     ///
-    /// 分工（0.8.3 厘清，别再把两件事混在一起）：
-    ///   - **本类**只负责"2×3 的物品放进 1×1 槽时，槽不要跟着长到 2×3"。这是尺寸策略问题，
-    ///     任何情况下都该钉回 1×1，与存档无关。
-    ///   - **读档后窗口被撑到 691×414 的那种炸裂**是另一个 bug，根因在
-    ///     TankSprites.ApplyBase 用 SetSpriteAndShapeFromMod 把 shape 污染成 16×24（像素尺寸），
-    ///     已在 0.8.3 修掉（改用不碰 shape 的 SetSprite）。见该函数头注释与 LESSONS A7。
-    ///   只靠本类压槽位是压不住上层缓存的，两处都得对。
+    /// 历史（0.6.1 → 0.10.1）：当时把槽位硬钉回 1×1 是为了压住"水培机窗口被撑成 691×414"。
+    /// 但真正根因是 `TankSprites.ApplyBase` 用 `SetSpriteAndShapeFromMod` 把 shape 污染成
+    /// 16×24（像素尺寸）——0.8.3 改 `SetSprite` 后 shape 已是正确的 2×3，钉回 1×1 就变成
+    /// "多此一举且和原版不一致"：水箱在槽里被挤成一小团、位置也不居中（实机 2026-11-20 反馈）。
     ///
+    /// 现在由配置 `Diagnostics → 机器槽按物品尺寸扩大` 控制：
+    ///   · 开（默认）⇒ 本类直接 return，走原版逻辑；
+    ///   · 关 ⇒ 钉回 1×1（旧行为），只在某些机器窗口被撑变形时当逃生阀。
     /// 只影响 MEGA_TANK_TAG / MEGA_CELL_TAG 的物品，不碰其它 mod 的槽位。
     /// </summary>
     internal static class MachineSlotPatch
@@ -35,6 +35,7 @@ namespace MegaTank
             try
             {
                 if (__instance == null) return;
+                if (DebugConfig.MachineSlotFollowsItem) return;   // 默认：跟随原版（槽位按 2×3 放大 + 居中）
 
                 GameItem item = __instance.childItem;   // public getter，避免反射私有字段
                 if (item == null) return;
