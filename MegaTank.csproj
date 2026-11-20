@@ -93,11 +93,12 @@
        所以在构建期就挡住。清单在 _modkit\lists\megatank.txt，随工作区维护。
        显式指定反编译目录：脚本按名字排序会把 1.0.0.8 当成"比 1.0.0.16 新"（字符串序）。 -->
   <PropertyGroup>
-    <DecompDir Condition="'$(DecompDir)' == ''">$(MSBuildProjectDirectory)\..\_decomp\1.0.0.16-20261119</DecompDir>
+    <!-- 开源仓里没有反编译目录：默认留空，符号核对自动跳过（本机可在命令行传 -p:DecompDir=...） -->
+    <DecompDir Condition="'$(DecompDir)' == ''">$(MSBuildProjectDirectory)\..\_decomp</DecompDir>
   </PropertyGroup>
 
   <Target Name="CheckSymbols" AfterTargets="Build"
-          Condition="'$(SkipSymbolCheck)' != 'true' And Exists('$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1')">
+          Condition="'$(SkipSymbolCheck)' != 'true' And Exists('$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1') And Exists('$(DecompDir)')">
     <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1&quot; -List &quot;$(MSBuildProjectDirectory)\..\_modkit\lists\megatank.txt&quot; -GameSource &quot;$(DecompDir)&quot;" />
   </Target>
 

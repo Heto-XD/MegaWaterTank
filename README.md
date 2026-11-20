@@ -54,6 +54,10 @@ dotnet run --project tests/PureCheck/PureCheck.csproj
 # 跳过部署：加 -p:SkipDeploy=true；跳过符号核对：加 -p:SkipSymbolCheck=true
 ```
 
+> **符号核对需要游戏反编译源码**（默认找 `..\_decomp`）。没有这份本地资料时会自动跳过，
+> 其余门禁照常运行；需要核对时传 `-p:DecompDir=<你的反编译目录>`。
+> 该目录是本机私有资料，**不在本仓库内、也不会随发行包分发**。
+
 - 入口：`src/Mod.cs` 的 `ModEntry : IMod`（`Init` / `OnEnable` / `OnDisable` 逐项 `Step()` 兜底）。
 - **没有 `[HarmonyPatch]` 特性补丁**：4 个补丁由 `src/Core/LatePatches.cs` 手动安装并核对 owner；
   **两条进档路径都要装**——读档走 `OnGameLoadedLate`，新开局走 `OnNewGameStarted`
