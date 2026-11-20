@@ -1,6 +1,6 @@
 # Mega Water Tank
 
-Version: 0.9.4 · 2026-11-20
+Version: 0.9.5 · 2026-11-20
 
 ## What it is
 

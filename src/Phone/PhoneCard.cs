@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MegaTank
 {
@@ -45,6 +46,7 @@ namespace MegaTank
 
                 _number = number;
                 PhoneClientList.DialogFuncs[DialogId] = BuildDialog;
+                RemoveStrays(ps, number);
 
                 StorePhoneClient client;
                 if (!ps.PhoneClientDict.TryGetValue(number, out client) || client == null)
@@ -103,6 +105,39 @@ namespace MegaTank
         }
 
         /// <summary>
+        /// 清掉"同一标记但号码不同"的残留（历史版本换号/异常退出可能留下）。
+        /// 只删 `locID == 我方标记` 的，别人的电话一条都不碰。
+        /// </summary>
+        private static void RemoveStrays(PlayerStore ps, long keep)
+        {
+            try
+            {
+                var dict = ps.PhoneClientDict;
+                if (dict == null) return;
+
+                List<long> stale = null;
+                foreach (var kv in dict)
+                {
+                    var c = kv.Value;
+                    if (kv.Key != keep && c != null
+                        && string.Equals(c.locID, LocIdMarker, StringComparison.Ordinal))
+                    {
+                        if (stale == null) stale = new List<long>();
+                        stale.Add(kv.Key);
+                    }
+                }
+
+                if (stale == null) return;
+                for (int i = 0; i < stale.Count; i++) dict.Remove(stale[i]);
+                Log.Info("清除电话名片残留 " + stale.Count + " 条（保留号码 " + keep + "）");
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-strays", "清除电话名片残留失败：" + e.Message);
+            }
+        }
+
+        /// <summary>
         /// 停用时撤销：摘掉拨号对话 + 电话簿里我们自己那条。
         ///
         /// 为什么必须撤：`PhoneClientList.DialogFuncs` 是**全局静态字典**、
@@ -127,10 +162,11 @@ namespace MegaTank
 
             try
             {
-                // 只有"店里已经加载过"才动 PlayerStore：`PlayerStore.Instance` 的 getter
-                // 在实例为空时会**现场 new**（game-kb UPG-024），主菜单阶段构造会 NRE。
-                // `EmporiumEntry.Instance` 是**不创建对象**的静态引用，用它做闸门。
-                if (EmporiumEntry.Instance == null) return;
+                // `PlayerStore.Instance` 的 getter 在实例为空时会**现场 new**（game-kb UPG-024），
+                // 主菜单阶段构造会 NRE ⇒ 用 **`HasInstance`**（纯判空、不创建）当闸门。
+                // 0.9.4 曾用 `EmporiumEntry.Instance == null` 当闸门——但退出游戏时场景先拆，
+                // EmporiumEntry 已经没了 ⇒ 清理被整段跳过，幽灵名片留在存档里（实机 2026-11-20 复现）。
+                if (!PlayerStore.HasInstance) return;
 
                 var ps = PlayerStore.Instance;
                 if (ps != null && ps.PhoneClientDict != null)
@@ -161,8 +197,7 @@ namespace MegaTank
         }
 
         /// <summary>本局没走过 Install（_number=0）时，按标记串在电话簿里找自己那条。</summary>
-        private static long FindOwnNumber(PlayerStore ps)
-        {
+        private static long FindOwnNumber(PlayerStore ps)        {
             long found = 0;
             foreach (var kv in ps.PhoneClientDict)
             {
