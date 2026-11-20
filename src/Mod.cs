@@ -51,9 +51,12 @@ namespace MegaTank
             Step("退订物品注册", () => ModHook.OnModItemDirectoryInit -= TankItems.Register);
             Step("退订载入完成", () => ModHook.OnGameLoadedLate -= Boot.OnLoadedLate);
             Step("退订新开局", () => ModHook.OnNewGameStarted -= OnNewGameStartedWrap);
+            Step("撤销电话名片", PhoneCard.Uninstall);
+            Step("撤销服务注册", Services.Unregister);
             Step("卸载配置面板补丁", ConfigSectionPatch.Uninstall);
             Step("卸载补丁", LatePatches.Uninstall);
             Step("停止巡检", TankRuntime.RemoveTicker);
+            Step("清扩容缓存", Capacity.Invalidate);
             Step("关闭本地化闸", Text.ResetReady);
             Fault.Clear();
 

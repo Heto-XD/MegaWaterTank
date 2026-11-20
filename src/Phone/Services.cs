@@ -86,6 +86,35 @@ namespace MegaTank
             }
         }
 
+        /// <summary>
+        /// 停用时撤销注册：把三条服务从定义表与 `UnlockActions` 里摘掉。
+        ///
+        /// 为什么必须撤（根 AGENTS 硬规则 25）：`AddNetworkUpgrade` 是 `Add*` 系注册，
+        /// 不配 `Remove*` 就是"关了 mod 设置还在"——同进程内停用后服务页仍能看到三条，
+        /// 点下去还会调到本 mod 的 `onUnlock`（等于 mod 还在跑）。
+        ///
+        /// 语义（game-kb `UPG-023` / `UPG-025`）：`RemoveNetworkUpgrades` 只摘静态定义与
+        /// 解锁动作，**不动** `PlayerStore.networkUpgrade` 里的存档记录 ⇒
+        /// 重装/重开 mod 时购买记录与等级都还在，不丢数据。
+        /// `_done` 必须一起复位，否则重新启用时 `EnsureRegistered` 直接早退、服务再也回不来。
+        /// </summary>
+        internal static void Unregister()
+        {
+            try
+            {
+                int n = ModHelper.RemoveNetworkUpgrades(Ids.ModId);
+                if (n > 0) Log.Info("服务注册已撤销（" + n + " 条）");
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-unreg", "撤销服务注册失败：" + e.Message);
+            }
+            finally
+            {
+                _done = false;
+            }
+        }
+
         private static void Register()
         {
             Add(TankSvc, TankCost, "megatank.svc.tank", "mega_tank_icon", GrantTank);

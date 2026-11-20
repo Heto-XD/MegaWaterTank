@@ -1,5 +1,28 @@
 # 更新日志
 
+## 0.9.4 — 2026-11-20
+
+**停用/卸载时不再留残影**（P4-04 静态审查发现：注册了服务却从不撤销）。
+
+- **服务三条（含扩容）现在会随停用一起摘掉**：`OnDisable` 新增 `Services.Unregister()`
+  → `ModHelper.RemoveNetworkUpgrades("megatank")`。此前只注册不撤销，同进程内停用 mod 后
+  服务页仍能看到三条、点下去还会执行本 mod 的发放逻辑（等于"关了还在跑"）。
+  按 game-kb `UPG-023/UPG-025`：该接口只摘静态定义与解锁动作，**存档里的购买记录与扩容等级不动**，
+  重开 mod 一切照旧。`_done` 同时复位，避免重新启用时早退。
+- **电话名片会随停用一起撤掉**：`PhoneCard.Uninstall()` 摘 `PhoneClientList.DialogFuncs` 里的拨号对话
+  并删掉电话簿中标记为 `megatank.phone` 的那条。此前停用后这条还在，名字会退化成键名/翻译错误，
+  点进去因为没有对话函数只能落到 `PhoneDialogList.BugDialog()`。
+- **静态缓存复位**：停用时 `Capacity.Invalidate()`（扩容等级缓存）+ 两张电话表的静态标记，
+  保证重新启用不会读到上一轮的脏值。
+- 文档：`STATUS.md` 补"启停对称"清单与自动化不可覆盖项（物品定义无法注销，见下）。
+
+**已知不可撤销项（官方 API 限制，非遗漏）**：`ModHook.OnModItemDirectoryInit` 注册的物品定义
+（`mega_water_tank` / `mega_water_cell`）没有官方注销入口。停用后**重启游戏**即可彻底消失；
+同进程停用时旧物品上的委托（`onLoaded` / `getItemSpriteModifierForItemFunc`）仍在，
+但正常玩法里停用必然伴随重启（面板开关只置 `RestartRequired`），不会遇到。
+停用后读档时，存档里的水箱会按原版兜底变成占位物品（`Could not find GameItem identifier '...'`），
+可正常丢进垃圾桶，不会崩档。
+
 ## 0.9.3 — 2026-11-20
 
 **扩容服务文案随等级变化**（实机截图反馈：描述仍写"可重复购买"，与下方"已扩容至上限"自相矛盾）。

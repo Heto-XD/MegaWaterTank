@@ -102,6 +102,80 @@ namespace MegaTank
             return 0;
         }
 
+        /// <summary>
+        /// 停用时撤销：摘掉拨号对话 + 电话簿里我们自己那条。
+        ///
+        /// 为什么必须撤：`PhoneClientList.DialogFuncs` 是**全局静态字典**、
+        /// `PlayerStore.PhoneClientDict` 是**随存档保存**的字典。只装不撤的话，
+        /// 同进程内停用 mod 后电话簿仍留着这一条：
+        ///   · 名字走 `LocHelper.GetLocalizedClientName("megatank.phone")`（我们的名字补丁已卸）
+        ///     ⇒ 玩家看到的是键名/翻译错误；
+        ///   · 点进去 `StorePhoneClient#GetCallDialog` 查不到 `dialogFuncId`
+        ///     ⇒ 只能落到 `PhoneDialogList.BugDialog()`（"出 bug"对话）。
+        /// 撤掉之后重开 mod 会自动重装（`Install` 幂等），购买记录与水无关，不丢东西。
+        /// </summary>
+        internal static void Uninstall()
+        {
+            try
+            {
+                PhoneClientList.DialogFuncs.Remove(DialogId);
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-uninstall-dialog", "摘除拨号对话失败：" + e.Message);
+            }
+
+            try
+            {
+                // 只有"店里已经加载过"才动 PlayerStore：`PlayerStore.Instance` 的 getter
+                // 在实例为空时会**现场 new**（game-kb UPG-024），主菜单阶段构造会 NRE。
+                // `EmporiumEntry.Instance` 是**不创建对象**的静态引用，用它做闸门。
+                if (EmporiumEntry.Instance == null) return;
+
+                var ps = PlayerStore.Instance;
+                if (ps != null && ps.PhoneClientDict != null)
+                {
+                    long number = _number;
+                    if (number <= 0) number = FindOwnNumber(ps);
+
+                    StorePhoneClient client;
+                    if (number > 0
+                        && ps.PhoneClientDict.TryGetValue(number, out client)
+                        && client != null
+                        && string.Equals(client.locID, LocIdMarker, StringComparison.Ordinal))
+                    {
+                        ps.PhoneClientDict.Remove(number);
+                        Log.Info("电话名片已移除，号码 " + number);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-uninstall-card", "移除电话名片失败：" + e.Message);
+            }
+            finally
+            {
+                _number = 0;
+                _logged = false;
+            }
+        }
+
+        /// <summary>本局没走过 Install（_number=0）时，按标记串在电话簿里找自己那条。</summary>
+        private static long FindOwnNumber(PlayerStore ps)
+        {
+            long found = 0;
+            foreach (var kv in ps.PhoneClientDict)
+            {
+                var c = kv.Value;
+                if (c != null && string.Equals(c.locID, LocIdMarker, StringComparison.Ordinal))
+                {
+                    found = kv.Key;   // 只可能有一条；多个候选号都写过也不会有第二条
+                    break;
+                }
+            }
+            return found;
+        }
+
         private static Dialogue BuildDialog(StorePhoneClient caller)
         {
             var d = new Dialogue();
