@@ -117,6 +117,9 @@
     <Copy SourceFiles="@(ModTextures)" DestinationFiles="@(ModTextures->'$(GameDir)\Mods\megatank\Textures\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Localization\zh.csv;$(MSBuildProjectDirectory)\Localization\en.csv;$(MSBuildProjectDirectory)\Localization\ru.csv"
           DestinationFolder="$(GameDir)\Mods\megatank\Localization" SkipUnchangedFiles="true" />
+    <!-- 工坊预览图随包部署（与工作区其它 mod 一致；上传时 previewfile 仍指向同级文件） -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\preview.png" DestinationFolder="$(GameDir)\Mods\megatank"
+          SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\preview.png')" />
   </Target>
 
 </Project>

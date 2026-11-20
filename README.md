@@ -31,6 +31,8 @@
 | **启停与卸载验收单（P4-04，已闭环）** | [`docs/验收单-P4-04-启停与卸载.md`](docs/验收单-P4-04-启停与卸载.md) |
 | **兼容矩阵验收单（P4-01，已 9/9 通过）** | [`docs/验收单-P4-01-兼容矩阵.md`](docs/验收单-P4-01-兼容矩阵.md) |
 | **水质着色逐种对照（已 6 组通过）** | [`docs/验收单-水质着色对照.md`](docs/验收单-水质着色对照.md) |
+| **发布清单（上架前核对）** | [`docs/发布清单.md`](docs/发布清单.md) |
+| 工坊预览图 | `preview.png`（660×410，`python tools\make_preview.py` 可重生成） |
 | 验色小工具（按成分算期望 hex） | `pwsh -File tools\expect-color.ps1 -Mix "water:100,heavy_metal:20"` || 踩坑账 / 开发经验（开工必读） | [`docs/LESSONS.md`](docs/LESSONS.md) |
 | 设计硬约束 / 否决方案 / 信心分级 | `..\docs\方案-巨型水箱mod.md` |
 | 排工与批次出口条件 | `..\docs\排工-巨型水箱mod.md` |
