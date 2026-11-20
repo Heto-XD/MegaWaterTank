@@ -24,6 +24,3 @@ megatank.svc.expand.maxed,已扩容至上限 {0} L
 megatank.cfg.sec.diagnostics,诊断
 megatank.cfg.verbose,详细日志
 megatank.cfg.verbose.tip,默认关 · 开启后输出初始化、补丁安装、物品注册等诊断日志；排障用
-
-megatank.cfg.slotexpand,机器槽按物品尺寸扩大
-megatank.cfg.slotexpand.tip,开（默认）· 与原版一致：水箱放进水培机/净水机时，槽位按 2×3 放大并居中；关 · 强制钉回 1×1，仅在机器窗口被撑变形时使用

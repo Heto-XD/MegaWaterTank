@@ -38,7 +38,7 @@ namespace MegaTank
         ///   `PlayerStore.LoadGame()`（读档）里调（PlayerStore.cs:1008/1026/1041/1115），
         ///   新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`（NewGameData.cs:401）。
         ///   所以这里必须把"进档才装"的那几样**全部再装一次**（全部幂等）：
-        ///   延迟补丁（tooltip / R1 / 电话名 / 机器槽 / 存盘摘名片）、电话名片、扩容等级、服务注册。
+        ///   延迟补丁（tooltip / R1 / 电话名 / 存盘摘名片）、电话名片、扩容等级、服务注册。
         ///   少装补丁的表现（实机 2026-11-20 v0.10.0）：新开局电话簿里名片名字变成
         ///   `Translation Error 'megatank.phone' in ClientName`，且服务页没有那三条。
         ///

@@ -27,10 +27,8 @@ namespace MegaTank
         // 真正按语言切成单语发生在面板打开时——ConfigSectionPatch → CfgLocale.ApplyTo。
         private static readonly string Section = CfgLocale.Sec("megatank.cfg.sec.diagnostics", "Diagnostics", "诊断");
         private const string Key = "VerboseLog";
-        private const string SlotKey = "MachineSlotExpand";
 
         private static ConfigEntry<bool> _verbose;
-        private static ConfigEntry<bool> _slotExpand;
         private static bool _initialized;
 
         /// <summary>进档后调用，幂等。配置只定义一次，避免重复注册/重复订阅。</summary>
@@ -55,23 +53,13 @@ namespace MegaTank
                 _verbose.OnChanged += OnVerboseChanged;
                 Log.SetVerbose(_verbose.Value);
 
-                // 机器槽位：原版对小/大水容器都是「按物品尺寸扩大槽位 + 居中」，
-                // 所以默认跟随原版；只有窗口被撑坏时才需要钉回 1×1（旧行为）。
-                _slotExpand = cfg.Define(
-                    SlotKey,
-                    true,
-                    Section,
-                    () => Text.T("megatank.cfg.slotexpand", "机器槽按物品尺寸扩大", "Machine slot follows item size"),
-                    tooltip: () => Text.T("megatank.cfg.slotexpand.tip",
-                        "开（默认）· 与原版一致：水箱放进水培机/净水机时，槽位按 2×3 放大并居中\n" +
-                        "关 · 强制钉回 1×1：仅在机器窗口被撑变形时使用",
-                        "On (default) · Vanilla behaviour: the slot grows to the item's 2x3 shape and centres it\n" +
-                        "Off · Force a 1x1 slot: use only if a machine window gets stretched"));
+                // 机器槽位：现在完全跟随原版（按物品尺寸放大 + 居中），不再需要任何补丁。
+                // 0.6.1~0.10.1 曾把槽位钉回 1×1 来压窗口变形，真根因（shape 被污染）在 0.8.3 已修；
+                // 0.10.2 起恢复原版行为，0.10.3 移除补丁与配置项。
 
                 _initialized = true;
 
-                Log.Info("日志开关已加载：VerboseLog=" + _verbose.Value +
-                         "，机器槽跟随物品尺寸=" + MachineSlotFollowsItem);
+                Log.Info("日志开关已加载：VerboseLog=" + _verbose.Value);
             }
             catch (Exception e)
             {
@@ -82,14 +70,6 @@ namespace MegaTank
 
         /// <summary>当前日志开关状态（诊断补丁等模块按它决定是否打印）。</summary>
         internal static bool VerboseLog => _verbose != null && _verbose.Value;
-
-        /// <summary>
-        /// 机器槽位是否跟随物品尺寸（原版行为）。
-        /// true（默认）⇒ `MachineSlotPatch` 完全不动槽位；
-        /// false ⇒ 钉回 1×1（0.6.1 的旧行为，仅用于窗口被撑坏时）。
-        /// 配置未加载时按 true。
-        /// </summary>
-        internal static bool MachineSlotFollowsItem => _slotExpand == null || _slotExpand.Value;
 
         private static void OnVerboseChanged(bool value)
         {

@@ -42,10 +42,9 @@ namespace MegaTank
             Try("R1 溢出", PatchAddWater);
             Try("巨箱 tooltip", PatchTooltip);
             Try("电话名", PatchPhoneName);
-            Try("机器槽位尺寸", PatchMachineSlot);
             Try("存盘摘名片", PatchSaveStrip);
 
-            Log.Info("延迟补丁 " + Applied.Count + "/5 就绪" +
+            Log.Info("延迟补丁 " + Applied.Count + "/4 就绪" +
                      (Applied.Count > 0 ? "：" + string.Join("、", Applied.ToArray()) : "（全部失败，功能降级）"));
         }
 
@@ -144,21 +143,6 @@ namespace MegaTank
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(PhoneName), nameof(PhoneName.Postfix))));
 
             return Verify(target, "GetLocalizedDisplayName");
-        }
-
-        private static bool PatchMachineSlot()
-        {
-            MethodInfo target = AccessTools.Method(typeof(GameSlotInventory), "Validate", Type.EmptyTypes);
-            if (target == null)
-            {
-                Log.Once("target-machineslot", "找不到 GameSlotInventory.Validate，机器窗口撑大问题不修（其余正常）");
-                return false;
-            }
-
-            _harmony.Patch(target,
-                postfix: new HarmonyMethod(AccessTools.Method(typeof(MachineSlotPatch), nameof(MachineSlotPatch.Postfix))));
-
-            return Verify(target, "MachineSlot");
         }
 
         /// <summary>

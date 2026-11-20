@@ -9,7 +9,7 @@ namespace MegaTank
     ///
     /// 本程序集**不含 [HarmonyPatch] 特性补丁**：其中两个目标（AddWater / tooltip）的方法体
     /// 都读 Liquid 静态字段，加载期 PatchAll 会触发 Liquid 的本地化 cctor 并把它打成永久损坏。
-    /// 所以 5 个补丁由 LatePatches 在 OnGameLoadedLate（本地化就绪）之后手动安装；
+    /// 所以 4 个补丁由 LatePatches 在进档后（读档 OnGameLoadedLate / 新开局 OnNewGameStarted）手动安装；
     /// 第 5 个（配置面板语言）例外——它必须在 OnEnable 就装，因为主菜单面板进档前就能打开，
     /// 目标是纯静态类、无危险 cctor，见 src\Patches\ConfigSectionPatch.cs 头注释。
     ///
