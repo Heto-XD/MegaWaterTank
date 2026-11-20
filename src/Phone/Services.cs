@@ -105,7 +105,24 @@ namespace MegaTank
                 cost,
                 subtitle: Text.T("megatank.svc.subtitle", "储水", "Water"),
                 title: () => Text.T(keyPrefix + ".title", "服务", "Service"),
-                description: () => Text.T(keyPrefix + ".desc", "", ""),
+                // 扩容项的文案随等级变：未满级报"当前→下一档"，满级改成"已达上限"。
+                // 否则满级时描述仍写"可重复购买"，与下方"已扩容至上限"自相矛盾（实机截图反馈）。
+                description: isExpand
+                    ? (Func<string>)(() =>
+                    {
+                        int curL = Capacity.CurrentMl / 1000;
+                        int maxL = Ids.CapacityMl / 1000;
+                        return Capacity.CanUpgrade
+                            ? Text.T("megatank.svc.expand.desc",
+                                "把水箱和内胆的容量永久提升 100 L。当前 {0} L → 下一档 {1} L（上限 {2} L）。全部容器同时生效，可重复购买。",
+                                "Permanently raises the capacity of every tank and cell by 100 L. Now {0} L -> next {1} L (max {2} L). Applies to all containers at once. Repeatable.",
+                                curL, curL + Ids.ExpandStepMl / 1000, maxL)
+                            : Text.T("megatank.svc.expand.desc.maxed",
+                                "已到上限 {0} L，全部容器都已满容量，无法继续扩建。",
+                                "Already at the {0} L ceiling; every container is maxed out.",
+                                maxL);
+                    })
+                    : (() => Text.T(keyPrefix + ".desc", "", "")),
                 onUnlock: () =>
                 {
                     try { onUnlock(); }
