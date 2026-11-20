@@ -1,5 +1,24 @@
 # 更新日志
 
+## 0.9.6 — 2026-11-20
+
+**电话名片不再进存档**（实机：停用后电话簿仍有 `Translation Error 'megatank.phone'`）。
+
+- **为什么 0.9.4/0.9.5 的清理都没用**：退出时序是
+  `mod enabled=False → The mod loader object was destroyed`，到 `OnDisable` 时
+  `PlayerStore.instance` 已被清空（`HasInstance` 为假），而 `RemoveNetworkUpgrades` 只动静态表
+  所以还能成功——电话条目在存档字典里，**根本没有可以安全改它的时机**。
+- **改法**：新增第 5 个延迟补丁 `SaveStripPatch`，挂 `PlayerStore.SaveGame`：
+  - `Prefix`：把名片从 `PhoneClientDict` 暂时摘下（记下号码）；
+  - `Finalizer`（不是 Postfix，为的是原方法抛异常也能还原）：放回去 + 重建拨号对话。
+  - **不跳过原方法、不改任何存档字段**；嵌套调用用深度计数，只有最外层才摘/放。
+  - ⇒ 存档里从此**永远没有** `megatank.phone`；玩家停用 mod 后没有幽灵联系人。
+- 现有存档会在**下一次存盘**后自愈（旧条目被摘下，存进去的是干净的），不需要手工改档。
+- 其余清理保留：`OnDisable` 仍会撤服务注册与名片（同进程强制停用的情况）。
+
+> 副作用：少了一次"存盘瞬间"的字典条目读写，其它无变化；若 `SaveGame` 目标在将来版本被改名，
+> 补丁会降级（日志 `找不到 PlayerStore.SaveGame`），此时电话名片会退回"随存档持久化"的旧行为。
+
 ## 0.9.5 — 2026-11-20
 
 **修 0.9.4 的停用清理整段没执行**（实机反馈：停用后电话簿仍有一条

@@ -43,8 +43,9 @@ namespace MegaTank
             Try("巨箱 tooltip", PatchTooltip);
             Try("电话名", PatchPhoneName);
             Try("机器槽位尺寸", PatchMachineSlot);
+            Try("存盘摘名片", PatchSaveStrip);
 
-            Log.Info("延迟补丁 " + Applied.Count + "/4 就绪" +
+            Log.Info("延迟补丁 " + Applied.Count + "/5 就绪" +
                      (Applied.Count > 0 ? "：" + string.Join("、", Applied.ToArray()) : "（全部失败，功能降级）"));
         }
 
@@ -150,6 +151,28 @@ namespace MegaTank
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(MachineSlotPatch), nameof(MachineSlotPatch.Postfix))));
 
             return Verify(target, "MachineSlot");
+        }
+
+        /// <summary>
+        /// 存盘前后摘/放电话名片：**只挂 Prefix + Finalizer，不跳过原方法**。
+        /// 目标是多 mod 共用的热方法（根 AGENTS 硬规则 27），这里不改任何存档字段，
+        /// 只是让序列化那一刻字典里没有我们那条（见 SaveStripPatch 头注释）。
+        /// </summary>
+        private static bool PatchSaveStrip()
+        {
+            MethodInfo target = AccessTools.Method(typeof(PlayerStore), "SaveGame", Type.EmptyTypes);
+            if (target == null)
+            {
+                Log.Once("target-savestrip",
+                    "找不到 PlayerStore.SaveGame，电话名片会随存档持久化（停用后可能残留一条，其余正常）");
+                return false;
+            }
+
+            _harmony.Patch(target,
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(SaveStripPatch), nameof(SaveStripPatch.Prefix))),
+                finalizer: new HarmonyMethod(AccessTools.Method(typeof(SaveStripPatch), nameof(SaveStripPatch.Finalizer))));
+
+            return Verify(target, "SaveGame");
         }
 
         /// <summary>

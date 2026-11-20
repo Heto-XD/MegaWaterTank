@@ -51,16 +51,7 @@ namespace MegaTank
                 StorePhoneClient client;
                 if (!ps.PhoneClientDict.TryGetValue(number, out client) || client == null)
                 {
-                    client = new StorePhoneClient
-                    {
-                        // displayName 是兜底：万一改名补丁没挂上，玩家至少能看到名字
-                        displayName = Text.T("megatank.phone.name", "核桃水商", "Hetao Water Co."),
-                        locID = LocIdMarker,
-                        dialogFuncId = DialogId,
-                        phoneState = StorePhoneClient.PhoneState.Regular,
-                        dialedBefore = true
-                    };
-                    ps.PhoneClientDict[number] = client;
+                    ps.PhoneClientDict[number] = MakeClient();
 
                     if (!_logged)
                     {
@@ -193,6 +184,74 @@ namespace MegaTank
             {
                 _number = 0;
                 _logged = false;
+            }
+        }
+
+        /// <summary>名片对象：字段口径唯一出处在里，读档写入与存盘还原共用。</summary>
+        private static StorePhoneClient MakeClient()
+        {
+            return new StorePhoneClient
+            {
+                // displayName 是兜底：万一改名补丁没挂上，玩家至少能看到名字
+                displayName = Text.T("megatank.phone.name", "核桃水商", "Hetao Water Co."),
+                locID = LocIdMarker,
+                dialogFuncId = DialogId,
+                phoneState = StorePhoneClient.PhoneState.Regular,
+                dialedBefore = true
+            };
+        }
+
+        /// <summary>
+        /// 存盘前摘下名片（`SaveStripPatch` 的 Prefix 调用）。返回被摘掉的号码，0 = 本来就没有。
+        ///
+        /// 目的：让 `<see cref="PlayerStore.PhoneClientDict"/>` 在序列化那一刻**不含**本 mod 的条目
+        /// ⇒ 存档里永远没有 `megatank.phone`，玩家停用 mod 后不会看到幽灵联系人。
+        /// </summary>
+        internal static long DetachForSave()
+        {
+            try
+            {
+                if (!PlayerStore.HasInstance) return 0;
+                var ps = PlayerStore.Instance;
+                if (ps == null || ps.PhoneClientDict == null) return 0;
+
+                long number = _number > 0 ? _number : FindOwnNumber(ps);
+                if (number <= 0) return 0;
+
+                StorePhoneClient client;
+                if (!ps.PhoneClientDict.TryGetValue(number, out client) || client == null) return 0;
+
+                ps.PhoneClientDict.Remove(number);
+                Log.Once("phone-strip",
+                    "电话名片已在存盘时摘除（号码 " + number + "）：存档里不会留 megatank.phone 条目");
+                return number;
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-detach", "存盘前摘除名片失败：" + e.Message);
+                return 0;
+            }
+        }
+
+        /// <summary>存盘后把名片放回（`SaveStripPatch` 的 Finalizer 调用，必须幂等）。</summary>
+        internal static void ReattachAfterSave(long number)
+        {
+            try
+            {
+                if (number <= 0) return;
+                if (!PlayerStore.HasInstance) return;
+
+                var ps = PlayerStore.Instance;
+                if (ps == null || ps.PhoneClientDict == null) return;
+                if (ps.PhoneClientDict.ContainsKey(number)) return;   // 已经被谁放回去了
+
+                ps.PhoneClientDict[number] = MakeClient();
+                _number = number;
+                PhoneClientList.DialogFuncs[DialogId] = BuildDialog;
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-reattach", "存盘后放回名片失败：" + e.Message);
             }
         }
 
