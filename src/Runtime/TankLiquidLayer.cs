@@ -9,7 +9,7 @@ using UnityEngine;
 namespace MegaTank
 {
     /// <summary>
-    /// 水质着色层（方案 A，见 docs\可行性-水质贴图着色.md）。
+    /// 水质着色层（方案 A，见 docs\analysis\可行性-水质贴图着色.md）。
     ///
     /// 完全复用原版机制：<c>getItemSpriteModifierForItemFunc</c> 返回带 <c>color</c> 的
     /// <see cref="ItemSpriteModifier"/>，由 <c>GameItemElement.UpdateInnateModSprite</c> 用
