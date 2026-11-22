@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MegaTank
 {
@@ -24,12 +25,14 @@ namespace MegaTank
 
         internal static void EnsureTicker()
         {
+            TankRegistry.MarkDirty();
             FrameTicker.Ensure();
         }
 
         internal static void RemoveTicker()
         {
             FrameTicker.Remove();
+            TankRegistry.Clear();
             StateCache.Clear();
         }
 
@@ -56,8 +59,11 @@ namespace MegaTank
             var emp = EmporiumEntry.Instance;
             if (emp == null) return;
 
-            List<GameItem> all = emp.GetAllItems();
-            if (all == null) return;
+            // 0.11.6 P0：每 0.25 s 只遍历本 mod 的容器索引；
+            // 全店 GetAllItems() 扫描降为每 RegistryRefreshSeconds 秒一次（兜底搬进店的容器）。
+            bool refreshed = TankRegistry.EnsureFresh(Time.unscaledTime, Ids.RegistryRefreshSeconds);
+            TankRegistry.Collect();
+            List<GameItem> all = TankRegistry.Live;
 
             for (int i = 0; i < all.Count; i++)
             {
@@ -70,22 +76,25 @@ namespace MegaTank
 
                 if (IsStacked(item)) continue;
 
+                bool dragging = IsDragging(item);
+
                 // 旧存档兼容：spritePath 还是已删除的 _4x 键 → 强制重贴。
-                // 放在巡检里兜底，避免依赖 onLoaded 的调用顺序（实测有漏网）。
-                if (TankSprites.IsLegacySpritePath(item) && !IsDragging(item))
+                // 放在巡检里兜底，避免依赖 onLoaded 的调用顺序（实机有漏网）。
+                if (TankSprites.IsLegacySpritePath(item) && !dragging)
                 {
                     TankSprites.ApplyBase(item);
                     Log.Once("legacy-sprite-" + item.GetUniqueID(),
                         "旧 spritePath 已重贴为当前基础图：" + item.identifier);
                 }
 
-                // 容量兜底：正常情况下 Boot / 购买时已对齐，这里只处理漏网
-                // （例如别的 mod 改了 tag、读档顺序异常）。ApplyTo 内部先比对再写，
-                // 值相同时零开销，不会每 0.25s 白跑一次 Validate。
-                if (!IsDragging(item)) Capacity.ApplyTo(item);
+                // 容量兜底不再每 tick 跑：进档/升级有 Capacity.ApplyAll；
+                // 这里只跟着索引刷新周期做一次，省掉每 0.25 s 的 TagState 读取。
+                if (refreshed && !dragging) Capacity.ApplyTo(item);
 
-                if (isTank) Refill(item);
-                SyncSprite(item);
+                // 水位百分比只读一次，回补和贴图共用（原来 SyncSprite 内会重复读两次）。
+                int percent = WaterHelper.GetCurrentCapacity(item);
+                if (isTank) Refill(item, percent, dragging);
+                SyncSprite(item, percent);
             }
 
             // 电话名片由 OnGameLoadedLate + OnNewGameStarted 两个 hook 各装一次即可：
@@ -113,11 +122,10 @@ namespace MegaTank
         }
 
         /// <summary>主池低于阈值时，从内胆按顺序回补。</summary>
-        private static void Refill(GameItem tank)
+        private static void Refill(GameItem tank, int percent, bool dragging)
         {
-            if (IsDragging(tank)) return;
+            if (dragging) return;
 
-            int percent = WaterHelper.GetCurrentCapacity(tank);
             if (!WaterMath.NeedsRefill(percent, Ids.RefillThreshold)) return;
 
             int stacked;
@@ -146,12 +154,12 @@ namespace MegaTank
         /// 水质/水位变化时刷新贴图。缓存 (水位档, 平均色)，变了才调 item.Validate()——
         /// Validate 会重跑 <see cref="TankLiquidLayer.Overlays"/> 并应用 image.color。
         /// </summary>
-        private static void SyncSprite(GameItem item)
+        private static void SyncSprite(GameItem item, int percent)
         {
             int id = item.GetUniqueID();
-            string key = WaterHelper.GetCurrentCapacity(item) <= 0
+            string key = percent <= 0
                 ? "0"
-                : WaterMath.Bucket(WaterHelper.GetCurrentCapacity(item), Ids.MaxBucket)
+                : WaterMath.Bucket(percent, Ids.MaxBucket)
                   + "|" + WaterHelper.GetLiquidContainerColor(item);
 
             string cached;

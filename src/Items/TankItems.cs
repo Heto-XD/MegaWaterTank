@@ -59,6 +59,7 @@ namespace MegaTank
             // tag 不入存档：读档后 STORABLE_PACKAGE_TAG 会丢 ⇒ 水箱又塞不进容器。
             // 原版种子包就是 in onLoaded 里重新 EnableTag，照抄。
             item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, new Action<GameItem>(OnLoadedRetag));
+            TankRegistry.Track(item);   // P0：进入本 mod 容器索引，Tick 不再全店扫描
             return item;
         }
 
@@ -88,6 +89,7 @@ namespace MegaTank
             TankSprites.ApplyBase(item);
             item.getItemSpriteModifierForItemFunc = TankLiquidLayer.Overlays;
             TankSprites.AttachLoadHook(item);
+            TankRegistry.Track(item);   // P0：内胆也入索引（水箱内容窗里的内胆同样由 GetAllItems 刷新兜底）
             return item;
         }
 

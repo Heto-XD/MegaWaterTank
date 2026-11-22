@@ -8,7 +8,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.11.5";
+        internal const string Version = "0.11.6";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
@@ -66,6 +66,12 @@ namespace MegaTank
 
         /// <summary>巡检周期（秒）：回补 + 档图同步都在这个节奏上。</summary>
         internal const float TickSeconds = 0.25f;
+
+        /// <summary>
+        /// 容器索引刷新周期（秒）：每 tick 只遍历本 mod 容器；这个周期用来兜住
+        /// “玩家从背包/别的容器把水箱搬进店里”的情况，不是每 tick 全量扫。
+        /// </summary>
+        internal const float RegistryRefreshSeconds = 5f;
 
         /// <summary>水位档数：0..10，共 11 张图。</summary>
         internal const int MaxBucket = 10;
