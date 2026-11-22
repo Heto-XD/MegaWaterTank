@@ -6,6 +6,8 @@ A water-storage mod for **Probably Stolen** (Unity / Mono, official built-in Mod
 - **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 1.9 t at max, **32.3 t** fully loaded
 - **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back when it drops below 90%
 - **Real water** — hydroponics, purifiers and the water scanner recognise it through the vanilla rules
+- **Vanilla-style item data** — container value 350 (tank) / 25 (cell), metal/plastic sounds, and it fits into any container the vanilla tank fits in
+- **Vanilla tooltip** — volume, quality and scanner results come from the vanilla water-container tooltip; the mod only appends a "Total" and a "Cells" line
 - **Water tint** — the water colour follows the liquid inside, using the same computation as vanilla bottles
 - **Phone ordering** — the "Hetao Water Co." contact (#21474836#) opens the service page; capacity expands +100 L per purchase (18 steps), no cooldown
 - **Localisation** — Chinese / English / Russian
@@ -44,7 +46,7 @@ Requires the .NET SDK and a copy of the game's `Managed\` folder for assembly re
 
 ```bash
 dotnet build MegaTank.csproj -c Release
-dotnet run --project tests/PureCheck/PureCheck.csproj   # 49 pure-logic assertions
+dotnet run --project tests/PureCheck/PureCheck.csproj   # 51 pure-logic assertions
 ```
 
 > The optional symbol check compares game API usage against a local decompiled copy

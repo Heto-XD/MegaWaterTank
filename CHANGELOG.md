@@ -1,5 +1,31 @@
 # 更新日志
 
+## 0.12.0 — 2026-11-22
+
+**物品属性对齐原版水容器（水箱 / 桶装水 / 瓶装水）。**
+
+- **容器基础价 0 → 原版口径**：主池 350（原版 `water_tank`）、内胆 25（原版 `water_pitcher`）。
+  空容器重新出现“估价”行；满水估价 = 基础价 + 40/升（`WaterFeatureHelper#GetWaterPrice` 原版公式）。
+  只影响估价/展示，购买价仍是 500 / 250 / 150。
+- **音效**：主池 `AudioHelper.InitSolidMetal`（原版水箱同款金属拖放音），内胆 `InitPlasticBottle`。
+- **容器 tag 对齐原版**：主池去掉 `CONTAINER_TAG` + `STORABLE_PACKAGE_TAG`，改 `CONTAINER_TOOLTIP_TAG`。
+  效果：和原版水箱一样能放进任何装得下的容器，不再被限制在 `STORAGE` 类容器；
+  主池内容窗不变（仍只收内胆）。
+- **`NOT_FOR_RESALE` 只留 tag**：顾客拒收行为不变，但 tooltip 不再多出一行 `[Not For Resale]` 类型标签。
+- **tooltip 不再抢原版方法**：改走官方 `ModHook.OnCreateTooltipLate`，只追加「合计 / 内胆」两行；
+  水量、水质、进度条和 `LAST_SCAN_RESULT_TAG` 扫描结果交还原版（或 ItemDetails 等接管同一条目的 mod）。
+  修复两处旧行为：① 原先屏蔽了原版扫描结果行；② 未检测时也直接显示真实纯度。
+- **老档迁移**：`onLoaded` + 进档/巡检把旧容器的 0 基础价、旧 `CONTAINER_TAG` 组合、
+  可见的 `NOT_FOR_RESALE` 类型一次校正；旧存档不需要重开。
+- 延迟补丁从 4 个降为 3 个（tooltip 不再需要 Harmony）。
+- **实机验证（2026-11-22，游戏 1.0.0.16，旧档 slot 184 / Lv5→Lv6 / 6 个容器）**：
+  `Init v0.12.0`、`延迟补丁 3/3`、`物品已注册（槽位 16）`、`容器索引 3→5→6`、
+  `扩容至 Lv.6（700000 ml），已应用到 6 个容器`；与 ItemDetails 0.9.6 同装无冲突
+  （`WaterContainerLine ok`）；`OnDisable` 干净（名片/服务/3 个补丁全部撤销）；
+  `Player.log` 无 `[MegaTank]` 异常。旧档在磁盘上仍是迁移前状态（slot 184 未重新保存），
+  下次读档会出现 `0.12.0 属性迁移：<id>（基础价 350/25）`（Verbose 门控）；存盘后可在
+  `save_184.es3` 复核 tag。
+
 ## 0.11.6 — 2026-11-22
 
 **内部性能：容器巡检不再每 0.25 秒扫全店。**

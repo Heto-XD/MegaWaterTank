@@ -33,6 +33,10 @@ namespace MegaTank
                 Capacity.ApplyAll();
             });
 
+            // 0.12.0 原版属性对齐：基础价 + NOT_FOR_RESALE 可见类型 + 旧 CONTAINER_TAG 组合。
+            // 放在容量之后：两者都只改 tag，互不依赖；老档容器在这里一次校正到位。
+            Step("原版属性对齐", () => TankAttributes.ApplyAll());
+
             Step("服务注册", Services.EnsureRegistered);
         }
 
@@ -65,6 +69,8 @@ namespace MegaTank
                 Capacity.Invalidate();
                 Capacity.ApplyAll();
             });
+
+            Step("新档属性对齐", () => TankAttributes.ApplyAll());
 
             Step("新档服务注册", Services.EnsureRegistered);
         }

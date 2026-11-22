@@ -8,7 +8,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.11.6";
+        internal const string Version = "0.12.0";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
@@ -42,6 +42,17 @@ namespace MegaTank
 
         /// <summary>满级容量 = 1900 L（与旧版常量同名保留，避免漏改）。</summary>
         internal const int CapacityMl = BaseCapacityMl + MaxExpandLevel * ExpandStepMl;
+
+        // ── 容器基础价（0.12.0，对齐原版液体容器）──
+        // 原版 `WaterTankHelper` 的水箱 = 350；`AmenitiesItemDirectory#WaterPitcher` 的滤水壶 = 25。
+        // 空容器价值 = unitValue + 这个 tag；满水时 unitValue 会被原版改写成 40/升。
+        // 只影响估价/展示，不改变 mod 的购买价（500 / 250 / 150）。
+
+        /// <summary>主池容器基础价（原版 water_tank = 350）。</summary>
+        internal const int TankBasePrice = 350;
+
+        /// <summary>内胆容器基础价（对齐原版 water_pitcher = 25）。</summary>
+        internal const int CellBasePrice = 25;
 
         /// <summary>按扩容等级算容量；超界自动夹到 [0, MaxExpandLevel]。</summary>
         internal static int CapacityAt(int level)

@@ -14,9 +14,12 @@ namespace MegaTank
     ///
     /// 为什么不能靠 [HarmonyPatch] 特性自动装：
     ///   加载器在 Awake 阶段 PatchAll，准备 detour 时会解析目标方法体引用的静态字段所属类型，
-    ///   进而执行其 .cctor。WaterHelper.AddWater / CreateWaterContainerTooltip 的方法体都读
-    ///   Liquid 静态字段，而 Liquid 的 cctor 调 LocHelper → 本地化未就绪 → 抛异常 →
-    ///   该类型 cctor 被标记失败并缓存 → 整个进程内 Liquid 永久损坏（水系统全挂）。
+    ///   进而执行其 .cctor。WaterHelper.AddWater 的方法体读 Liquid 静态字段，而 Liquid 的 cctor
+    ///   调 LocHelper → 本地化未就绪 → 抛异常 → 该类型 cctor 被标记失败并缓存 →
+    ///   整个进程内 Liquid 永久损坏（水系统全挂）。
+    ///
+    /// tooltip 自 0.12.0 起改走官方 `ModHook.OnCreateTooltipLate`（见 TankTooltip），
+    /// 不再需要 Harmony 补丁，所以这里只剩 3 个目标。
     ///
     /// 代价：本文件里的补丁对 _modkit\check-patch-cctor.ps1 不可见（它只扫 [HarmonyPatch] 特性）。
     ///   所以装完必须**自检一次**：目标存在 + 我方 owner 真的挂上了（GetPatchInfo）。
@@ -44,11 +47,10 @@ namespace MegaTank
 
             Applied.Clear();
             Try("R1 溢出", PatchAddWater);
-            Try("巨箱 tooltip", PatchTooltip);
             Try("电话名", PatchPhoneName);
             Try("存盘摘名片", PatchSaveStrip);
 
-            Log.Info("延迟补丁 " + Applied.Count + "/4 就绪" +
+            Log.Info("延迟补丁 " + Applied.Count + "/3 就绪" +
                      (Applied.Count > 0 ? "：" + string.Join("、", Applied.ToArray()) : "（全部失败，功能降级）"));
         }
 
@@ -105,33 +107,6 @@ namespace MegaTank
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(OverflowPatch), nameof(OverflowPatch.Postfix))));
 
             return Verify(target, "AddWater");
-        }
-
-        private static bool PatchTooltip()
-        {
-            MethodInfo target = AccessTools.Method(
-                typeof(WaterHelper),
-                "CreateWaterContainerTooltip",
-                new[] { typeof(RichTextBuilder), typeof(GameItem) });
-
-            if (target == null)
-            {
-                Log.Once("target-tooltip", "找不到 WaterHelper.CreateWaterContainerTooltip，回退原版 tooltip（其余功能正常）");
-                return false;
-            }
-
-            // ★ Priority.First：ItemDetails（工坊 3828868413）也在同一方法上挂了 Prefix
-            //   （`WaterContainerLine.Skip`，对**所有**可分析的液体容器 return false），
-            //   两边都是 400 时谁先跑取决于装载顺序 ⇒ 我们的主池/内胆 tooltip 可能被它接管。
-            //   这两个 item id 是本 mod 独有的，所以抢先执行、只对自家物品生效：
-            //   其它容器一律 return true，ItemDetails 照常处理（不影响它的功能）。
-            var hm = new HarmonyMethod(AccessTools.Method(typeof(TankTooltip), nameof(TankTooltip.Prefix)))
-            {
-                priority = Priority.First
-            };
-            _harmony.Patch(target, prefix: hm);
-
-            return Verify(target, "CreateWaterContainerTooltip");
         }
 
         private static bool PatchPhoneName()

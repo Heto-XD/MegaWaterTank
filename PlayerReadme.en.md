@@ -1,6 +1,6 @@
 # Mega Water Tank
 
-Version: 0.11.6 · 2026-11-22
+Version: 0.12.0 · 2026-11-22
 
 ## What it is
 
@@ -34,7 +34,8 @@ Any container you obtain later already carries your current level.
 - **Filling**: use the tank on a faucet, a bottle or another container, exactly like vanilla
 - **Overflow**: once the tank is full, extra water flows into the empty cells
 - **Refill**: below 90%, the tank pulls water back from its cells (checked about every 0.25 s)
-- **Inspect**: hover for exact millilitres and the water grade; use a **water scanner** for contents
+- **Inspect**: volume, quality and scanner results are shown by the vanilla rules (just like the vanilla water tank); this mod adds a "Total" line and a "Cells" line
+- **Storage**: like the vanilla water tank, it fits into any container it physically fits in (no longer restricted to storage bays)
 
 ## What you will see
 
@@ -45,7 +46,7 @@ Any container you obtain later already carries your current level.
 
 - Pixel art (8x density, 11 level steps) that tints with water quality; the 16-slot look is still being checked in-game
 - Purifiers barely work on a tank this size — purify a small bottle first, then pour it in
-- Cannot be sold to anyone (value 0 and flagged not-for-resale) to keep the economy intact
+- Cannot be sold to anyone (estimated value follows vanilla: empty tank 350, cell 25, plus 40 per litre of water; still flagged not-for-resale) to keep the economy intact
 - **Do not throw a full tank into the trash**: its cells go with it
 
 ## Languages

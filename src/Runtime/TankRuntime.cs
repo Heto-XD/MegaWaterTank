@@ -89,7 +89,13 @@ namespace MegaTank
 
                 // 容量兜底不再每 tick 跑：进档/升级有 Capacity.ApplyAll；
                 // 这里只跟着索引刷新周期做一次，省掉每 0.25 s 的 TagState 读取。
-                if (refreshed && !dragging) Capacity.ApplyTo(item);
+                // 同一周期顺带校正 0.12.0 的原版属性（基础价 / NOT_FOR_RESALE / 旧容器 tag），
+                // 兜住“玩家从背包把老档水箱搬进店里”的情况。
+                if (refreshed && !dragging)
+                {
+                    Capacity.ApplyTo(item);
+                    TankAttributes.Ensure(item);
+                }
 
                 // 水位百分比只读一次，回补和贴图共用（原来 SyncSprite 内会重复读两次）。
                 int percent = WaterHelper.GetCurrentCapacity(item);
@@ -284,7 +290,7 @@ namespace MegaTank
         /// <summary>
         /// 槽内统计：内胆个数、容量合计、水量合计。
         ///
-        /// 用 long 累加：单件容量 1.9e9 part，8 件合计 1.52e10，int 会溢出成负数。
+        /// 用 long 累加：单件容量 1.9e9 part，16 件合计 3.04e10，int 会溢出成负数。
         /// 成堆的内胆按"占 1 格"计一次（一堆共享一份水，乘件数会算出假容量）。
         /// </summary>
         internal static void CellStats(GameItem tank, out int count, out long capacity, out long water)

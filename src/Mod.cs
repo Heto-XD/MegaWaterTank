@@ -8,14 +8,15 @@ using UnityEngine;
 namespace MegaTank
 {
     /// <summary>
-    /// 入口：容器（主池 + 8 内胆槽）+ R1 溢出 + R2 回补 + 档图巡检 + tooltip。
+    /// 入口：容器（主池 + 16 内胆槽）+ R1 溢出 + R2 回补 + 档图巡检 + tooltip。
     /// 电话订购与三语本地化在 P2。
     ///
-    /// 本程序集**不含 [HarmonyPatch] 特性补丁**：其中两个目标（AddWater / tooltip）的方法体
-    /// 都读 Liquid 静态字段，加载期 PatchAll 会触发 Liquid 的本地化 cctor 并把它打成永久损坏。
-    /// 所以 4 个补丁由 LatePatches 在进档后（读档 OnGameLoadedLate / 新开局 OnNewGameStarted）手动安装；
-    /// 第 5 个（配置面板语言）例外——它必须在 OnEnable 就装，因为主菜单面板进档前就能打开，
-    /// 目标是纯静态类、无危险 cctor，见 src\Patches\ConfigSectionPatch.cs 头注释。
+    /// 本程序集**不含 [HarmonyPatch] 特性补丁**：其中一个目标（AddWater）的方法体
+    /// 读 Liquid 静态字段，加载期 PatchAll 会触发 Liquid 的本地化 cctor 并把它打成永久损坏。
+    /// 所以 3 个补丁由 LatePatches 在进档后（读档 OnGameLoadedLate / 新开局 OnNewGameStarted）手动安装；
+    /// tooltip 自 0.12.0 起走官方 OnCreateTooltipLate，不再需要补丁。
+    /// 另有一个必须在 OnEnable 就装的配置面板语言补丁——它目标纯静态、无危险 cctor，
+    /// 见 src\Patches\ConfigSectionPatch.cs 头注释。
     ///
     /// 启停纪律（借 PowerManager LESSONS）：逐项 try + 幂等，绝不一个 try 包全部——
     /// OnDisable 只在强制停用/退出时跑，一处异常会让后面的清理全部跳过，且真机上几乎发现不了。
@@ -39,6 +40,7 @@ namespace MegaTank
             Step("订阅物品注册", () => ModHook.OnModItemDirectoryInit += TankItems.Register);
             Step("订阅载入完成", () => ModHook.OnGameLoadedLate += Boot.OnLoadedLate);
             Step("订阅新开局", () => ModHook.OnNewGameStarted += OnNewGameStartedWrap);
+            Step("订阅 tooltip", () => ModHook.OnCreateTooltipLate += TankTooltip.Append);
             Step("启动巡检", TankRuntime.EnsureTicker);
 
             // ★ 必须在加载期装：主菜单 → Modding → 齿轮就能打开配置面板，
@@ -55,6 +57,7 @@ namespace MegaTank
             Step("退订物品注册", () => ModHook.OnModItemDirectoryInit -= TankItems.Register);
             Step("退订载入完成", () => ModHook.OnGameLoadedLate -= Boot.OnLoadedLate);
             Step("退订新开局", () => ModHook.OnNewGameStarted -= OnNewGameStartedWrap);
+            Step("退订 tooltip", () => ModHook.OnCreateTooltipLate -= TankTooltip.Append);
             Step("撤销电话名片", PhoneCard.Uninstall);
             Step("撤销服务注册", Services.Unregister);
             Step("卸载配置面板补丁", ConfigSectionPatch.Uninstall);

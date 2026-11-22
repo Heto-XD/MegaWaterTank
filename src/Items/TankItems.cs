@@ -20,7 +20,7 @@ namespace MegaTank
             Log.Info("物品已注册：" + Ids.Tank + " / " + Ids.Cell + "（槽位 " + (Ids.SlotsW * Ids.SlotsH) + "）");
         }
 
-        /// <summary>主池：2×3 格，8 个内胆槽。</summary>
+        /// <summary>主池：2×3 格，16 个内胆槽。</summary>
         private static GameItem CreateTank()
         {
             var window = DirectoryUtils.CreateInventoryWindow(Ids.SlotsW, Ids.SlotsH);
@@ -37,18 +37,21 @@ namespace MegaTank
             WaterHelper.InitLiquidContainerItem(
                 item,
                 capacityInMl: Capacity.CurrentMl,
-                basePrice: 0,
+                basePrice: Ids.TankBasePrice,   // 0.12.0：对齐原版 water_tank 的 350
                 isFilterContainer: false,
                 isGraduated: true,
                 isDropper: false,
                 isTransparentContainer: false);
 
             item.SetContentWindow(window.Item1);
-            item.EnableTag("CONTAINER_TAG");
+            // 0.12.0：原版液体容器没有 CONTAINER_TAG（水箱/瓶子都能塞进任何装得下的容器）。
+            // 主池有内容窗，用 CONTAINER_TOOLTIP_TAG 保留“容器”提示；嵌套不再被
+            // CONTAINER_TAG + STORABLE_PACKAGE_TAG 限制在 STORAGE 类容器里。
+            item.EnableTag("CONTAINER_TOOLTIP_TAG");
             item.EnableTag(Ids.TankTag);
-            item.EnableTag("STORABLE_PACKAGE_TAG");  // 带 CONTAINER_TAG 的物品要能塞进别的容器/储藏区，必须有这个（原版种子包同款）
-            item.SetGameItemType("HOUSEHOLD_GOOD");  // 日用品类型，和子胆一致；叠加不覆盖 NOT_FOR_RESALE
-            item.SetGameItemType("NOT_FOR_RESALE");  // 永不可售：StoreClient#IsClientRefusingItem 第一行命中
+            item.SetGameItemType("HOUSEHOLD_GOOD");  // 日用品类型，和子胆一致
+            item.EnableTag("NOT_FOR_RESALE");        // 只留 tag：StoreClient#IsClientRefusingItem 第一行命中，但 tooltip 不再多一行类型标签
+            AudioHelper.InitSolidMetal(item);        // 原版 water_tank 同款金属拖放音
 
             // 只有内胆能进槽
             ContainerHelper.AllowOnlyTaggedItemOwn(window.Item2, item, Ids.CellTag);
@@ -56,9 +59,9 @@ namespace MegaTank
             TankSprites.ApplyBase(item);
             item.getItemSpriteModifierForItemFunc = TankLiquidLayer.Overlays;   // 水质着色层（方案 A）
             TankSprites.AttachLoadHook(item);   // 读档不恢复 useSpriteFromMod，必须补（否则图标变 ?）
-            // tag 不入存档：读档后 STORABLE_PACKAGE_TAG 会丢 ⇒ 水箱又塞不进容器。
-            // 原版种子包就是 in onLoaded 里重新 EnableTag，照抄。
-            item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, new Action<GameItem>(OnLoadedRetag));
+            // 老档迁移：容器基础价 / NOT_FOR_RESALE 可见类型 / 旧的 CONTAINER_TAG 组合。
+            // 读档时 state 与 itemTypes 会被存档覆盖，所以必须在 onLoaded 里再校正一次。
+            item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, new Action<GameItem>(TankAttributes.OnLoaded));
             TankRegistry.Track(item);   // P0：进入本 mod 容器索引，Tick 不再全店扫描
             return item;
         }
@@ -76,7 +79,7 @@ namespace MegaTank
             WaterHelper.InitLiquidContainerItem(
                 item,
                 capacityInMl: Capacity.CurrentMl,
-                basePrice: 0,
+                basePrice: Ids.CellBasePrice,   // 0.12.0：对齐原版 water_pitcher 的 25
                 isFilterContainer: false,
                 isGraduated: true,
                 isDropper: false,
@@ -84,24 +87,19 @@ namespace MegaTank
 
             item.EnableTag(Ids.CellTag);
             item.SetGameItemType("HOUSEHOLD_GOOD");  // 和主池一致：日用品类型
-            item.SetGameItemType("NOT_FOR_RESALE");
+            item.EnableTag("NOT_FOR_RESALE");        // 只留 tag（见主池注释）
+            AudioHelper.InitPlasticBottle(item);     // 0.12.0：小水罐，塑料瓶音
 
             TankSprites.ApplyBase(item);
             item.getItemSpriteModifierForItemFunc = TankLiquidLayer.Overlays;
             TankSprites.AttachLoadHook(item);
+            item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, new Action<GameItem>(TankAttributes.OnLoaded));
             TankRegistry.Track(item);   // P0：内胆也入索引（水箱内容窗里的内胆同样由 GetAllItems 刷新兜底）
             return item;
         }
 
-        /// <summary>
-        /// 读档后重设可嵌套 tag。tag 不进存档（SaveItemNode 只存 spritePath 等），
-        /// 丢了 STORABLE_PACKAGE_TAG 水箱就又塞不进储藏区。原版种子包同款做法。
-        /// 只动我们自己的物品，不碰别人的载入回调（Delegate.Combine 追加）。
-        /// </summary>
-        private static void OnLoadedRetag(GameItem item)
-        {
-            if (item == null) return;
-            item.EnableTag("STORABLE_PACKAGE_TAG");
-        }
+        // 说明：0.12.0 起不再需要 OnLoadedRetag —— 主池去掉了 CONTAINER_TAG，
+        // 也就不再依赖“读档后补回 STORABLE_PACKAGE_TAG”。老档里的旧 tag 由
+        // TankAttributes.OnLoaded 统一清掉。
     }
 }

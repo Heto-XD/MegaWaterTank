@@ -3,7 +3,6 @@ megatank.item.tank.name,Mega Water Tank
 megatank.item.tank.desc,A very large water tank that takes up to 16 insert cells. The water inside is real: hydroponics and purifiers can read it.
 megatank.item.cell.name,Tank Cell
 megatank.item.cell.desc,Slots into a Mega Water Tank to expand it. Works as a water canister on its own too.
-megatank.tooltip.hint,Use a water scanner to inspect the contents
 megatank.tooltip.cells,Cells {0} / {1}
 megatank.tooltip.total,Total {0} / {1} ml
 megatank.phone.name,Hetao Water Co.

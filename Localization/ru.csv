@@ -3,7 +3,6 @@ megatank.item.tank.name,Мега-бак для воды
 megatank.item.tank.desc,Очень большой бак для воды с 16 слотами под вставные ячейки. Вода в нём настоящая: гидропоника и очистители её видят.
 megatank.item.cell.name,Ячейка бака
 megatank.item.cell.desc,Вставляется в Мега-бак и увеличивает его объём. Может использоваться и как отдельная канистра.
-megatank.tooltip.hint,Состав проверяется сканером воды
 megatank.tooltip.cells,Ячейки {0} / {1}
 megatank.tooltip.total,Всего {0} / {1} мл
 megatank.phone.name,Водная лавка Хэтао

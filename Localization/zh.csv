@@ -3,7 +3,6 @@ megatank.item.tank.name,巨型水箱
 megatank.item.tank.desc,超大容量储水装置，可插入 16 个内胆扩容。里面装的是真实的水，能被水培机和净水设备识别。
 megatank.item.cell.name,水箱内胆
 megatank.item.cell.desc,插进巨型水箱的槽位以扩容；也可以单独当水壶使用。
-megatank.tooltip.hint,成分请用水质检测仪查看
 megatank.tooltip.cells,内胆 {0} / {1}
 megatank.tooltip.total,合计 {0} / {1} ml
 megatank.phone.name,核桃水商

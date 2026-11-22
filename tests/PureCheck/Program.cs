@@ -75,6 +75,10 @@ namespace MegaTank.PureCheck
             Check("CapacityMl=1900L", Ids.CapacityMl, 1900000);
             Check("MaxExpandLevel=18", Ids.MaxExpandLevel, 18);
             Check("LegacyLevelOffset=8", Ids.LegacyLevelOffset, 8);
+
+            // ── 0.12.0 原版容器基础价：主池 350（water_tank）/ 内胆 25（water_pitcher）──
+            Check("TankBasePrice=350", Ids.TankBasePrice, 350);
+            Check("CellBasePrice=25", Ids.CellBasePrice, 25);
             // 老档迁移等价性：旧公式 900 + 100×L 必须等于新公式 100 + 100×(L+8)
             for (int lv = 0; lv <= 10; lv++)
             {
