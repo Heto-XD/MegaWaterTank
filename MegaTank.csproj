@@ -102,6 +102,22 @@
     <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildProjectDirectory)\..\_modkit\check-symbols.ps1&quot; -List &quot;$(MSBuildProjectDirectory)\..\_modkit\lists\megatank.txt&quot; -GameSource &quot;$(DecompDir)&quot;" />
   </Target>
 
+  <!-- API 兼容门禁（0.11.5）：逐个核对 MegaTank.dll 引用的 Assembly-CSharp 类型/成员
+       在目标 DLL 里都存在。防止再次用上"只有新版才有"的方法：
+       0.11.4 的 GameItem.ReadTagInt 是 1.0.0.15 才加的，公开分支旧版（1.0.0.7 / 1.0.0.8）
+       直接 Method not found，老容器扩容全部失效。
+       同时核对：当前安装的游戏 + （若存在）1.0.0.16 基线副本。
+       跳过：-p:SkipApiCompat=true -->
+  <PropertyGroup>
+    <CompatBaseline Condition="'$(CompatBaseline)' == '' And Exists('$(MSBuildProjectDirectory)\..\probably stolen 1.0.0\Assembly-CSharp.dll')">$(MSBuildProjectDirectory)\..\probably stolen 1.0.0\Assembly-CSharp.dll</CompatBaseline>
+    <CompatBaselineArg Condition="'$(CompatBaseline)' != '' And Exists('$(CompatBaseline)')">;&quot;$(CompatBaseline)&quot;</CompatBaselineArg>
+  </PropertyGroup>
+
+  <Target Name="CheckApiCompat" AfterTargets="Build"
+          Condition="'$(SkipApiCompat)' != 'true' And Exists('$(MSBuildProjectDirectory)\scripts\check-api-compat.ps1') And Exists('$(TargetPath)')">
+    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildProjectDirectory)\scripts\check-api-compat.ps1&quot; -ModDll &quot;$(TargetPath)&quot; -ManagedDir &quot;$(ManagedDir)&quot; -Against &quot;$(ManagedDir)\Assembly-CSharp.dll&quot;$(CompatBaselineArg)" />
+  </Target>
+
   <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(SkipDeploy)' != 'true' And Exists('$(GameDir)') And Exists('$(GameDir)\Mods')">
     <Error Condition="!Exists('$(MSBuildProjectDirectory)\manifest.xml')"
            Text="官方加载器红线：找不到 manifest.xml（$(MSBuildProjectDirectory)\manifest.xml）。" />

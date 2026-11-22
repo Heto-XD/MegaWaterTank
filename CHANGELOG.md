@@ -1,5 +1,22 @@
 # 更新日志
 
+## 0.11.5 — 2026-11-22
+
+**修复：旧公开分支（1.0.0.7 / 1.0.0.8）扩容服务只扣费、不生效。**
+
+- **根因**：`Capacity.ApplyTo` 直接调用 `GameItem.ReadTagInt(string)`——这个方法是游戏
+  **1.0.0.15 才加入**的。旧版没有它，Mono 在 JIT 编译 `ApplyTo` 时就抛
+  `Method not found: int .GameItem.ReadTagInt(string)`，调用方只看到
+  `Tick 异常` / `批量应用容量失败`、`已应用到 0 个容器`。
+  扩容等级本身已写进存档，但"把新容量写回已存在的水箱/内胆"整条链失效：
+  扩容前生成的老容器永远停在旧容量，扩容后新买的容器则因为工厂按当前等级创建而正常。
+- **修复**：改用 `item.GetTagReadonly("LIQUID_CONTAINER_CAPACITY").GetInt()`——从旧版到
+  1.0.0.16 全都有，原版 `WaterHelper` 自己就是这么读容量的，语义等价。
+  已购等级不会丢：进档 `Capacity.ApplyAll()` 会把当前等级补到所有老容器上。
+- **新增构建门禁** `scripts/check-api-compat.ps1`：用 Cecil 逐个核对 DLL 引用的
+  `Assembly-CSharp` 类型/成员在「当前安装版本 + 1.0.0.16 基线」里都存在，
+  防止再次误用新版独有 API（`-p:SkipApiCompat=true` 可临时跳过）。
+
 ## 0.11.4 — 2026-11-20
 
 **底部浪带收尾**（实机反馈：最深那层太厚、三道浪边太齐）。

@@ -180,7 +180,11 @@ namespace MegaTank
             try
             {
                 int wantParts = ml * 1000;
-                int haveParts = item.ReadTagInt("LIQUID_CONTAINER_CAPACITY");
+                // 跨版本口径：`GameItem.ReadTagInt` 是 1.0.0.15 才加入的方法，
+                // 公开分支旧版（1.0.0.7 / 1.0.0.8）没有它 —— 直接调用会让本方法 JIT 失败，
+                // 调用方（Tick / ApplyAll）只看到 `Method not found`，老容器永远扩不了容。
+                // `GetTagReadonly(...).GetInt()` 从旧版到 1.0.0.16 全都在，原版 WaterHelper 自己就这么读容量。
+                int haveParts = item.GetTagReadonly("LIQUID_CONTAINER_CAPACITY").GetInt();
                 if (haveParts == wantParts) return false;   // 已经对了，别白跑一次 Validate
 
                 item.ModifyTag("LIQUID_CONTAINER_CAPACITY", (TagState state) =>
