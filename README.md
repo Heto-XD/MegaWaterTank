@@ -3,12 +3,14 @@
 A water-storage mod for **Probably Stolen** (Unity / Mono, official built-in ModLoader).
 一个给《Probably Stolen》用的储水 mod（官方内置 ModLoader）。
 
-当前版本：**0.14.0** · 2026-11-24
+当前版本：**0.15.0** · 2026-11-24
 
-- **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 2.0 t at max, **34.0 t** fully loaded
-- **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back when it drops below 90%
-- **Machine reserve** — when installed in a Moisture Farm slot, it reserves the expected nightly output (Auto mode, 25 L cap) and refills afterwards, so no water is wasted
-- **Configurable reserve** — 0–50 L numeric input with clamping, auto output-based or fixed, and optional all-day reserve
+- **Main tank + 24 insert cells** — 0.1 t (100 L) to start, 2.0 t at max, **50.0 t** fully loaded (4×6 cells)
+- **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back below 90% in machine-reserve mode
+- **Machine reserve** — when installed in a Moisture Farm slot, it reserves the expected nightly output (Auto mode, 25 L cap) and refills afterwards
+- **Reservoir mode** — optional global mode: keep the main tank at a 0–100% target (default 90%), moving excess to cells and refilling below the dead band
+- **Filter slots** — 2×2 on the right; four 1-cell filters, top-left first, advanced filter background
+- **Configurable** — numeric inputs with clamping; reservoir target, machine reserve amount, auto mode and all-day reserve
 - **Real water** — hydroponics, purifiers and the water scanner recognise it through the vanilla rules
 - **Vanilla-style item data** — container value 350 (tank) / 25 (cell), metal/plastic sounds, and it fits into any container the vanilla tank fits in
 - **Vanilla tooltip** — volume, quality and scanner results come from the vanilla water-container tooltip; the mod only appends a "Total" and a "Cells" line
@@ -33,15 +35,15 @@ Mods\megatank\
 
 3. Start the game. The main menu **Modding** panel should list *巨型水箱 / Mega Water Tank*.
 
-Uninstalling is safe: tanks left in a save become inert placeholder items, and the phone
-contact is removed automatically (the mod never stores it in the save).
+Uninstalling is safe: tanks left in a save become inert placeholder items, and the phone contact is removed automatically (the mod never stores it in the save).
 
 ## Compatibility
 
 Tested together with Item Stacking, Container Manager, Item Details and Water Machine Fix.
 Filled containers are frozen while stacked (same rule as vanilla liquid containers).
-Item Details keeps its water analysis for ordinary bottles; this mod keeps its own tooltip
-for its two items.
+Item Details keeps its water analysis for ordinary bottles; this mod keeps its own tooltip for its two items.
+
+> Stacked cells are skipped by reservoir/overflow because liquid is an absolute per-item amount. Split cells into single items before relying on reservoir mode.
 
 ## Build from source
 
@@ -50,7 +52,7 @@ Requires the .NET SDK and a copy of the game's `Managed\` folder for assembly re
 
 ```bash
 dotnet build MegaTank.csproj -c Release
-dotnet run --project tests/PureCheck/PureCheck.csproj   # 51 pure-logic assertions
+dotnet run --project tests/PureCheck/PureCheck.csproj   # 58 pure-logic assertions
 ```
 
 > The optional symbol check compares game API usage against a local decompiled copy

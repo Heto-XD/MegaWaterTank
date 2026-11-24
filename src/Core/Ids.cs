@@ -8,7 +8,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.14.0";
+        internal const string Version = "0.15.0";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
@@ -18,7 +18,7 @@ namespace MegaTank
 
         // ── 容量（0.11.4 起：100 L 起步，逐档 +100 L，0.13.0 起满级 2000 L）──
         // 主池与每个内胆共用同一容量；扩容等级是**存档级全局**（ModData），
-        // 买一次所有容器同时变大。满配：2000 L × 17 个容器 = 34.0 吨。
+        // 买一次所有容器同时变大。满配：2000 L × 25 个容器（主池 + 24 内胆）= 50.0 吨。
         // 注意上限：WaterHelper.InitLiquidContainerItem 对 >2147483 ml 会报错并夹取，
         // 我们的 2000 L 仍低于它；part 值 = ml × 1000 = 2.0e9，仍在 int 内（约 2.1e9 顶）。
 

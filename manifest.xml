@@ -8,15 +8,15 @@
   <ID>megatank</ID>                          <!-- a-z 0-9 _ - .，最多 64 字符，唯一，发布后不可随意变更 -->
   <Name>巨型水箱 / Mega Water Tank</Name>                     <!-- 显示名称，可与 ID 不同 -->
   <Author>核桃</Author>                <!-- 由使用者确认，不要填框架作者 -->
-  <ModVersion>0.14.0</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
+  <ModVersion>0.15.0</ModVersion>           <!-- 必须与代码 Version 和 release.profile.json 一致 -->
   <Description>
-大容量储水装置：0.1 吨（100 升）起步的主池 + 16 个内胆槽，满了自动溢出到内胆、不足时自动回补，满配 34.0 吨。
-装进水分收集器时会在夜间按当夜产量自动预留（可配 0–50 升，默认 25），生产后回填主池，白天保持满。装的是真水，水培机和净水机都认；水色随水质变化（与原版水瓶同色）。电话「核桃水商」下单，
+大容量储水装置：0.1 吨（100 升）起步的主池 + 4×6 共 24 个内胆槽，满了自动溢出到内胆、不足时自动回补，满配 50.0 吨。
+右侧 2×2 可装 4 个过滤器；另有全局水库模式（主池目标 0–100%，默认 90%）。装进水分收集器时可按当夜产量预留（0–50 升）。装的是真水，水培机和净水机都认；水色随水质变化（与原版水瓶同色）。电话「核桃水商」下单，
 扩容服务每档 +100 升、共 19 档升满 2.0 吨，无冷却可连买。设置与说明支持中英俄三语。
 开源（MPL 2.0）：github.com/Heto-XD/MegaWaterTank · 含生成式 AI 辅助制作内容。
 
-Large water tank: starts at 0.1 t (100 L) with 16 insert cells, auto overflow/refill, 34.0 t fully loaded.
-In a Moisture Farm slot it reserves the expected nightly output (0–50 L, default 25) and refills afterwards, so the tank reads full during the day. It holds real water that hydroponics and purifiers recognize; the tint follows the liquid (same as vanilla bottles).
+Large water tank: starts at 0.1 t (100 L) with a 4x6 grid (24 insert cells), auto overflow/refill, 50.0 t fully loaded.
+Four filter slots on the right; optional global reservoir mode (main target 0–100%, default 90%). In a Moisture Farm slot it can reserve the expected nightly output (0–50 L). It holds real water that hydroponics and purifiers recognize; the tint follows the liquid.
 Order via the "Hetao Water Co." phone contact; capacity expands +100 L per purchase (19 steps up to 2.0 t, no cooldown).
 UI and docs in Chinese, English and Russian.
 Open source (MPL 2.0): github.com/Heto-XD/MegaWaterTank · built with generative AI assistance.

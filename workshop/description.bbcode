@@ -1,16 +1,19 @@
 [h1]巨型水箱 / Mega Water Tank[/h1]
+[b]v0.15.0[/b]
 
 [b]一个真正能装水的巨型储水罐。[/b] 0.1 吨（100 升）起步，靠电话服务逐档扩容到 2.0 吨；
-罐内最多插 16 个内胆，满配 34.0 吨。水培机、净水机、水质检测仪都按原版规则识别它。
+主格 4×6 = 24 个内胆槽，满配 50.0 吨；右侧还有 4 个过滤器槽。水培机、净水机、水质检测仪都按原版规则识别它。
 
 [hr][/hr]
 
 [h2]特点[/h2]
 [list]
-[*][b]超大容量[/b]：主池 100 L → 2000 L；每个内胆同样 100 L → 2000 L；16 槽满配 34.0 吨。
+[*][b]超大容量[/b]：主池 100 L → 2000 L；每个内胆同样 100 L → 2000 L；4×6 共 24 槽，满配 50.0 吨。
 [*][b]真实的水[/b]：和水瓶、水箱共用同一套成分、纯度、污染与温度规则，不是抽象数值。
 [*][b]自动溢出 / 回补[/b]：主池满了自动流进空内胆；低于 90% 自动从内胆抽水补满。
-[*][b]机器预腾[/b]：装进水分收集器（湿气农场）槽时，夜间结算前按当夜预期产量腾出空间，生产后回填主池；预留量可在设置里填数字调整（0–50 L，0 = 关闭）。
+[*][b]水库模式[/b]：可选全局模式，主池维持在 0–100% 目标水位（默认 90%），高于/低于死区自动存入/回补内胆。
+[*][b]机器预腾[/b]：装进水分收集器（湿气农场）槽时，夜间结算前按当夜预期产量腾出空间，生产后回填主池；预留量可填 0–50 L。
+[*][b]4 个过滤器槽[/b]：窗口右侧 2×2，支持普通/高级滤芯，左上优先，耗尽后自动切到下一个；只净化进入主池的水。
 [*][b]水色随水质[/b]：净水、锈水、地沟水、化学品都会改变罐内水色（与原版水瓶同色）。
 [*][b]电话下单[/b]：进店打开电话，快速拨号「核桃水商 #21474836#」，在「储水」分组下单。
 [*][b]三语[/b]：简中 / 英文 / 俄文；其它语言回退英文。
@@ -27,25 +30,30 @@
 [h2]怎么用[/h2]
 [list]
 [*][b]灌水[/b]：拿主池去水龙头、水瓶或别的容器上倒水，和原版容器一样操作。
-[*][b]溢出[/b]：主池装满后继续灌，多出来的水自动流进槽里的空内胆。
+[*][b]溢出[/b]：主池装满后继续灌，多出来的水自动流进槽里的空内胆；瓶子/水罐倒水也支持。
 [*][b]回补[/b]：主池低于 90% 时自动从内胆抽水补满（约每 0.25 秒检查一次）。
-[*][b]机器预腾[/b]：装在水分收集器槽里时，夜间结算前按预期产量自动预留（常态 850 ml 只腾约 1.35 L），生产后回填主池；设置里可填数字调整自动/固定、0–50 L、是否全天保持。
+[*][b]机器预腾[/b]：装在水分收集器槽里时，夜间结算前按预期产量自动预留（常态 850 ml 只腾约 1.35 L），生产后回填主池。
+[*][b]水库模式[/b]：设置打开后，主池目标 0–100%（默认 90%）；高于 +5% 存内胆，低于 -5% 回补；此时 90% 回补与机器预腾自动停用。
+[*][b]过滤器[/b]：右侧 2×2 放 4 个滤芯，左上优先；只过滤进入主池的水，水库搬水不过滤。
 [*][b]查看[/b]：水量、水质、进度条和扫描结果都按原版规则显示；本 mod 额外加「合计 / 内胆」两行。
-[*][b]存放[/b]：和原版水箱一样，可以放进任何装得下的容器；主池的内容窗仍然只收内胆。
+[*][b]存放[/b]：和原版水箱一样，可以放进任何装得下的容器；主格仍然只收内胆。
 [/list]
 
-[h2]0.14.0 更新要点[/h2]
+[h2]0.15.0 更新要点[/h2]
 [list]
-[*][b]机器预腾配置化[/b]：预留水量 0–50 L 数字输入（默认 25，0 = 关闭）；自动模式按当次产量 + 0.5 L 预留，常态只腾约 1.35 L。
-[*]默认改为「夜间预腾 + 生产后回填」：白天主池保持 100%，不再长期空 25 L。
-[*]可选「全天保持预留」；选择后主池会一直显示略少，适合想常驻余量的玩家。
-[*]修复预腾的 2 秒父物品检查延迟：机器槽水箱不再等缓存，避免 850 → 1700 的累积。
-[*]扩容上限 19 档、2000 L、34.0 吨；0.13.0 的修复全部保留。
+[*][b]4×6 主格[/b]：24 个内胆槽，满配 50,000 L；旧档 4×4 区域的内胆坐标不变。
+[*][b]过滤器槽[/b]：右侧 2×2，高级过滤器背景；4 个滤芯按左上优先自动切换。
+[*][b]水库模式[/b]：全局目标水位，默认 90%，可填 0–100%；死区 ±5%，每次 25 L。
+[*][b]倒水溢出修复[/b]：瓶子/机器临时瓶往满水箱倒水时，余量会进入内胆。
+[*]日志降噪：水库搬水按次汇总、无内胆降为 Info、成堆才 Warning、迁移日志带字段并节流。
 [/list]
 
 [h2]已知限制[/h2]
 [list]
 [*]原版净水机单次处理量很小，大水箱基本净化不动；建议先净化小瓶再倒进去。
+[*][b]内胆成堆会被水库/溢出跳过[/b]：请拆成单件。
+[*]水库目标 0% 会清空主池；100% 不给机器留空间；默认 90% 在 100 L 水箱上极端产量可能不够，推荐 40–80%。
+[*]过滤器只净化进入主池的水，水库在内胆/主池之间搬水不会净化旧脏水。
 [*]装满水的主池[b]不要丢进垃圾桶[/b]：里面的内胆会一起消失。
 [*]不能卖给任何顾客（为了不破坏经济）。
 [/list]
@@ -57,18 +65,21 @@
 [hr][/hr]
 
 [h1]English[/h1]
+[b]v0.15.0[/b]
 
 [h2]What it is[/h2]
 A huge water tank that [b]starts at 0.1 t (100 L)[/b] and grows to 2.0 t through the phone service.
-It takes up to 16 insert cells; a fully loaded setup holds 34.0 t. Hydroponics, purifiers and the
-water scanner all read it through the vanilla rules.
+The main grid is 4×6 (24 cells); a fully loaded setup holds 50.0 t. There are also four filter slots on the right.
+Hydroponics, purifiers and the water scanner all read it through the vanilla rules.
 
 [h2]Features[/h2]
 [list]
-[*][b]Huge capacity[/b]: 100 L → 2000 L per tank and per cell; 34.0 t with all 16 cells.
+[*][b]Huge capacity[/b]: 100 L → 2000 L per tank and per cell; 4×6 = 24 slots, 50.0 t fully loaded.
 [*][b]Real water[/b]: shares the vanilla composition, purity, contamination and temperature rules.
 [*][b]Overflow / refill[/b]: extra water flows into empty cells; below 90% the tank pulls water back.
-[*][b]Machine reserve[/b]: in a Moisture Farm slot it frees space for the expected nightly output, then refills the tank after production; the reserve is a numeric 0–50 L setting (0 = off).
+[*][b]Reservoir mode[/b]: optional global mode keeping the main tank at a 0–100% target (default 90%), moving water to/from cells outside the dead band.
+[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output, then refills after production; 0–50 L setting.
+[*][b]Four filters[/b]: 2×2 on the right, normal/advanced cartridges, top-left first, auto-switch when depleted; only main-tank inflow is filtered.
 [*][b]Water tint[/b]: the colour follows the liquid, using the same computation as vanilla bottles.
 [*][b]Phone order[/b]: open the phone in the store → speed dial 「Hetao Water Co. #21474836#」 → Water tab.
 [*][b]Languages[/b]: Chinese, English, Russian; other languages fall back to English.
@@ -85,25 +96,30 @@ Deliveries go to the back room. Tanks and cells are repeatable once a day; expan
 [h2]How to use[/h2]
 [list]
 [*][b]Fill[/b]: use the tank on a faucet, a bottle or another container, exactly like vanilla.
-[*][b]Overflow[/b]: once full, extra water flows into the empty cells.
+[*][b]Overflow[/b]: once full, extra water flows into the empty cells; bottle/jug pours are supported.
 [*][b]Refill[/b]: below 90%, the tank pulls water back from its cells (about every 0.25 s).
-[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output (about 1.35 L for a normal 850 ml) and refills afterwards; settings offer numeric Auto/Fixed, 0–50 L, and an all-day option.
+[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output (about 1.35 L for a normal 850 ml) and refills afterwards.
+[*][b]Reservoir mode[/b]: target 0–100% (default 90%); above +5% goes to cells, below -5% refills from cells; the 90% refill and machine reserve are disabled while active.
+[*][b]Filters[/b]: four cartridges in the right 2×2, top-left first; only main-tank inflow is filtered, reservoir moves are not.
 [*][b]Inspect[/b]: volume, quality, progress bar and scanner results follow the vanilla rules; this mod adds a Total line and a Cells line.
-[*][b]Storage[/b]: like the vanilla water tank, it fits into any container it physically fits in; the content window still accepts cells only.
+[*][b]Storage[/b]: like the vanilla water tank, it fits into any container it physically fits in; the main grid still accepts cells only.
 [/list]
 
-[h2]0.14.0 highlights[/h2]
+[h2]0.15.0 highlights[/h2]
 [list]
-[*][b]Configurable machine reserve[/b]: numeric 0–50 L (default 25, 0 = off); Auto reserves expected output + 0.5 L, about 1.35 L for a normal 850 ml run.
-[*]Default is now "reserve before production + refill after": the tank reads 100% during the day instead of staying 25 L short.
-[*]Optional "keep reserve all day"; the tank then shows slightly less, for players who want permanent headroom.
-[*]Fixed the 2 s parent-check delay: machine-slot tanks no longer wait for the cache, avoiding 850 → 1700 accumulation.
-[*]Keeps the 19-step / 2000 L / 34.0 t capacity and all 0.13.0 fixes.
+[*][b]4×6 main grid[/b]: 24 cell slots, 50,000 L fully loaded; existing 4×4 cells keep their coordinates.
+[*][b]Filter slots[/b]: 2×2 on the right, advanced background; four cartridges, top-left first, auto-switch.
+[*][b]Reservoir mode[/b]: global target level, default 90%, 0–100%; ±5% dead band, 25 L per move.
+[*][b]Pour overflow fix[/b]: bottle/machine-jug overflow now goes into the cells instead of being left behind.
+[*]Log cleanup: reservoir moves summarized, no-cells demoted to Info, stacked cells warned only when relevant, migration logs throttled with field details.
 [/list]
 
 [h2]Known limitations[/h2]
 [list]
 [*]Vanilla purifiers process very little at a time, so a huge tank is hard to purify; purify a small bottle first.
+[*][b]Stacked cells are skipped by reservoir/overflow[/b]: split them into single cells.
+[*]Target 0% empties the main tank; 100% leaves no room for machines; at the default 90% a 100 L tank may not fit extreme output; 40–80% recommended.
+[*]Filters only clean main-tank inflow; reservoir movement does not purify old dirty water.
 [*][b]Do not throw a full tank into the trash[/b]: its cells go with it.
 [*]Cannot be sold to customers (to keep the economy intact).
 [/list]
