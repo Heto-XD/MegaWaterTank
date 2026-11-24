@@ -1,66 +1,63 @@
 [h1]巨型水箱 / Mega Water Tank[/h1]
 [b]v0.15.0[/b]
 
-[b]一个真正能装水的巨型储水罐。[/b] 0.1 吨（100 升）起步，靠电话服务逐档扩容到 2.0 吨；
-主格 4×6 = 24 个内胆槽，满配 50.0 吨；右侧还有 4 个过滤器槽。水培机、净水机、水质检测仪都按原版规则识别它。
+[b]真正能装水的巨型储水罐。[/b] 0.1 吨起步，主池/内胆最高 2.0 吨；主格 4×6 = 24 槽，满配 50 吨；右侧 4 个过滤器槽。水培、净水、扫描都按原版规则识别。
 
 [hr][/hr]
 
 [h2]特点[/h2]
 [list]
-[*][b]超大容量[/b]：主池 100 L → 2000 L；每个内胆同样 100 L → 2000 L；4×6 共 24 槽，满配 50.0 吨。
-[*][b]真实的水[/b]：和水瓶、水箱共用同一套成分、纯度、污染与温度规则，不是抽象数值。
-[*][b]自动溢出 / 回补[/b]：主池满了自动流进空内胆；低于 90% 自动从内胆抽水补满。
-[*][b]水库模式[/b]：可选全局模式，主池维持在 0–100% 目标水位（默认 90%），高于/低于死区自动存入/回补内胆。
-[*][b]机器预腾[/b]：装进水分收集器（湿气农场）槽时，夜间结算前按当夜预期产量腾出空间，生产后回填主池；预留量可填 0–50 L。
-[*][b]4 个过滤器槽[/b]：窗口右侧 2×2，支持普通/高级滤芯，左上优先，耗尽后自动切到下一个；只净化进入主池的水。
-[*][b]水色随水质[/b]：净水、锈水、地沟水、化学品都会改变罐内水色（与原版水瓶同色）。
-[*][b]电话下单[/b]：进店打开电话，快速拨号「核桃水商 #21474836#」，在「储水」分组下单。
-[*][b]三语[/b]：简中 / 英文 / 俄文；其它语言回退英文。
+[*][b]容量[/b]：主池/内胆 100 → 2000 L；4×6 = 24 槽，满配 50.0 吨。
+[*][b]真实的水[/b]：原版成分/纯度/污染/温度，水培/净水/扫描可识别。
+[*][b]溢出/回补[/b]：主池满后流入空内胆；低于 90% 自动回补。
+[*][b]水库模式[/b]：全局目标 0–100%（默认 90%），±5% 死区，自动存/补内胆。
+[*][b]机器预腾[/b]：湿气农场槽内按夜产预留（0–50 L），生产后回填。
+[*][b]4 个过滤槽[/b]：2×2，普通/高级滤芯，左上优先，耗尽自动切换；只过滤主池进水。
+[*][b]水色[/b]：随水质变化（同原版水瓶）。
+[*][b]电话下单[/b]：「核桃水商 #21474836#」→ 储水。
+[*][b]三语[/b]：简中/英/俄。
 [/list]
 
 [h2]怎么拿到[/h2]
 [list]
-[*][b]巨型水箱[/b]：500 信用点，送 1 个主池 + 1 个内胆（起步共 200 L）。
-[*][b]追加内胆[/b]：250 信用点，1 个内胆（起步 100 L）。
-[*][b]扩容水箱[/b]：150 信用点，所有主池和内胆永久 +100 L，可买 19 次（100 → 2000 L），无冷却。
+[*]巨型水箱：500，送主池 + 1 内胆（200 L 起）。
+[*]追加内胆：250，1 内胆（100 L 起）。
+[*]扩容：150，所有容器 +100 L，可买 19 次（100 → 2000 L），无冷却。
 [/list]
-货会放在后仓。水箱和内胆每天可买一次；扩容可以当天连买。
+后仓发货；水箱/内胆每日一次，扩容可连买。
 
 [h2]怎么用[/h2]
 [list]
-[*][b]灌水[/b]：拿主池去水龙头、水瓶或别的容器上倒水，和原版容器一样操作。
-[*][b]溢出[/b]：主池装满后继续灌，多出来的水自动流进槽里的空内胆；瓶子/水罐倒水也支持。
-[*][b]回补[/b]：主池低于 90% 时自动从内胆抽水补满（约每 0.25 秒检查一次）。
-[*][b]机器预腾[/b]：装在水分收集器槽里时，夜间结算前按预期产量自动预留（常态 850 ml 只腾约 1.35 L），生产后回填主池。
-[*][b]水库模式[/b]：设置打开后，主池目标 0–100%（默认 90%）；高于 +5% 存内胆，低于 -5% 回补；此时 90% 回补与机器预腾自动停用。
-[*][b]过滤器[/b]：右侧 2×2 放 4 个滤芯，左上优先；只过滤进入主池的水，水库搬水不过滤。
-[*][b]查看[/b]：水量、水质、进度条和扫描结果都按原版规则显示；本 mod 额外加「合计 / 内胆」两行。
-[*][b]存放[/b]：和原版水箱一样，可以放进任何装得下的容器；主格仍然只收内胆。
+[*]灌水：和原版容器一样倒水。
+[*]溢出：主池满后流入内胆，瓶子/水罐倒水也支持。
+[*]回补：主池低于 90% 自动从内胆补。
+[*]机器预腾：湿气农场槽内按夜产自动预留（常态 850 ml 约 1.35 L），生产后回填。
+[*]水库模式：目标 0–100%（默认 90%）；高于 +5% 存内胆，低于 -5% 回补；此时 90% 回补/机器预腾停用。
+[*]过滤器：4 个滤芯，左上优先；只过滤主池进水。
+[*]查看/存放：原版 tooltip + 合计/内胆行；可放入任何装得下的容器。
 [/list]
 
-[h2]0.15.0 更新要点[/h2]
+[h2]0.15.0 更新[/h2]
 [list]
-[*][b]4×6 主格[/b]：24 个内胆槽，满配 50,000 L；旧档 4×4 区域的内胆坐标不变。
-[*][b]过滤器槽[/b]：右侧 2×2，高级过滤器背景；4 个滤芯按左上优先自动切换。
-[*][b]水库模式[/b]：全局目标水位，默认 90%，可填 0–100%；死区 ±5%，每次 25 L。
-[*][b]倒水溢出修复[/b]：瓶子/机器临时瓶往满水箱倒水时，余量会进入内胆。
-[*]日志降噪：水库搬水按次汇总、无内胆降为 Info、成堆才 Warning、迁移日志带字段并节流。
+[*]4×6 主格：24 内胆槽，满配 50,000 L；旧 4×4 内胆坐标不变。
+[*]过滤器槽：2×2，高级背景，4 滤芯左上优先自动切换。
+[*]水库模式：全局目标，默认 90%，0–100%，±5%，25 L/次。
+[*]倒水溢出：瓶子/机器临时瓶余量进内胆。
+[*]日志降噪：汇总/区分/节流。
 [/list]
 
 [h2]已知限制[/h2]
 [list]
-[*]原版净水机单次处理量很小，大水箱基本净化不动；建议先净化小瓶再倒进去。
-[*][b]内胆成堆会被水库/溢出跳过[/b]：请拆成单件。
-[*]水库目标 0% 会清空主池；100% 不给机器留空间；默认 90% 在 100 L 水箱上极端产量可能不够，推荐 40–80%。
-[*]过滤器只净化进入主池的水，水库在内胆/主池之间搬水不会净化旧脏水。
-[*]装满水的主池[b]不要丢进垃圾桶[/b]：里面的内胆会一起消失。
-[*]不能卖给任何顾客（为了不破坏经济）。
+[*]净水机单次量小，大水箱难净化，建议先净化小瓶。
+[*]内胆成堆会被水库/溢出跳过，请拆单件。
+[*]目标 0% 会清空主池；100% 不给机器留空间；90% 在 100 L 水箱极端产量可能不够，推荐 40–80%。
+[*]过滤器只净化主池进水，水库搬水不净化旧脏水。
+[*]满水主池不要丢垃圾桶（内胆一起消失）；不能卖给顾客。
 [/list]
 
 [h2]兼容性[/h2]
 与 Item Details、Item Stacking、Container Manager、Water Machine Fix 同装测试通过。
-装满液体的容器在堆叠时会冻结（和原版液体容器同规则）。
+装满液体的容器在堆叠时冻结（同原版规则）。
 
 [hr][/hr]
 
@@ -68,66 +65,62 @@
 [b]v0.15.0[/b]
 
 [h2]What it is[/h2]
-A huge water tank that [b]starts at 0.1 t (100 L)[/b] and grows to 2.0 t through the phone service.
-The main grid is 4×6 (24 cells); a fully loaded setup holds 50.0 t. There are also four filter slots on the right.
-Hydroponics, purifiers and the water scanner all read it through the vanilla rules.
+A huge water tank that [b]starts at 0.1 t (100 L)[/b], with the main tank and each cell up to 2.0 t. Main grid 4×6 = 24 cells; 50 t fully loaded. Four filter slots on the right. Hydroponics, purifiers and the scanner read it through vanilla rules.
 
 [h2]Features[/h2]
 [list]
-[*][b]Huge capacity[/b]: 100 L → 2000 L per tank and per cell; 4×6 = 24 slots, 50.0 t fully loaded.
-[*][b]Real water[/b]: shares the vanilla composition, purity, contamination and temperature rules.
-[*][b]Overflow / refill[/b]: extra water flows into empty cells; below 90% the tank pulls water back.
-[*][b]Reservoir mode[/b]: optional global mode keeping the main tank at a 0–100% target (default 90%), moving water to/from cells outside the dead band.
-[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output, then refills after production; 0–50 L setting.
-[*][b]Four filters[/b]: 2×2 on the right, normal/advanced cartridges, top-left first, auto-switch when depleted; only main-tank inflow is filtered.
-[*][b]Water tint[/b]: the colour follows the liquid, using the same computation as vanilla bottles.
-[*][b]Phone order[/b]: open the phone in the store → speed dial 「Hetao Water Co. #21474836#」 → Water tab.
-[*][b]Languages[/b]: Chinese, English, Russian; other languages fall back to English.
+[*][b]Capacity[/b]: 100 → 2000 L per tank/cell; 4×6 = 24 slots, 50.0 t fully loaded.
+[*][b]Real water[/b]: vanilla composition, purity, contamination and temperature rules.
+[*][b]Overflow/refill[/b]: extra water flows into empty cells; below 90% the tank pulls water back.
+[*][b]Reservoir mode[/b]: global 0–100% target (default 90%), ±5% dead band, auto move to/from cells.
+[*][b]Machine reserve[/b]: reserves nightly output in a Moisture Farm slot (0–50 L), refills after production.
+[*][b]Four filters[/b]: 2×2, normal/advanced, top-left first, auto-switch; main-tank inflow only.
+[*][b]Water tint[/b]: follows liquid quality (same as vanilla bottles).
+[*][b]Phone order[/b]: 「Hetao Water Co. #21474836#」→ Water tab.
+[*][b]Languages[/b]: Chinese, English, Russian.
 [/list]
 
 [h2]How to get one[/h2]
 [list]
-[*][b]Mega Water Tank[/b]: 500 credits — one tank + one cell (200 L to start).
-[*][b]Extra Tank Cell[/b]: 250 credits — one cell (100 L to start).
-[*][b]Expand Capacity[/b]: 150 credits — every tank and cell permanently +100 L, 19 times (100 → 2000 L), no cooldown.
+[*]Mega Water Tank: 500 — tank + 1 cell (200 L to start).
+[*]Extra Tank Cell: 250 — 1 cell (100 L to start).
+[*]Expand Capacity: 150 — all containers +100 L, 19 times (100 → 2000 L), no cooldown.
 [/list]
-Deliveries go to the back room. Tanks and cells are repeatable once a day; expansion can be bought back to back.
+Delivered to the back room. Tanks/cells once a day; expansion can be bought back to back.
 
 [h2]How to use[/h2]
 [list]
-[*][b]Fill[/b]: use the tank on a faucet, a bottle or another container, exactly like vanilla.
-[*][b]Overflow[/b]: once full, extra water flows into the empty cells; bottle/jug pours are supported.
-[*][b]Refill[/b]: below 90%, the tank pulls water back from its cells (about every 0.25 s).
-[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output (about 1.35 L for a normal 850 ml) and refills afterwards.
-[*][b]Reservoir mode[/b]: target 0–100% (default 90%); above +5% goes to cells, below -5% refills from cells; the 90% refill and machine reserve are disabled while active.
-[*][b]Filters[/b]: four cartridges in the right 2×2, top-left first; only main-tank inflow is filtered, reservoir moves are not.
-[*][b]Inspect[/b]: volume, quality, progress bar and scanner results follow the vanilla rules; this mod adds a Total line and a Cells line.
-[*][b]Storage[/b]: like the vanilla water tank, it fits into any container it physically fits in; the main grid still accepts cells only.
+[*]Fill: use the tank on a faucet, bottle or another container.
+[*]Overflow: after full, extra water flows into cells; bottle/jug pours supported.
+[*]Refill: below 90%, water is pulled back from cells.
+[*]Machine reserve: in a Moisture Farm slot, reserves nightly output (about 1.35 L for 850 ml), refills after production.
+[*]Reservoir mode: target 0–100% (default 90%); above +5% goes to cells, below -5% refills; the 90% refill and machine reserve are disabled.
+[*]Filters: four cartridges, top-left first; main-tank inflow only.
+[*]Inspect/storage: vanilla tooltip + Total/Cells lines; fits any container the vanilla tank fits.
 [/list]
 
 [h2]0.15.0 highlights[/h2]
 [list]
-[*][b]4×6 main grid[/b]: 24 cell slots, 50,000 L fully loaded; existing 4×4 cells keep their coordinates.
-[*][b]Filter slots[/b]: 2×2 on the right, advanced background; four cartridges, top-left first, auto-switch.
-[*][b]Reservoir mode[/b]: global target level, default 90%, 0–100%; ±5% dead band, 25 L per move.
-[*][b]Pour overflow fix[/b]: bottle/machine-jug overflow now goes into the cells instead of being left behind.
-[*]Log cleanup: reservoir moves summarized, no-cells demoted to Info, stacked cells warned only when relevant, migration logs throttled with field details.
+[*]4×6 main grid: 24 cells, 50,000 L; old 4×4 cells keep coordinates.
+[*]Filter slots: 2×2, advanced background, four cartridges, top-left first.
+[*]Reservoir mode: global target, default 90%, 0–100%, ±5%, 25 L per move.
+[*]Pour overflow: bottle/machine-jug remainder goes into cells.
+[*]Log cleanup: summarized/classified/throttled.
 [/list]
 
 [h2]Known limitations[/h2]
 [list]
-[*]Vanilla purifiers process very little at a time, so a huge tank is hard to purify; purify a small bottle first.
-[*][b]Stacked cells are skipped by reservoir/overflow[/b]: split them into single cells.
-[*]Target 0% empties the main tank; 100% leaves no room for machines; at the default 90% a 100 L tank may not fit extreme output; 40–80% recommended.
-[*]Filters only clean main-tank inflow; reservoir movement does not purify old dirty water.
-[*][b]Do not throw a full tank into the trash[/b]: its cells go with it.
-[*]Cannot be sold to customers (to keep the economy intact).
+[*]Vanilla purifiers process little at a time; purify small bottles first.
+[*]Stacked cells are skipped by reservoir/overflow; split them.
+[*]Target 0% empties the main tank; 100% leaves no machine room; 90% may not fit extreme output in a 100 L tank; 40–80% recommended.
+[*]Filters only clean main-tank inflow; reservoir moves do not purify old dirty water.
+[*]Do not trash a full tank (cells go with it); cannot be sold to customers.
 [/list]
 
 [h2]Compatibility[/h2]
 Tested with Item Details, Item Stacking, Container Manager and Water Machine Fix.
-Filled containers are frozen while stacked (same rule as vanilla liquid containers).
+Filled containers freeze while stacked (vanilla rule).
 
 [hr][/hr]
 [url=https://github.com/Heto-XD/MegaWaterTank]Source code (MPL 2.0)[/url]
-Unofficial community mod. Game assets belong to Questing Goose Studio. Built with generative AI assistance; see AI-DISCLOSURE.md in the repository.
+Unofficial mod; game assets belong to Questing Goose Studio. Built with generative AI assistance; see AI-DISCLOSURE.md.
