@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MegaTank
 {
@@ -26,6 +27,9 @@ namespace MegaTank
     internal static class TankAttributes
     {
         private const string BasePriceTag = "LIQUID_CONTAINER_BASE_PRICE_TAG";
+
+        /// <summary>迁移日志节流：同一只容器 30 秒内最多输出一次，避免巡检时刷屏。</summary>
+        private static readonly Dictionary<int, float> LastMigrationLog = new Dictionary<int, float>();
 
         /// <summary>读档链末尾逐物品调用（此时 state / itemTypes 已从存档恢复）。</summary>
         internal static void OnLoaded(GameItem item)
@@ -78,6 +82,7 @@ namespace MegaTank
             if (!tank && !cell) return false;
 
             bool changed = false;
+            string why = "";
             try
             {
                 // 1) 容器基础价：主池 350（原版 water_tank）/ 内胆 25（原版 water_pitcher）。
@@ -90,28 +95,34 @@ namespace MegaTank
                         state.Enable().SetInt(want);
                     }, skipValidate: true);
                     changed = true;
+                    why += "价格 ";
                 }
 
                 // 2) NOT_FOR_RESALE 只留 tag，不留可见类型（0.12.0）。
                 //    直接动 itemTypes 而不是 RemoveGameItemType：后者会 DisableTag + Validate，
                 //    在 onLoaded 阶段没必要（tag 本来就在 state 里，只差一个可见条目）。
                 List<string> types = item.itemTypes;
-                if (types != null && types.Remove("NOT_FOR_RESALE")) changed = true;
+                if (types != null && types.Remove("NOT_FOR_RESALE"))
+                {
+                    changed = true;
+                    why += "类型 ";
+                }
                 if (!item.IsTag("NOT_FOR_RESALE"))
                 {
                     item.EnableTag("NOT_FOR_RESALE", skipValidate: true);
                     changed = true;
+                    why += "不可转售tag ";
                 }
 
                 // 3) 主池：旧档的 CONTAINER_TAG + STORABLE_PACKAGE_TAG → CONTAINER_TOOLTIP_TAG。
                 //    原版液体容器没有 CONTAINER_TAG；保留提示行用 CONTAINER_TOOLTIP_TAG。
                 if (tank)
                 {
-                    if (item.DisableTag("CONTAINER_TAG", skipValidate: true)) changed = true;
-                    if (item.DisableTag("STORABLE_PACKAGE_TAG", skipValidate: true)) changed = true;
-                    if (item.EnableTag("CONTAINER_TOOLTIP_TAG", skipValidate: true)) changed = true;
+                    if (item.DisableTag("CONTAINER_TAG", skipValidate: true)) { changed = true; why += "容器tag "; }
+                    if (item.DisableTag("STORABLE_PACKAGE_TAG", skipValidate: true)) { changed = true; why += "可堆放tag "; }
+                    if (item.EnableTag("CONTAINER_TOOLTIP_TAG", skipValidate: true)) { changed = true; why += "容器提示tag "; }
                     // 0.15.0：过滤槽。读档会用存档 state 覆盖工厂 state，旧档必须在这里补回。
-                    if (item.EnableTag("FILTER_CONTAINER_TAG", skipValidate: true)) changed = true;
+                    if (item.EnableTag("FILTER_CONTAINER_TAG", skipValidate: true)) { changed = true; why += "过滤器tag "; }
                 }
 
                 if (changed)
@@ -119,8 +130,17 @@ namespace MegaTank
                     // 只改 tag：同步 modifiedState 让 IsTag / 估价立刻读到新值。
                     // 不走 ValidateShapeState：那是“改 shape/sprite”时用的重链路。
                     item.SyncModifiedState();
-                    // Verbose 门控：正常玩家看不到；排障时能确认旧档到底迁移了哪几件。
-                    Log.Info("0.12.0 属性迁移：" + item.identifier + "（基础价 " + want + "）");
+
+                    // Verbose 诊断：同一只容器 30 秒内最多一条，并写明到底改了什么。
+                    // 若每 5 秒巡检都出现，可据此定位是哪个 tag/type 在反复变化。
+                    int id = item.GetUniqueID();
+                    float now = Time.unscaledTime;
+                    if (!LastMigrationLog.TryGetValue(id, out float last) || now - last >= 30f)
+                    {
+                        LastMigrationLog[id] = now;
+                        Log.Info("0.12.0 属性迁移：" + item.identifier + "（" + why.Trim() + "）");
+                    }
+                    if (LastMigrationLog.Count > 512) LastMigrationLog.Clear();
                 }
                 return changed;
             }

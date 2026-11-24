@@ -85,6 +85,9 @@ namespace MegaTank
         /// <summary>水库搬不动（无可用内胆/内胆满）后的重试间隔，避免每 tick 重复分配。</summary>
         internal const float ReservoirRetrySeconds = 5f;
 
+        /// <summary>水库搬水汇总日志的最长间隔（秒）；中间 25 L 批次不逐条输出。</summary>
+        internal const float ReservoirLogSeconds = 5f;
+
         // ── 容器基础价（0.12.0，对齐原版液体容器）──
         // 原版 `WaterTankHelper` 的水箱 = 350；`AmenitiesItemDirectory#WaterPitcher` 的滤水壶 = 25。
         // 空容器价值 = unitValue + 这个 tag；满水时 unitValue 会被原版改写成 40/升。

@@ -19,10 +19,14 @@
 - **清理/诊断**：
   - `ReservoirRuntime.Clear()` 在启动、读档、新开局时清空 `Seeking` / 重试状态，避免跨存档残留；
   - 搬不动（无可用内胆/内胆满）后 5 秒重试，不再每 tick 重复分配；
-  - 水库搬水日志带 `[identifier#uniqueId]`，`倒水溢出` 警告带源/目标 id，便于多水箱排查。
+  - 水库搬水日志聚合：25 L 批次不再逐条打印，每次调平运行汇总为一条（最长 5 秒刷新）；
+  - 无内胆降为 `Log.Info`；内胆成堆才 Warning，并明确“水库/溢出会跳过”；
+  - `mega_water_cell` 的通用堆叠警告从 Tick 循环移除，只在真正需要内胆时提示；
+  - `0.12.0 属性迁移` 日志加 30 秒节流并输出具体变化字段（价格/类型/tag），用于定位是否每 5 秒重复；
+  - 水库搬水日志带 `[identifier#uniqueId]`；`倒水溢出` 警告带源/目标 id，并注明“水留在源容器 / 临时瓶会被销毁”。
 - **过滤范围保持不变**：只过滤进入主池的 AddWater/TransferLiquid；水库搬水不经过滤芯。
 - **未做发布相关更新**：版本号仍是 0.14.0 dev；PlayerReadme/工坊/manifest 描述等发布内容暂不动。
-- **构建门禁**：0 警告 0 错误；`check-api-compat` 386 members / 58 types missing 0；PureCheck 58/58。
+- **构建门禁**：0 警告 0 错误；`check-api-compat` 389 members / 58 types missing 0；PureCheck 58/58。
 - **实机验证**：待 2026-11-24 默认 90%、目标 0/50/100、水位双向调平、R2/R3 不打架、夜间湿气农场、
   读档、4×6/24 格。
 

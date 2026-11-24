@@ -87,7 +87,7 @@ namespace MegaTank
                 bool isCell = item.IsTag(Ids.CellTag);
                 if (!isTank && !isCell) continue;
 
-                if (IsStacked(item)) continue;
+                if (IsStacked(item, !isCell)) continue;
 
                 bool dragging = IsDragging(item);
 
@@ -134,7 +134,7 @@ namespace MegaTank
         }
 
         /// <summary>成堆判定；命中时只提示一次（不再做任何状态改写）。</summary>
-        internal static bool IsStacked(GameItem item)
+        internal static bool IsStacked(GameItem item, bool log = true)
         {
             int units;
             try { units = item.unitCount; }
@@ -147,8 +147,11 @@ namespace MegaTank
 
             if (units <= 1) return false;
 
-            Log.Once("stacked-" + item.identifier,
-                item.identifier + " 处于堆叠状态（×" + units + "），已跳过回补与贴图；请拆成单件再使用");
+            if (log)
+            {
+                Log.Once("stacked-" + item.identifier,
+                    item.identifier + " 处于堆叠状态（×" + units + "），已跳过回补、机器预腾/水库与贴图；请拆成单件");
+            }
             return true;
         }
 

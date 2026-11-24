@@ -26,10 +26,22 @@ namespace MegaTank
         /// <summary>搬不动后的重试时间；避免无可用内胆/内胆满时每 tick 重复分配。</summary>
         private static readonly Dictionary<int, float> RetryAfter = new Dictionary<int, float>();
 
+        private struct MoveSummary
+        {
+            internal sbyte Direction;
+            internal long Parts;
+            internal float Started;
+            internal string Identifier;
+        }
+
+        /// <summary>聚合 25 L/次的搬水日志：每次调平运行只输出一条汇总。</summary>
+        private static readonly Dictionary<int, MoveSummary> Summaries = new Dictionary<int, MoveSummary>();
+
         internal static void Clear()
         {
             Seeking.Clear();
             RetryAfter.Clear();
+            Summaries.Clear();
         }
 
         internal static bool Applies(GameItem tank)
@@ -73,6 +85,7 @@ namespace MegaTank
                 {
                     if (current <= target)
                     {
+                        FlushMove(id);
                         Seeking.Remove(id);
                         RetryAfter.Remove(id);
                         return;
@@ -85,6 +98,7 @@ namespace MegaTank
                 {
                     if (current >= target)
                     {
+                        FlushMove(id);
                         Seeking.Remove(id);
                         RetryAfter.Remove(id);
                         return;
@@ -96,16 +110,20 @@ namespace MegaTank
 
                 if (moved <= 0)
                 {
+                    FlushMove(id);
                     Seeking.Remove(id);
                     RetryAfter[id] = now + Ids.ReservoirRetrySeconds;
                 }
                 else
                 {
+                    RecordMove(tank, direction, moved);
                     RetryAfter.Remove(id);
+                    FlushIfOld(id, now);
                 }
 
                 if (Seeking.Count > 256) Seeking.Clear();
                 if (RetryAfter.Count > 256) RetryAfter.Clear();
+                if (Summaries.Count > 256) Summaries.Clear();
             }
             catch (Exception e)
             {
@@ -135,7 +153,12 @@ namespace MegaTank
 
                 RetryAfter.Remove(tank.GetUniqueID());
                 int amount = (int)Math.Min(current - target, int.MaxValue);
-                MoveOut(tank, amount, int.MaxValue);
+                int moved = MoveOut(tank, amount, int.MaxValue);
+                if (moved > 0)
+                {
+                    RecordMove(tank, 1, moved);
+                    FlushMove(tank.GetUniqueID());
+                }
             }
             catch (Exception e)
             {
@@ -151,8 +174,7 @@ namespace MegaTank
             List<GameItem> cells = TankRuntime.Cells(tank, out stacked);
             if (cells.Count == 0)
             {
-                Log.Once("reservoir-no-cell-" + tank.GetUniqueID(),
-                    "水库模式" + Stamp(tank) + "：没有可用内胆，无法调平主池水位");
+                ReportNoCells(tank, stacked);
                 return 0;
             }
 
@@ -172,9 +194,6 @@ namespace MegaTank
                 remaining -= done;
             }
 
-            if (moved > 0)
-                Log.Info("水库" + Stamp(tank) + "：主池→子胆 " + moved + " part（" + (moved / 1000) + " ml）");
-
             return moved;
         }
 
@@ -185,8 +204,7 @@ namespace MegaTank
             List<GameItem> cells = TankRuntime.Cells(tank, out stacked);
             if (cells.Count == 0)
             {
-                Log.Once("reservoir-no-cell-" + tank.GetUniqueID(),
-                    "水库模式" + Stamp(tank) + "：没有可用内胆，无法调平主池水位");
+                ReportNoCells(tank, stacked);
                 return 0;
             }
 
@@ -206,10 +224,62 @@ namespace MegaTank
                 remaining -= done;
             }
 
-            if (moved > 0)
-                Log.Info("水库" + Stamp(tank) + "：子胆→主池 " + moved + " part（" + (moved / 1000) + " ml）");
-
             return moved;
+        }
+
+        private static void ReportNoCells(GameItem tank, int stacked)
+        {
+            int id = tank.GetUniqueID();
+            if (stacked > 0)
+            {
+                Log.Once("reservoir-stacked-" + id,
+                    "水库模式" + Stamp(tank) + "：内胆成堆（" + stacked + " 堆），水库/溢出会跳过；请拆成单件");
+            }
+            else
+            {
+                // 没有内胆是正常状态（只是水库无法调平），不当作 Warning。
+                Log.Info("水库模式" + Stamp(tank) + "：没有内胆，跳过水库调平");
+            }
+        }
+
+        private static void RecordMove(GameItem tank, sbyte direction, int moved)
+        {
+            if (moved <= 0) return;
+
+            int id = tank.GetUniqueID();
+            if (Summaries.TryGetValue(id, out MoveSummary summary) && summary.Direction == direction)
+            {
+                summary.Parts += moved;
+                Summaries[id] = summary;
+                return;
+            }
+
+            FlushMove(id);
+            Summaries[id] = new MoveSummary
+            {
+                Direction = direction,
+                Parts = moved,
+                Started = Time.unscaledTime,
+                Identifier = tank.identifier
+            };
+        }
+
+        private static void FlushIfOld(int id, float now)
+        {
+            if (!Summaries.TryGetValue(id, out MoveSummary summary)) return;
+            if (now - summary.Started < Ids.ReservoirLogSeconds) return;
+            FlushMove(id);
+        }
+
+        private static void FlushMove(int id)
+        {
+            if (!Summaries.TryGetValue(id, out MoveSummary summary)) return;
+            Summaries.Remove(id);
+            if (summary.Parts <= 0) return;
+
+            Log.Info("水库[" + summary.Identifier + "#" + id + "]："
+                     + (summary.Direction > 0 ? "主池→子胆" : "子胆→主池")
+                     + " 共 " + summary.Parts + " part（" + (summary.Parts / 1000) + " ml）");
         }
 
         private static string Stamp(GameItem item)
