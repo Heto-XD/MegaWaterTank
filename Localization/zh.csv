@@ -25,6 +25,10 @@ megatank.cfg.sec.diagnostics,诊断
 megatank.cfg.verbose,详细日志
 megatank.cfg.verbose.tip,默认关 · 开启后输出初始化、补丁安装、物品注册等诊断日志；排障用
 megatank.cfg.sec.water,水量自动化
+megatank.cfg.reservoir,水库模式
+megatank.cfg.reservoir.tip,开：主池维持在目标水位附近，高于/低于死区时自动存入/回补子胆；R3 机器预腾设置将不生效。关：保持现有机器预腾行为。
+megatank.cfg.reservoir.target,水库目标水位（%）
+megatank.cfg.reservoir.target.tip,0–100%。默认 90 保持原有习惯；推荐 40–80 给机器留余量，90 以上时极端产量可能没有足够空间。目标 ±5% 内不搬水。
 megatank.cfg.reserve,预留水量（升）
 megatank.cfg.reserve.tip,为水分收集器夜间产量预留的水量上限。0 = 关闭。湿气农场单台极限约 21.5 升/夜；自动模式会按当夜产量取更小的值。
 megatank.cfg.auto,按当夜产量自动预留

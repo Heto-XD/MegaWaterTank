@@ -78,6 +78,9 @@ namespace MegaTank.PureCheck
             Check("ReserveMaxLiters=50", Ids.ReserveMaxLiters, 50);
             Check("ReserveMarginParts=0.5L", Ids.ReserveMarginParts, 500000);
             Check("ReserveContinuousMaxPercent=8", Ids.ReserveContinuousMaxPercent, 8);
+            Check("DefaultReservoirTargetPercent=90", Ids.DefaultReservoirTargetPercent, 90);
+            Check("ReservoirBandPercent=5", Ids.ReservoirBandPercent, 5);
+            Check("ReservoirMaxMoveParts=25L", Ids.ReservoirMaxMoveParts, 25000000);
             Check("LegacyLevelOffset=8", Ids.LegacyLevelOffset, 8);
 
             // ── 0.12.0 原版容器基础价：主池 350（water_tank）/ 内胆 25（water_pitcher）──

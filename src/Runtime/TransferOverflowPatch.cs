@@ -33,8 +33,11 @@ namespace MegaTank
                 int moved = TankRuntime.SpillSourceToCells(targetContainer, sourceContainer, remaining);
                 if (moved < remaining)
                 {
-                    Log.Once("r1-transfer-lost",
-                        "倒水溢出：源容器还有 " + (remaining - moved) + " part 没进内胆（内胆满/成堆/没有内胆）");
+                    Log.Once("r1-transfer-lost-" + sourceContainer.GetUniqueID(),
+                        "倒水溢出：源 " + sourceContainer.identifier + "#" + sourceContainer.GetUniqueID()
+                        + " 还有 " + (remaining - moved) + " part 没进内胆（目标 "
+                        + targetContainer.identifier + "#" + targetContainer.GetUniqueID()
+                        + "；内胆满/成堆/没有内胆）");
                 }
             }
             catch (Exception e)

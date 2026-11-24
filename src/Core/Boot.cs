@@ -22,6 +22,7 @@ namespace MegaTank
             Step("补丁", LatePatches.Install);
             Step("电话名片", PhoneCard.Install);
             Step("容器索引", TankRegistry.RefreshFromStore);
+            Step("水库状态", ReservoirRuntime.Clear);
 
             // 扩容等级：先迁移老档口径（0.9.x → 0.10.0，等级 +8 保住容量），
             // 再清缓存，最后让老容器对齐当前档位。
@@ -63,6 +64,7 @@ namespace MegaTank
             Step("补丁", LatePatches.Install);
             Step("新档电话名片", PhoneCard.Install);
             Step("新档容器索引", TankRegistry.RefreshFromStore);
+            Step("新档水库状态", ReservoirRuntime.Clear);
 
             // 新档没有 ModData ⇒ 0 档（100 L）。先落一次口径标记，避免下次进档误当成老档，
             // 再把已生成的物品对齐。

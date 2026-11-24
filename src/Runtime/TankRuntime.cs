@@ -35,6 +35,7 @@ namespace MegaTank
 
         internal static void EnsureTicker()
         {
+            ReservoirRuntime.Clear();
             TankRegistry.MarkDirty();
             FrameTicker.Ensure();
         }
@@ -45,6 +46,7 @@ namespace MegaTank
             TankRegistry.Clear();
             StateCache.Clear();
             ReservePlans.Clear();
+            ReservoirRuntime.Clear();
         }
 
         internal static void Tick()
@@ -108,10 +110,21 @@ namespace MegaTank
                     TankAttributes.Ensure(item);
                 }
 
-                // 水位百分比只读一次，回补和贴图共用（原来 SyncSprite 内会重复读两次）。
+                // 水位百分比只读一次；水库模式搬水后需要重算一次给贴图。
                 int percent = WaterHelper.GetCurrentCapacity(item);
-                if (isTank) Refill(item, percent, dragging);
-                if (isTank) TryReserve(item, false);
+                if (isTank)
+                {
+                    if (ReservoirRuntime.Applies(item))
+                    {
+                        ReservoirRuntime.Tick(item);
+                        percent = WaterHelper.GetCurrentCapacity(item);
+                    }
+                    else
+                    {
+                        Refill(item, percent, dragging);
+                        TryReserve(item, false);
+                    }
+                }
                 SyncSprite(item, percent);
             }
 
@@ -121,7 +134,7 @@ namespace MegaTank
         }
 
         /// <summary>成堆判定；命中时只提示一次（不再做任何状态改写）。</summary>
-        private static bool IsStacked(GameItem item)
+        internal static bool IsStacked(GameItem item)
         {
             int units;
             try { units = item.unitCount; }
@@ -186,6 +199,7 @@ namespace MegaTank
             try
             {
                 if (tank == null || !tank.IsTag(Ids.TankTag)) return;
+                if (ReserveConfig.ReservoirMode) return;
                 if (IsStacked(tank)) return;
                 if (IsDragging(tank)) return;
 
@@ -345,7 +359,8 @@ namespace MegaTank
                 {
                     GameItem item = all[i];
                     if (item == null || !item.IsTag(Ids.TankTag)) continue;
-                    TryReserve(item, true);
+                    if (ReserveConfig.ReservoirMode) ReservoirRuntime.PrepareForNight(item);
+                    else TryReserve(item, true);
                 }
             }
             catch (Exception e)
@@ -377,6 +392,7 @@ namespace MegaTank
 
         private static void RestoreMachineTanks(string logKey)
         {
+            if (ReserveConfig.ReservoirMode) return;
             if (ReserveConfig.Continuous || ReserveConfig.ReserveLiters <= 0) return;
             if (!Reentry.TryEnter()) return;
             try
@@ -545,7 +561,7 @@ namespace MegaTank
         /// 取槽内可用内胆（只走一层内容窗，不下钻其它物品、不去环、无递归）。
         /// <paramref name="stacked"/> 返回被跳过的成堆件数。
         /// </summary>
-        private static List<GameItem> Cells(GameItem tank, out int stacked)
+        internal static List<GameItem> Cells(GameItem tank, out int stacked)
         {
             var result = new List<GameItem>();
             stacked = 0;
@@ -679,7 +695,7 @@ namespace MegaTank
             if (ReservePlans.Count > 512) ReservePlans.Clear();
         }
 
-        private static bool IsDragging(GameItem item)
+        internal static bool IsDragging(GameItem item)
         {
             try
             {

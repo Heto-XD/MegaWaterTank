@@ -68,6 +68,23 @@ namespace MegaTank
         /// <summary>机器槽目标缓存秒数（连续模式下避免每 tick 重算当夜产量）。</summary>
         internal const float ReservePositiveCacheSeconds = 5f;
 
+        // ── 水库模式（0.15.0 Phase 2）──
+        /// <summary>默认目标水位 90%（沿用“主池基本满”的习惯）；玩家可改 0–100。</summary>
+        internal const int DefaultReservoirTargetPercent = 90;
+
+        /// <summary>水库目标允许范围：0 = 主池清空，100 = 主池装满。</summary>
+        internal const int ReservoirMinPercent = 0;
+        internal const int ReservoirMaxPercent = 100;
+
+        /// <summary>死区：目标 ±5% 内不搬水，避免每 tick 抖动。</summary>
+        internal const int ReservoirBandPercent = 5;
+
+        /// <summary>水库每次最多搬 25 L（25,000,000 part），防止单帧大搬。</summary>
+        internal const int ReservoirMaxMoveParts = 25_000_000;
+
+        /// <summary>水库搬不动（无可用内胆/内胆满）后的重试间隔，避免每 tick 重复分配。</summary>
+        internal const float ReservoirRetrySeconds = 5f;
+
         // ── 容器基础价（0.12.0，对齐原版液体容器）──
         // 原版 `WaterTankHelper` 的水箱 = 350；`AmenitiesItemDirectory#WaterPitcher` 的滤水壶 = 25。
         // 空容器价值 = unitValue + 这个 tag；满水时 unitValue 会被原版改写成 40/升。

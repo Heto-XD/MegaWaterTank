@@ -25,6 +25,10 @@ megatank.cfg.sec.diagnostics,Diagnostics
 megatank.cfg.verbose,Verbose log
 megatank.cfg.verbose.tip,Off by default · Log init, patch install and item registration. For troubleshooting.
 megatank.cfg.sec.water,Water automation
+megatank.cfg.reservoir,Reservoir mode
+megatank.cfg.reservoir.tip,On: keeps the main tank near the target level, moving water to/from cells outside the dead band; machine-reserve settings are ignored. Off: keeps the current machine-reserve behavior.
+megatank.cfg.reservoir.target,Reservoir target (%)
+megatank.cfg.reservoir.target.tip,0–100%. Default 90 keeps the previous habit; 40–80 is recommended to leave room for machines. Above 90 an extreme output may not fit. No movement within ±5% of the target.
 megatank.cfg.reserve,Reserve amount (L)
 megatank.cfg.reserve.tip,Upper bound for water kept free for the Moisture Farm's nightly output. 0 = off. Hard limit about 21.5 L/night; Auto uses a smaller value.
 megatank.cfg.auto,Auto reserve from output
