@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": 1,
+  "CreatedAt": "2026-11-24T12:07:53.9572481+08:00",
+  "ModId": "megatank",
+  "ModVersion": "0.15.0",
+  "GameVersions": [
+    "1.0"
+  ],
+  "Capabilities": [],
+  "ManifestAssemblies": [
+    "MegaTank.dll"
+  ],
+  "SourceCommit": "8906e39666fd9954c95c74f57850123602687d2a",
+  "GitBranch": "main",
+  "DirtyFileCount": 0,
+  "GameVersion": "1.0.0.16",
+  "GameBranch": "open_beta",
+  "SteamBuild": "26772488",
+  "GameAssemblySha256": "2596200FB57087C3B9FC4ECB9F0218285ABADD57092CD44BFE474A444EC94FDA",
+  "DotnetSdk": "10.0.403",
+  "DllPath": "D:\\games\\open code work\\MegaWaterTank\\bin\\Release\\MegaTank.dll",
+  "DllAssemblyName": "MegaTank",
+  "DllSha256": "7F65C47DB550D078BE9E6FFD3E39BFF8D7FE62A420CA489435EC3F2914DB1F66",
+  "ZipPath": null,
+  "ZipSha256": null,
+  "ZipEntryCount": null,
+  "Review": null
+}
