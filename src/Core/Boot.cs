@@ -37,6 +37,9 @@ namespace MegaTank
             // 放在容量之后：两者都只改 tag，互不依赖；老档容器在这里一次校正到位。
             Step("原版属性对齐", () => TankAttributes.ApplyAll());
 
+            // 0.14.0：读档后把机器槽水箱回填到满（默认夜间模式）；Continuous 模式会在 Tick 里自己维持。
+            Step("机器预腾回填", TankRuntime.RestoreOnLoad);
+
             Step("服务注册", Services.EnsureRegistered);
         }
 
@@ -47,7 +50,7 @@ namespace MegaTank
         ///   `PlayerStore.LoadGame()`（读档）里调（PlayerStore.cs），
         ///   新建游戏走的是 `NewGameData` → `FireOnNewGameStarted`（NewGameData.cs）。
         ///   所以这里必须把"进档才装"的那几样**全部再装一次**（全部幂等）：
-        ///   延迟补丁（tooltip / R1 / 电话名 / 存盘摘名片）、电话名片、扩容等级、服务注册。
+        ///   延迟补丁（R1 / 倒水溢出 / 滤芯选择 / 电话名 / 存盘摘名片）、电话名片、扩容等级、服务注册。
         ///   少装补丁的表现（实机 2026-11-20 v0.10.0）：新开局电话簿里名片名字变成
         ///   `Translation Error 'megatank.phone' in ClientName`，且服务页没有那三条。
         ///

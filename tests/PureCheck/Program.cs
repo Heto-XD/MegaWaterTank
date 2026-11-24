@@ -68,12 +68,16 @@ namespace MegaTank.PureCheck
             Check("Clamp(11,0,10)=10", WaterMath.Clamp(11, 0, 10), 10);
             Check("Clamp(5,0,10)=5", WaterMath.Clamp(5, 0, 10), 5);
 
-            // ── 容量阶梯（0.10.0 口径）：100 L 起步 / 每档 +100 L / 18 档满级 1900 L ──
+            // ── 容量阶梯（0.13.0 口径）：100 L 起步 / 每档 +100 L / 19 档满级 2000 L ──
             Check("CapacityAt(0)=100L", Ids.CapacityAt(0), 100000);
             Check("CapacityAt(1)=200L", Ids.CapacityAt(1), 200000);
-            Check("CapacityAt(max)=1900L", Ids.CapacityAt(Ids.MaxExpandLevel), 1900000);
-            Check("CapacityMl=1900L", Ids.CapacityMl, 1900000);
-            Check("MaxExpandLevel=18", Ids.MaxExpandLevel, 18);
+            Check("CapacityAt(max)=2000L", Ids.CapacityAt(Ids.MaxExpandLevel), 2000000);
+            Check("CapacityMl=2000L", Ids.CapacityMl, 2000000);
+            Check("MaxExpandLevel=19", Ids.MaxExpandLevel, 19);
+            Check("DefaultReserveLiters=25", Ids.DefaultReserveLiters, 25);
+            Check("ReserveMaxLiters=50", Ids.ReserveMaxLiters, 50);
+            Check("ReserveMarginParts=0.5L", Ids.ReserveMarginParts, 500000);
+            Check("ReserveContinuousMaxPercent=8", Ids.ReserveContinuousMaxPercent, 8);
             Check("LegacyLevelOffset=8", Ids.LegacyLevelOffset, 8);
 
             // ── 0.12.0 原版容器基础价：主池 350（water_tank）/ 内胆 25（water_pitcher）──

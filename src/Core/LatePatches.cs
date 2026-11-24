@@ -19,7 +19,7 @@ namespace MegaTank
     ///   整个进程内 Liquid 永久损坏（水系统全挂）。
     ///
     /// tooltip 自 0.12.0 起改走官方 `ModHook.OnCreateTooltipLate`（见 TankTooltip），
-    /// 不再需要 Harmony 补丁，所以这里只剩 3 个目标。
+    /// 不再需要 Harmony 补丁，所以这里只剩 5 个目标（R1 / 倒水溢出 / 滤芯选择 / 电话名 / 存盘摘名片）。
     ///
     /// 代价：本文件里的补丁对 _modkit\check-patch-cctor.ps1 不可见（它只扫 [HarmonyPatch] 特性）。
     ///   所以装完必须**自检一次**：目标存在 + 我方 owner 真的挂上了（GetPatchInfo）。
@@ -47,10 +47,12 @@ namespace MegaTank
 
             Applied.Clear();
             Try("R1 溢出", PatchAddWater);
+            Try("倒水溢出", PatchTransferOverflow);
+            Try("滤芯选择", PatchFilterSelect);
             Try("电话名", PatchPhoneName);
             Try("存盘摘名片", PatchSaveStrip);
 
-            Log.Info("延迟补丁 " + Applied.Count + "/3 就绪" +
+            Log.Info("延迟补丁 " + Applied.Count + "/5 就绪" +
                      (Applied.Count > 0 ? "：" + string.Join("、", Applied.ToArray()) : "（全部失败，功能降级）"));
         }
 
@@ -107,6 +109,53 @@ namespace MegaTank
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(OverflowPatch), nameof(OverflowPatch.Postfix))));
 
             return Verify(target, "AddWater");
+        }
+
+        /// <summary>
+        /// 倒水/机器临时瓶走 `TransferLiquid`，不经过 AddWater；Postfix 把目标为水箱时的
+        /// 源剩余水搬进内胆（R1 只覆盖 AddWater）。
+        /// </summary>
+        private static bool PatchTransferOverflow()
+        {
+            MethodInfo target = AccessTools.Method(
+                typeof(WaterHelper),
+                "TransferLiquid",
+                new[] { typeof(GameItem), typeof(GameItem) });
+
+            if (target == null)
+            {
+                Log.Once("target-transfer", "找不到 WaterHelper.TransferLiquid，倒水溢出停用（其余功能正常）");
+                return false;
+            }
+
+            _harmony.Patch(target,
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(TransferOverflowPatch), nameof(TransferOverflowPatch.Postfix))));
+
+            return Verify(target, "TransferLiquid");
+        }
+
+        /// <summary>
+        /// 多滤芯选择：`WaterHelper.GetFilterItem(GameItem)` 只返回哈希顺序第一个。
+        /// 水箱有 4 个过滤器槽时，按槽位左上优先选一个有耐久的滤芯。
+        /// </summary>
+        private static bool PatchFilterSelect()
+        {
+            MethodInfo target = AccessTools.Method(
+                typeof(WaterHelper),
+                "GetFilterItem",
+                new[] { typeof(GameItem) });
+
+            if (target == null)
+            {
+                Log.Once("target-filterselect",
+                    "找不到 WaterHelper.GetFilterItem，4 槽滤芯自动切换停用（仍用原版第一个滤芯）");
+                return false;
+            }
+
+            _harmony.Patch(target,
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(FilterSelectPatch), nameof(FilterSelectPatch.Postfix))));
+
+            return Verify(target, "GetFilterItem");
         }
 
         private static bool PatchPhoneName()

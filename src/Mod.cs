@@ -13,7 +13,7 @@ namespace MegaTank
     ///
     /// 本程序集**不含 [HarmonyPatch] 特性补丁**：其中一个目标（AddWater）的方法体
     /// 读 Liquid 静态字段，加载期 PatchAll 会触发 Liquid 的本地化 cctor 并把它打成永久损坏。
-    /// 所以 3 个补丁由 LatePatches 在进档后（读档 OnGameLoadedLate / 新开局 OnNewGameStarted）手动安装；
+    /// 所以 5 个补丁由 LatePatches 在进档后（读档 OnGameLoadedLate / 新开局 OnNewGameStarted）手动安装；
     /// tooltip 自 0.12.0 起走官方 OnCreateTooltipLate，不再需要补丁。
     /// 另有一个必须在 OnEnable 就装的配置面板语言补丁——它目标纯静态、无危险 cctor，
     /// 见 src\Patches\ConfigSectionPatch.cs 头注释。
@@ -31,6 +31,7 @@ namespace MegaTank
             //   PowerManager / SentinelTracker 同样在 IMod.Init 里 Init 配置。
             //   安全性：section 是字面量，label/tooltip 是延迟 lambda，Init 期不读 locale。
             Step("日志开关配置", DebugConfig.Init);
+            Step("机器预腾配置", ReserveConfig.Init);
             Debug.Log("[MegaTank] Init v" + Ids.Version);
         }
 
@@ -41,6 +42,8 @@ namespace MegaTank
             Step("订阅载入完成", () => ModHook.OnGameLoadedLate += Boot.OnLoadedLate);
             Step("订阅新开局", () => ModHook.OnNewGameStarted += OnNewGameStartedWrap);
             Step("订阅 tooltip", () => ModHook.OnCreateTooltipLate += TankTooltip.Append);
+            Step("订阅夜间结算", () => ModHook.OnHandlingNightlyServicesLate += TankRuntime.OnNightlyServicesLate);
+            Step("订阅夜间回填", () => ModHook.OnGoingSleepLate += TankRuntime.OnGoingSleepLate);
             Step("启动巡检", TankRuntime.EnsureTicker);
 
             // ★ 必须在加载期装：主菜单 → Modding → 齿轮就能打开配置面板，
@@ -58,6 +61,8 @@ namespace MegaTank
             Step("退订载入完成", () => ModHook.OnGameLoadedLate -= Boot.OnLoadedLate);
             Step("退订新开局", () => ModHook.OnNewGameStarted -= OnNewGameStartedWrap);
             Step("退订 tooltip", () => ModHook.OnCreateTooltipLate -= TankTooltip.Append);
+            Step("退订夜间结算", () => ModHook.OnHandlingNightlyServicesLate -= TankRuntime.OnNightlyServicesLate);
+            Step("退订夜间回填", () => ModHook.OnGoingSleepLate -= TankRuntime.OnGoingSleepLate);
             Step("撤销电话名片", PhoneCard.Uninstall);
             Step("撤销服务注册", Services.Unregister);
             Step("卸载配置面板补丁", ConfigSectionPatch.Uninstall);

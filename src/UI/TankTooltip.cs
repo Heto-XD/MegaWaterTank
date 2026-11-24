@@ -70,7 +70,7 @@ namespace MegaTank
 
         /// <summary>
         /// part → 数值文本（不带单位）。long 入参：17 个满级容器合计会超 int。
-        /// 整数除 + 余数，绝不走 float（1.9e9 part 量级 float 精度只有 ±128 part）。
+        /// 整数除 + 余数，绝不走 float（2.0e9 part 量级 float 精度只有 ±128 part）。
         /// </summary>
         private static string FormatNum(long part)
         {

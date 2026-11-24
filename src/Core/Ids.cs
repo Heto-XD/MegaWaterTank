@@ -8,7 +8,7 @@ namespace MegaTank
     internal static class Ids
     {
         internal const string ModId = "megatank";
-        internal const string Version = "0.12.0";
+        internal const string Version = "0.14.0";
 
         internal const string Tank = "mega_water_tank";
         internal const string Cell = "mega_water_cell";
@@ -16,11 +16,11 @@ namespace MegaTank
         internal const string TankTag = "MEGA_TANK_TAG";
         internal const string CellTag = "MEGA_CELL_TAG";
 
-        // ── 容量（0.11.4 起：100 L 起步，逐档 +100 L，满级仍是 1900 L）──
+        // ── 容量（0.11.4 起：100 L 起步，逐档 +100 L，0.13.0 起满级 2000 L）──
         // 主池与每个内胆共用同一容量；扩容等级是**存档级全局**（ModData），
-        // 买一次所有容器同时变大。满配：1900 L × 17 个容器 = 32.3 吨（与原设计一致）。
+        // 买一次所有容器同时变大。满配：2000 L × 17 个容器 = 34.0 吨。
         // 注意上限：WaterHelper.InitLiquidContainerItem 对 >2147483 ml 会报错并夹取，
-        // 我们的 1900 L 远低于它；part 值 = ml × 1000 = 1.9e9，仍在 int 内（约 2.1e9 顶）。
+        // 我们的 2000 L 仍低于它；part 值 = ml × 1000 = 2.0e9，仍在 int 内（约 2.1e9 顶）。
 
         /// <summary>起步容量 100 L（0.11.4 起；0.9.x 是 900 L，老档由 <c>Capacity.EnsureScheme</c> 迁过来）。</summary>
         internal const int BaseCapacityMl = 100000;
@@ -37,11 +37,36 @@ namespace MegaTank
         /// </summary>
         internal const int LegacyLevelOffset = (LegacyBaseCapacityMl - BaseCapacityMl) / ExpandStepMl;
 
-        /// <summary>扩容上限 18 档（100 + 18×100 = 1900 L）。</summary>
-        internal const int MaxExpandLevel = 18;
+        /// <summary>扩容上限 19 档（100 + 19×100 = 2000 L；单容器 int 硬上限 2147.48 L）。</summary>
+        internal const int MaxExpandLevel = 19;
 
-        /// <summary>满级容量 = 1900 L（与旧版常量同名保留，避免漏改）。</summary>
+        /// <summary>满级容量 = 2000 L（与旧版常量同名保留，避免漏改）。</summary>
         internal const int CapacityMl = BaseCapacityMl + MaxExpandLevel * ExpandStepMl;
+
+        // ── R3 机器预腾（0.14.0：配置化 + 夜间预腾/回填）──
+        /// <summary>只对湿气农场生效；R3 不碰其它机器槽。</summary>
+        internal const string MoistureFarmId = "moisture_farm";
+
+        /// <summary>默认预留上限 25 L；玩家可在配置里 0–50 L 调整，0 = 关闭。</summary>
+        internal const int DefaultReserveLiters = 25;
+
+        /// <summary>配置允许的最大预留值（升）。</summary>
+        internal const int ReserveMaxLiters = 50;
+
+        /// <summary>自动模式的安全余量：0.5 L = 500,000 part。</summary>
+        internal const int ReserveMarginParts = 500_000;
+
+        /// <summary>
+        /// 连续模式门槛：实际 reserve 占容量 ≤ 8% 时才每 tick 巡检。
+        /// 这样主池稳定在 ≥92%，与 R2 的 90% 回补阈值留出死区；超过门槛只在夜间一次性预腾。
+        /// </summary>
+        internal const int ReserveContinuousMaxPercent = 8;
+
+        /// <summary>否定结果缓存秒数（不在机器槽/没电时，避免每 tick 查父链）。</summary>
+        internal const float ReserveNegativeCacheSeconds = 2f;
+
+        /// <summary>机器槽目标缓存秒数（连续模式下避免每 tick 重算当夜产量）。</summary>
+        internal const float ReservePositiveCacheSeconds = 5f;
 
         // ── 容器基础价（0.12.0，对齐原版液体容器）──
         // 原版 `WaterTankHelper` 的水箱 = 350；`AmenitiesItemDirectory#WaterPitcher` 的滤水壶 = 25。
@@ -62,9 +87,9 @@ namespace MegaTank
             return BaseCapacityMl + level * ExpandStepMl;
         }
 
-        /// <summary>内胆槽：4×4 = 16 个。</summary>
+        /// <summary>内胆槽：4×6 = 24 个（0.15.0 Phase 1.1）。</summary>
         internal const int SlotsW = 4;
-        internal const int SlotsH = 4;
+        internal const int SlotsH = 6;
 
         /// <summary>占格：主池 2×3，内胆 1×1（gridSize 恒 16）。</summary>
         internal const int TankW = 2;

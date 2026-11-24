@@ -20,15 +20,17 @@ namespace MegaTank
             Log.Info("物品已注册：" + Ids.Tank + " / " + Ids.Cell + "（槽位 " + (Ids.SlotsW * Ids.SlotsH) + "）");
         }
 
-        /// <summary>主池：2×3 格，16 个内胆槽。</summary>
+        /// <summary>主池：2×3 格，4×6 = 24 个内胆槽。</summary>
         private static GameItem CreateTank()
         {
-            var window = DirectoryUtils.CreateInventoryWindow(Ids.SlotsW, Ids.SlotsH);
+            var tankWindow = CreateTankWindow();
             GameItem item = ItemDirectory.CreateEmptyItem(Ids.Tank);
             item.name = Text.T("megatank.item.tank.name", "巨型水箱", "Mega Water Tank");
+            int slots = Ids.SlotsW * Ids.SlotsH;
             item.shortDescription = Text.T("megatank.item.tank.desc",
-                "超大容量储水装置，可插入 16 个内胆扩容。里面装的是真实的水，能被水培机和净水设备识别。",
-                "A very large water tank that takes up to 16 insert cells. The water inside is real: hydroponics and purifiers can read it.");
+                "超大容量储水装置，可插入 {0} 个内胆扩容；右侧 2×2 槽可放 4 个过滤器（左上优先）。里面装的是真实的水，能被水培机和净水设备识别。",
+                "A very large water tank that takes up to {0} insert cells; the right 2×2 area holds up to 4 filters (top-left first). The water inside is real: hydroponics and purifiers can read it.",
+                slots);
             item.unitValue = 0L;
 
             // 容量 / 水位 tag / 交互委托 / 化学意图，一次建好（isGraduated 让原版 tooltip 走 ml 显示）
@@ -38,12 +40,12 @@ namespace MegaTank
                 item,
                 capacityInMl: Capacity.CurrentMl,
                 basePrice: Ids.TankBasePrice,   // 0.12.0：对齐原版 water_tank 的 350
-                isFilterContainer: false,
+                isFilterContainer: true,
                 isGraduated: true,
                 isDropper: false,
                 isTransparentContainer: false);
 
-            item.SetContentWindow(window.Item1);
+            item.SetContentWindow(tankWindow.Window);
             // 0.12.0：原版液体容器没有 CONTAINER_TAG（水箱/瓶子都能塞进任何装得下的容器）。
             // 主池有内容窗，用 CONTAINER_TOOLTIP_TAG 保留“容器”提示；嵌套不再被
             // CONTAINER_TAG + STORABLE_PACKAGE_TAG 限制在 STORAGE 类容器里。
@@ -53,8 +55,8 @@ namespace MegaTank
             item.EnableTag("NOT_FOR_RESALE");        // 只留 tag：StoreClient#IsClientRefusingItem 第一行命中，但 tooltip 不再多一行类型标签
             AudioHelper.InitSolidMetal(item);        // 原版 water_tank 同款金属拖放音
 
-            // 只有内胆能进槽
-            ContainerHelper.AllowOnlyTaggedItemOwn(window.Item2, item, Ids.CellTag);
+            // 只有内胆能进主格
+            ContainerHelper.AllowOnlyTaggedItemOwn(tankWindow.Cells, item, Ids.CellTag);
 
             TankSprites.ApplyBase(item);
             item.getItemSpriteModifierForItemFunc = TankLiquidLayer.Overlays;   // 水质着色层（方案 A）
@@ -64,6 +66,44 @@ namespace MegaTank
             item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, new Action<GameItem>(TankAttributes.OnLoaded));
             TankRegistry.Track(item);   // P0：进入本 mod 容器索引，Tick 不再全店扫描
             return item;
+        }
+
+        /// <summary>
+        /// 主格 4×4 + 右侧 2×2 过滤器格。
+        ///
+        /// 根节点必须用 `MachineryStack`（MachineryContainer，不是 GraphNodeStorage）：
+        /// 这样 `PixelWindow.children` 直接收集两个 inventory，**不会多出一个根节点**。
+        /// 主格仍是 inventory 索引 1，旧存档里的内胆 `childItemInventoryNode=1` 继续有效。
+        /// </summary>
+        private static (PixelWindow Window, GameGridInventory Cells) CreateTankWindow()
+        {
+            GameGridInventory cells = new GameGridInventory(Ids.SlotsW, Ids.SlotsH).SetMachineryStyle();
+            cells.identifier = "mega_tank_cells";
+
+            var slots = new GameSlotInventory[4];
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = new GameSlotInventory();
+                slot.identifier = "mega_tank_filter_" + i;
+                slot.SetBackgroundFadeSprite("Items/items_amenities", "water_filter_adv");
+                slot.mayInventoryAddItemFunc = (GameItem candidate, GameInventory _) =>
+                    GeneralHelper.IsItemOwned(candidate)
+                    && candidate.IsTag("WATER_FILTER")
+                    && candidate.identifier != null
+                    && !candidate.identifier.Equals("uv_filter");
+                slots[i] = slot;
+            }
+
+            var label = new MachineryLabel(Text.T("megatank.ui.filters", "过滤器", "Filters"));
+            var filterRows = MachineryStack.Vertical(
+                MachineryStack.Horizontal(slots[0], slots[1]),
+                MachineryStack.Horizontal(slots[2], slots[3]));
+            var filterColumn = MachineryStack.Vertical(label, filterRows);
+            var root = MachineryStack.Horizontal(cells, filterColumn);
+
+            var window = new PixelWindow(true, null, WindowStyle.Machinery);
+            window.Attach(root);
+            return (window, cells);
         }
 
         /// <summary>内胆：1×1 格，独立可用的完整水容器。</summary>

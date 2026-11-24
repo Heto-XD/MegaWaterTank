@@ -1,15 +1,16 @@
 [h1]巨型水箱 / Mega Water Tank[/h1]
 
-[b]一个真正能装水的巨型储水罐。[/b] 0.1 吨（100 升）起步，靠电话服务逐档扩容到 1.9 吨；
-罐内最多插 16 个内胆，满配 32.3 吨。水培机、净水机、水质检测仪都按原版规则识别它。
+[b]一个真正能装水的巨型储水罐。[/b] 0.1 吨（100 升）起步，靠电话服务逐档扩容到 2.0 吨；
+罐内最多插 16 个内胆，满配 34.0 吨。水培机、净水机、水质检测仪都按原版规则识别它。
 
 [hr][/hr]
 
 [h2]特点[/h2]
 [list]
-[*][b]超大容量[/b]：主池 100 L → 1900 L；每个内胆同样 100 L → 1900 L；16 槽满配 32.3 吨。
+[*][b]超大容量[/b]：主池 100 L → 2000 L；每个内胆同样 100 L → 2000 L；16 槽满配 34.0 吨。
 [*][b]真实的水[/b]：和水瓶、水箱共用同一套成分、纯度、污染与温度规则，不是抽象数值。
 [*][b]自动溢出 / 回补[/b]：主池满了自动流进空内胆；低于 90% 自动从内胆抽水补满。
+[*][b]机器预腾[/b]：装进水分收集器（湿气农场）槽时，夜间结算前按当夜预期产量腾出空间，生产后回填主池；预留量可在设置里填数字调整（0–50 L，0 = 关闭）。
 [*][b]水色随水质[/b]：净水、锈水、地沟水、化学品都会改变罐内水色（与原版水瓶同色）。
 [*][b]电话下单[/b]：进店打开电话，快速拨号「核桃水商 #21474836#」，在「储水」分组下单。
 [*][b]三语[/b]：简中 / 英文 / 俄文；其它语言回退英文。
@@ -19,7 +20,7 @@
 [list]
 [*][b]巨型水箱[/b]：500 信用点，送 1 个主池 + 1 个内胆（起步共 200 L）。
 [*][b]追加内胆[/b]：250 信用点，1 个内胆（起步 100 L）。
-[*][b]扩容水箱[/b]：150 信用点，所有主池和内胆永久 +100 L，可买 18 次（100 → 1900 L），无冷却。
+[*][b]扩容水箱[/b]：150 信用点，所有主池和内胆永久 +100 L，可买 19 次（100 → 2000 L），无冷却。
 [/list]
 货会放在后仓。水箱和内胆每天可买一次；扩容可以当天连买。
 
@@ -28,16 +29,18 @@
 [*][b]灌水[/b]：拿主池去水龙头、水瓶或别的容器上倒水，和原版容器一样操作。
 [*][b]溢出[/b]：主池装满后继续灌，多出来的水自动流进槽里的空内胆。
 [*][b]回补[/b]：主池低于 90% 时自动从内胆抽水补满（约每 0.25 秒检查一次）。
+[*][b]机器预腾[/b]：装在水分收集器槽里时，夜间结算前按预期产量自动预留（常态 850 ml 只腾约 1.35 L），生产后回填主池；设置里可填数字调整自动/固定、0–50 L、是否全天保持。
 [*][b]查看[/b]：水量、水质、进度条和扫描结果都按原版规则显示；本 mod 额外加「合计 / 内胆」两行。
 [*][b]存放[/b]：和原版水箱一样，可以放进任何装得下的容器；主池的内容窗仍然只收内胆。
 [/list]
 
-[h2]0.12.0 更新要点[/h2]
+[h2]0.14.0 更新要点[/h2]
 [list]
-[*]估价对齐原版水容器：空主池 350 / 空内胆 25，水按 40/升叠加；购买价不变。
-[*]tooltip 交还原版：水量 / 水质 / 扫描结果按原版显示；修复扫描结果行被挡、未检测就显示真实纯度。
-[*]主池金属音、内胆塑料瓶音；仍不可转售，但不再显示 (Not For Resale) 类型标签。
-[*]旧存档自动迁移，无需重开。
+[*][b]机器预腾配置化[/b]：预留水量 0–50 L 数字输入（默认 25，0 = 关闭）；自动模式按当次产量 + 0.5 L 预留，常态只腾约 1.35 L。
+[*]默认改为「夜间预腾 + 生产后回填」：白天主池保持 100%，不再长期空 25 L。
+[*]可选「全天保持预留」；选择后主池会一直显示略少，适合想常驻余量的玩家。
+[*]修复预腾的 2 秒父物品检查延迟：机器槽水箱不再等缓存，避免 850 → 1700 的累积。
+[*]扩容上限 19 档、2000 L、34.0 吨；0.13.0 的修复全部保留。
 [/list]
 
 [h2]已知限制[/h2]
@@ -56,15 +59,16 @@
 [h1]English[/h1]
 
 [h2]What it is[/h2]
-A huge water tank that [b]starts at 0.1 t (100 L)[/b] and grows to 1.9 t through the phone service.
-It takes up to 16 insert cells; a fully loaded setup holds 32.3 t. Hydroponics, purifiers and the
+A huge water tank that [b]starts at 0.1 t (100 L)[/b] and grows to 2.0 t through the phone service.
+It takes up to 16 insert cells; a fully loaded setup holds 34.0 t. Hydroponics, purifiers and the
 water scanner all read it through the vanilla rules.
 
 [h2]Features[/h2]
 [list]
-[*][b]Huge capacity[/b]: 100 L → 1900 L per tank and per cell; 32.3 t with all 16 cells.
+[*][b]Huge capacity[/b]: 100 L → 2000 L per tank and per cell; 34.0 t with all 16 cells.
 [*][b]Real water[/b]: shares the vanilla composition, purity, contamination and temperature rules.
 [*][b]Overflow / refill[/b]: extra water flows into empty cells; below 90% the tank pulls water back.
+[*][b]Machine reserve[/b]: in a Moisture Farm slot it frees space for the expected nightly output, then refills the tank after production; the reserve is a numeric 0–50 L setting (0 = off).
 [*][b]Water tint[/b]: the colour follows the liquid, using the same computation as vanilla bottles.
 [*][b]Phone order[/b]: open the phone in the store → speed dial 「Hetao Water Co. #21474836#」 → Water tab.
 [*][b]Languages[/b]: Chinese, English, Russian; other languages fall back to English.
@@ -74,7 +78,7 @@ water scanner all read it through the vanilla rules.
 [list]
 [*][b]Mega Water Tank[/b]: 500 credits — one tank + one cell (200 L to start).
 [*][b]Extra Tank Cell[/b]: 250 credits — one cell (100 L to start).
-[*][b]Expand Capacity[/b]: 150 credits — every tank and cell permanently +100 L, 18 times (100 → 1900 L), no cooldown.
+[*][b]Expand Capacity[/b]: 150 credits — every tank and cell permanently +100 L, 19 times (100 → 2000 L), no cooldown.
 [/list]
 Deliveries go to the back room. Tanks and cells are repeatable once a day; expansion can be bought back to back.
 
@@ -83,16 +87,18 @@ Deliveries go to the back room. Tanks and cells are repeatable once a day; expan
 [*][b]Fill[/b]: use the tank on a faucet, a bottle or another container, exactly like vanilla.
 [*][b]Overflow[/b]: once full, extra water flows into the empty cells.
 [*][b]Refill[/b]: below 90%, the tank pulls water back from its cells (about every 0.25 s).
+[*][b]Machine reserve[/b]: in a Moisture Farm slot it reserves the expected nightly output (about 1.35 L for a normal 850 ml) and refills afterwards; settings offer numeric Auto/Fixed, 0–50 L, and an all-day option.
 [*][b]Inspect[/b]: volume, quality, progress bar and scanner results follow the vanilla rules; this mod adds a Total line and a Cells line.
 [*][b]Storage[/b]: like the vanilla water tank, it fits into any container it physically fits in; the content window still accepts cells only.
 [/list]
 
-[h2]0.12.0 highlights[/h2]
+[h2]0.14.0 highlights[/h2]
 [list]
-[*]Vanilla-style value: empty tank 350 / cell 25, water +40/L; purchase prices unchanged.
-[*]Vanilla tooltip for volume / quality / scanner results; fixed the hidden scanner line and the pre-test purity reveal.
-[*]Metal tank sounds, plastic-bottle cell sounds; still not for resale, but the (Not For Resale) type label is gone.
-[*]Old saves migrate automatically; no restart needed.
+[*][b]Configurable machine reserve[/b]: numeric 0–50 L (default 25, 0 = off); Auto reserves expected output + 0.5 L, about 1.35 L for a normal 850 ml run.
+[*]Default is now "reserve before production + refill after": the tank reads 100% during the day instead of staying 25 L short.
+[*]Optional "keep reserve all day"; the tank then shows slightly less, for players who want permanent headroom.
+[*]Fixed the 2 s parent-check delay: machine-slot tanks no longer wait for the cache, avoiding 850 → 1700 accumulation.
+[*]Keeps the 19-step / 2000 L / 34.0 t capacity and all 0.13.0 fixes.
 [/list]
 
 [h2]Known limitations[/h2]

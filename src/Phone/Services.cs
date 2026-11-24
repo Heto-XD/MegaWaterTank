@@ -33,8 +33,8 @@ namespace MegaTank
         /// 扩容服务单价（0.9.0）。定价依据：
         ///   · 原版 `WaterTankHelper` 的扩容先例：废金属 10 元 = +2 L ⇒ 约 5 元/L（材料价）。
         ///   · 本服务 150 元让**全部 17 个容器各 +100 L**（1,700 L 有效容量）⇒ 约 0.09 元/L，
-        ///     比整机（500 元 / 3.8 吨 ≈ 0.13 元/L）略便宜，符合"批量升级"的定位。
-        ///   · 满级总投入 = 150 × 18 档 = **2,700 元**（0.10.0 起 18 档：100 → 1900 L），
+        ///     比整机（500 元 / 4.0 吨 ≈ 0.13 元/L）略便宜，符合"批量升级"的定位。
+        ///   · 满级总投入 = 150 × 19 档 = **2,850 元**（0.13.0 起 19 档：100 → 2000 L），
         ///     相对水箱本体 500 + 16 内胆 4,000 的体系负担合理。
         ///   · `NetworkUpgrade.cost` 是固定 int（GetCost 只叠加难度/声望乘数），
         ///     因此**不支持递增定价**——想改价格只改这一个常量。
@@ -175,7 +175,7 @@ namespace MegaTank
         private static void GrantTank()
         {
             Grant(Ids.Tank);
-            Grant(Ids.Cell);   // 首购：主池 + 1 个内胆（0.10.0 起起步各 100 L，满级共 3.8 吨）
+            Grant(Ids.Cell);   // 首购：主池 + 1 个内胆（0.10.0 起起步各 100 L，0.13.0 满级共 4.0 吨）
         }
 
         private static void GrantCell()
@@ -273,7 +273,7 @@ namespace MegaTank
         ///       flag=true ⇒ 价格标签整块 `SetActive(false)`、图标 alpha 降到 0.7（视觉变灰）。
         ///   · 详情 `ShowInfo`：`flag2 = IsUnlocked()`；
         ///       命中 `isRepeatable &amp; flag2` 分支 ⇒ `useButton.SetActive(false)`，
-        ///       并显示 `alreadyBoughtProvider` 文案「已扩容至上限 1900 L」。
+        ///       并显示 `alreadyBoughtProvider` 文案「已扩容至上限 2000 L」。
         ///   而 `IsUnlocked()` 只认 `state == 2`。
         ///
         /// ★ 关键坑（第一版踩过）：光设 `state = 2` 不够——可重复项每次购买后

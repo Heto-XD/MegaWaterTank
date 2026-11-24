@@ -1,5 +1,80 @@
 # 更新日志
 
+## 未发布 — 0.15.0-dev / Phase 1.1（过滤器槽 + 4×6 主格）
+
+**水箱窗口右侧新增 2×2 过滤器槽（4 个滤芯），主格扩为 4×6 = 24 格，接入原版过滤机制。**
+
+- **主格 4×4 → 4×6**：保持 4 列宽度，纵向补足窗口空白；24 个内胆 + 主池，
+  满级总容量从 34,000 L 提到 **50,000 L**（每容器 2000 L）。
+  网格尺寸不进存档，旧档 0–3 行的内胆坐标不变；新增第 5/6 行。
+- **过滤器槽**：4 个独立 `GameSlotInventory`（对齐原版 `water_pitcher`），
+  每个背景改为 `water_filter_adv`；高级/普通滤芯都能放，2×2 布局不变。
+- **窗口结构**：主格 + 右侧 `MachineryStack` 过滤器列；根节点仍是 `MachineryStack`
+  （不是 `GraphNodeStorage`），主格 inventory 索引保持 1，旧存档内胆继续有效。
+- **存档证据**：`save_184.es3` 的 `backInvJSON` 中 `mega_water_tank`（uniqueId 853）有 1 个
+  `mega_water_cell`，其 `childItemInventoryNode=[1]`；新结构主格仍为 1，过滤槽为新增的 2–5。
+- **过滤槽接受规则**：只收 `WATER_FILTER`，排除 `uv_filter`（与 `water_pitcher` 一致）。
+- **过滤生效**：水箱启用 `FILTER_CONTAINER_TAG`；`TankAttributes.Ensure` 在读档/巡检时补回该 tag。
+- **多滤芯选择**：`FilterSelectPatch` 按左上→右上→左下→右下选择仍有耐久的滤芯，耗尽自动切换；
+  无可用滤芯时返回 null（等同原版不过滤）。
+- **倒水溢出回归修复**：`TransferOverflowPatch` 对 `WaterHelper.TransferLiquid` 做 Postfix，
+  把目标为水箱时的源剩余水精确搬进内胆；延迟补丁共 5 个。
+- **主格查找加固**：`TankRuntime.Cells/CellStats` 按 `mega_tank_cells` 标识找主格。
+- **过滤范围**：只过滤进入主池的水（AddWater / TransferLiquid）；R2/R3/水库模式的
+  `LiquidMove`、`AddLiquid` 不经过滤芯。
+- **未做发布相关更新**：版本号仍是 0.14.0 dev；PlayerReadme/工坊/manifest 描述等发布内容暂不动。
+- **构建门禁**：0 警告 0 错误；`check-api-compat` 356 members / 58 types missing 0；PureCheck 55/55。
+- **实机验证**：待 2026-11-24 旧档内胆读档、4×6 新格、滤芯放置/过滤/耗尽切换、
+  水箱满时外部倒水自动进内胆。
+
+## 0.14.0 — 2026-11-24
+
+**R3 机器预腾配置化：预留量可调、按当夜产量自动计算、默认夜间预腾 + 生产后回填；修复 2 秒父物品缓存延迟。**
+
+- **新增配置分组「水量自动化」**：
+  - `预留水量（升）`：0–50，默认 25；**0 = 关闭 R3**。湿气农场单台极限约 21.5 L/夜。
+    使用数字输入框（不挂 min/max 滑块），输入越界时由 `OnChanged` 手动钳制到 0–50。
+  - `按当夜产量自动预留`：默认开。按 `GetOutputVolume × 共享空气` 计算当夜预期产量，再加 0.5 L 安全余量；
+    常态 850 ml 只腾约 1.35 L，不再长期空 25 L。
+  - `全天保持预留`：默认关。关 = 只在夜间结算前预腾，生产后回填主池；开 = 全天维持预留（旧行为）。
+- **单位修正**：配置值是「升」，换算到 part 必须 ×1,000,000（1 L = 1000 ml = 1,000,000 part）。
+  0.14.0 测试初版误用 ×1000，导致内胆只进 25 ml；本版修正为 25 L。
+- **白天一次性涡轮（已移除）**：曾尝试 patch `MachineTurboBoosterAdv.BoostMachine` 的 Prefix/Postfix。
+  实机发现基础 `turbo_booster` 在 `ToolDirectory.CreateTurboBooster` 的 `onThisTargetItemFunc` 里直接调用
+  机器的 `onCycleEnd*` delegate，**不经过 `BoostMachine`**，所以白天涡轮仍然空转。
+  按需求删除该功能与相关描述，延迟补丁回到 3 个（R1 / 电话名 / 存盘摘名片）。
+- **默认行为改为「夜间预腾 + 回填」**：
+  - `OnHandlingNightlyServicesLate` 预腾；
+  - 机器循环结束后 `OnGoingSleepLate` 把剩余安全余量精确搬回主池，白天显示 100%；
+  - 不再让主池高容量时长期停在 98.75%。
+- **修复父物品检查缓存**：旧版 2 秒门控会延迟机器槽水箱的搬水，日志出现 `850 → 850 → 1700` 的累积；
+  现在只缓存「不是机器槽 / 机器没电」的否定结果，机器槽水箱立即搬水；正数目标缓存 5 秒。
+- **精确搬水**：继续使用 `LiquidMove.Move`，保留成分比例与温度；预腾和回填都不使用会一次抽满空内胆的 `TransferLiquid`。
+- **边界**：只对 `moisture_farm` 生效；无内胆、内胆成堆/已满、机器没电/损坏时自然退化；`预留水量=0` 完全关闭。
+- **构建门禁**：0 警告 0 错误；`check-api-compat` 323 members / 52 types missing 0；玩家文档与版本同步通过。
+- **实机验证**：待 2026-11-24 实机回归（常态 850 ml 白天 100%、极端 21.47 L 不丢、预留=0 关闭、全天模式）。
+
+## 0.13.0 — 2026-11-24
+
+**R3 机器预腾：修复巨型水箱装在水分收集器（湿气农场）槽里时的浪费水问题；扩容上限提升到 2000 L。**
+
+- **问题根因**：湿气农场夜间先判 `GetFreeCapacity(槽内物品) != 0`，只认主池；主池满时整晚不跑，
+  主池差一点时只收那一点，其余随临时水壶 `Destroy()` 一起消失。原版走的是
+  `MachineMoistureFarm#Fill` → `WaterHelper#TransferLiquid`，不经过 `AddWater`，所以旧 R1 溢出补丁覆盖不到。
+- **R3 机器预腾**：水箱装在湿气农场容器槽里、主池接近满时，把最多 **25 L** 精确搬进内胆再让机器生产。
+  25 L 覆盖湿气农场单台理论极限 21.471 L/夜（`GetOutputVolume` 的 int 乘法上界），留 3.529 L 余量。
+- **两段式**：容量 ≥312.5 L（25 L ≤8%）时每 0.25 s 连续巡检，主池稳定在 ≥92%，与 R2 的 90% 回补阈值留死区；
+  低容量只在 `OnHandlingNightlyServicesLate`（HandlePower 之后、机器循环之前）一次性预腾，避免来回搬。
+- **精确搬水**：新增 `LiquidMove.Move`，按 `TransferLiquid` 的成分比例和温度语义搬固定数量；
+  不使用 `TransferLiquid`（会一次抽满空内胆），也不使用 `RemoveAndReturn + AddLiquid`（会丢水温）。
+- **性能**：常态只在需要时查父物品（2 s 缓存）；背包/网格里的水箱用 `GameSlotInventory` 廉价过滤；
+  子胆列表只在真正搬水时读取。
+- **容量**：18 → 19 档，主池和内胆 100 L → **2000 L**，16 槽满配 **34.0 吨**。
+  单容器仍低于原版 int 硬上限 2147.48 L；`ml × 1000 = 2.0e9` 在 int 内。
+- **边界**：R3 只对 `moisture_farm` 生效；无内胆、内胆成堆/已满、机器没电/损坏时自然退化，并只报一次原因。
+- **构建门禁**：0 警告 0 错误；`check-api-compat` 297 members / 51 types missing 0；玩家文档与版本同步通过。
+- **实机验证**：待 2026-11-24 实机回归（湿气农场满池/极端产量、低容量夜间预腾、水培连续耗水、读档）。
+
 ## 0.12.0 — 2026-11-22
 
 **物品属性对齐原版水容器（水箱 / 桶装水 / 瓶装水）。**

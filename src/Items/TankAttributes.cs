@@ -110,6 +110,8 @@ namespace MegaTank
                     if (item.DisableTag("CONTAINER_TAG", skipValidate: true)) changed = true;
                     if (item.DisableTag("STORABLE_PACKAGE_TAG", skipValidate: true)) changed = true;
                     if (item.EnableTag("CONTAINER_TOOLTIP_TAG", skipValidate: true)) changed = true;
+                    // 0.15.0：过滤槽。读档会用存档 state 覆盖工厂 state，旧档必须在这里补回。
+                    if (item.EnableTag("FILTER_CONTAINER_TAG", skipValidate: true)) changed = true;
                 }
 
                 if (changed)

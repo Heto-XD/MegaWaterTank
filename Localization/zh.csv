@@ -1,6 +1,7 @@
 # 巨型水箱 · 简体中文（官方加载器格式：key,value；# 开头为注释）
 megatank.item.tank.name,巨型水箱
-megatank.item.tank.desc,超大容量储水装置，可插入 16 个内胆扩容。里面装的是真实的水，能被水培机和净水设备识别。
+megatank.item.tank.desc,超大容量储水装置，可插入 {0} 个内胆扩容；右侧 2×2 槽可放 4 个过滤器（左上优先）。里面装的是真实的水，能被水培机和净水设备识别。
+megatank.ui.filters,过滤器
 megatank.item.cell.name,水箱内胆
 megatank.item.cell.desc,插进巨型水箱的槽位以扩容；也可以单独当水壶使用。
 megatank.tooltip.cells,内胆 {0} / {1}
@@ -11,9 +12,9 @@ megatank.phone.offer,水箱和内胆都在单子上，买多少看你店的胃�
 megatank.svc.tab,储水
 megatank.svc.subtitle,储水
 megatank.svc.tank.title,巨型水箱
-megatank.svc.tank.desc,送一个巨型水箱和一个内胆（合计 3.8 吨容量）。可以重复购买。
+megatank.svc.tank.desc,送一个巨型水箱和一个内胆（合计 4.0 吨容量）。可以重复购买。
 megatank.svc.cell.title,追加内胆
-megatank.svc.cell.desc,送一个水箱内胆（1.9 吨）。可以重复购买，用来填满水箱的 16 个槽位。
+megatank.svc.cell.desc,送一个水箱内胆（2.0 吨）。可以重复购买，用来填满水箱的 16 个槽位。
 megatank.svc.repeat,可重复购买
 megatank.svc.expand.title,扩容水箱
 megatank.svc.expand.desc,把水箱和内胆的容量永久提升 100 L。当前 {0} L → 下一档 {1} L（上限 {2} L）。全部容器同时生效，可重复购买。
@@ -23,3 +24,10 @@ megatank.svc.expand.maxed,已扩容至上限 {0} L
 megatank.cfg.sec.diagnostics,诊断
 megatank.cfg.verbose,详细日志
 megatank.cfg.verbose.tip,默认关 · 开启后输出初始化、补丁安装、物品注册等诊断日志；排障用
+megatank.cfg.sec.water,水量自动化
+megatank.cfg.reserve,预留水量（升）
+megatank.cfg.reserve.tip,为水分收集器夜间产量预留的水量上限。0 = 关闭。湿气农场单台极限约 21.5 升/夜；自动模式会按当夜产量取更小的值。
+megatank.cfg.auto,按当夜产量自动预留
+megatank.cfg.auto.tip,开：按湿气农场当夜预期产量 + 0.5 升安全余量预留。关：固定使用上面的升数。
+megatank.cfg.continuous,全天保持预留
+megatank.cfg.continuous.tip,关：只在夜间结算前预腾并在生产后回填主池。开：全天维持预留，主池会显示略少。

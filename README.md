@@ -3,13 +3,17 @@
 A water-storage mod for **Probably Stolen** (Unity / Mono, official built-in ModLoader).
 一个给《Probably Stolen》用的储水 mod（官方内置 ModLoader）。
 
-- **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 1.9 t at max, **32.3 t** fully loaded
+当前版本：**0.14.0** · 2026-11-24
+
+- **Main tank + 16 insert cells** — 0.1 t (100 L) to start, 2.0 t at max, **34.0 t** fully loaded
 - **Overflow / refill** — extra water automatically flows into the cells; the main tank pulls it back when it drops below 90%
+- **Machine reserve** — when installed in a Moisture Farm slot, it reserves the expected nightly output (Auto mode, 25 L cap) and refills afterwards, so no water is wasted
+- **Configurable reserve** — 0–50 L numeric input with clamping, auto output-based or fixed, and optional all-day reserve
 - **Real water** — hydroponics, purifiers and the water scanner recognise it through the vanilla rules
 - **Vanilla-style item data** — container value 350 (tank) / 25 (cell), metal/plastic sounds, and it fits into any container the vanilla tank fits in
 - **Vanilla tooltip** — volume, quality and scanner results come from the vanilla water-container tooltip; the mod only appends a "Total" and a "Cells" line
 - **Water tint** — the water colour follows the liquid inside, using the same computation as vanilla bottles
-- **Phone ordering** — the "Hetao Water Co." contact (#21474836#) opens the service page; capacity expands +100 L per purchase (18 steps), no cooldown
+- **Phone ordering** — the "Hetao Water Co." contact (#21474836#) opens the service page; capacity expands +100 L per purchase (19 steps), no cooldown
 - **Localisation** — Chinese / English / Russian
 
 ---
