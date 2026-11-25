@@ -44,6 +44,8 @@ namespace MegaTank
             Step("订阅 tooltip", () => ModHook.OnCreateTooltipLate += TankTooltip.Append);
             Step("订阅夜间结算", () => ModHook.OnHandlingNightlyServicesLate += TankRuntime.OnNightlyServicesLate);
             Step("订阅夜间回填", () => ModHook.OnGoingSleepLate += TankRuntime.OnGoingSleepLate);
+            // 电话商城的「每日一次」靠起床递减（等价于原版 NetworkUpgrade.OnDayStart）
+            Step("订阅起床冷却", () => ModHook.OnWakingUpLate += Services.OnWakingUp);
             Step("启动巡检", TankRuntime.EnsureTicker);
 
             // ★ 必须在加载期装：主菜单 → Modding → 齿轮就能打开配置面板，
@@ -63,6 +65,7 @@ namespace MegaTank
             Step("退订 tooltip", () => ModHook.OnCreateTooltipLate -= TankTooltip.Append);
             Step("退订夜间结算", () => ModHook.OnHandlingNightlyServicesLate -= TankRuntime.OnNightlyServicesLate);
             Step("退订夜间回填", () => ModHook.OnGoingSleepLate -= TankRuntime.OnGoingSleepLate);
+            Step("退订起床冷却", () => ModHook.OnWakingUpLate -= Services.OnWakingUp);
             Step("撤销电话名片", PhoneCard.Uninstall);
             Step("撤销服务注册", Services.Unregister);
             Step("卸载配置面板补丁", ConfigSectionPatch.Uninstall);

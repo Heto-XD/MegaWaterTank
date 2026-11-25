@@ -6,328 +6,374 @@ using System;
 
 namespace MegaTank
 {
+    /// <summary>电话商城的三件商品。</summary>
+    internal enum ShopItem
+    {
+        Tank,
+        Cell,
+        Expand,
+    }
+
     /// <summary>
-    /// 王尔德（人脉）服务：两条可重复购买的项目。
+    /// 电话商城（0.16.0 起完全自持）。
     ///
-    /// 关键事实（都已核对 1.0.0.16 源码）：
-    ///   · **不能在主菜单注册**——`PlayerStore.Instance` 的 getter 会现场 new，构造函数在菜单阶段 NRE；
-    ///     只在进档后（OnGameLoadedLate）调，且必须幂等（`GetDefinition` 判存在）。
-    ///   · `cooldownDays > 0` ⇒ 官方自动设 `isRepeatable = true` + `cooldownDuration = N`，
-    ///     买完当天冷却、次日恢复。这就是"可重复购买"，不需要 hack。
-    ///     **但扩容服务故意用 cooldownDays=0**（无冷却，当天可连买）——那种情况下
-    ///     Unlock() 不会把 state 打回 1，必须自己复位，见 ExpandCooldownDays 的注释。
-    ///   · 扣款顺序由 `WildNetworkUI.OnUseClicked` 固定：先恩惠（wildFavor），不足扣现金。
-    ///   · 发放走 `ModHelper.SpawnItem` + `MoveItemToBackCounter`（与官方 `water_guide` 同路径）。
+    /// ★ 为什么搬出「王尔德人脉」窗口（0.15.x 的做法）：
+    ///   0.15.x 用 `ModHelper.AddNetworkUpgrade(..., tab:"Water")` 把三件商品塞进原版
+    ///   `WildNetworkUI`。那个窗口同时承载原版「基础」和「高科技（tab="Advanced"）」两页，
+    ///   玩家反馈变成"mod 抢了原版高科技升级界面"。三条结构性冲突：
+    ///     · 页签是**全局静态命名空间**（`NetworkUpgrade.tab` + `tabLabels`），
+    ///       `SetNetworkTabLabel` 没有官方撤销口，停用 mod 后标签仍占着；
+    ///     · 窗口是单例 id `wilds_network`，`WildNetworkUI.Open()` 里 `if (IsOpen) return RefreshAll()`
+    ///       会早退 —— 电话 UI 还压着时窗口就已 Show()，之后原版入口再打开只会刷新一个看不见的窗；
+    ///     · `tab` 字段是 `[ES3NonSerializable]`、`subtitle` 却进存档，读档后口径不一致。
+    ///   现在改成**只在自家电话对话里下单**：不注册升级、不加页签、不开原版窗口，
+    ///   对原版界面零占用（根 `AGENTS.md` 硬规则 25 的"Add* 必配 Remove*"也一并满足）。
+    ///
+    /// ★ 存档兼容：老档里 `PlayerStore.networkUpgrade` 可能还留着 `megatank.tank/cell/expand` 三条
+    ///   记录（`RemoveNetworkUpgrades` 只摘静态定义，不动存档）。这些记录没有定义就永远不会被画出来，
+    ///   属于惰性数据，**不主动删存档**（删了才是动玩家存档）。<see cref="PurgeLegacy"/> 只清静态表。
+    ///
+    /// ★ 扣费口径与原版 `WildNetworkUI.OnUseClicked` 一致：先扣人情（wildFavor），不足再扣现金，
+    ///   并记账给 `RunStats.OnWildUpgradeBought` —— 玩家的人情余额不会被 mod 躲过去。
+    ///   价格乘数（难度/声望）不再经过 `NetworkUpgrade.GetCost`，这里就是最终价。
     /// </summary>
     internal static class Services
     {
-        private const string Tab = "Water";
-        private const string TankSvc = Ids.ModId + ".tank";
-        private const string CellSvc = Ids.ModId + ".cell";
-        private const string ExpandSvc = Ids.ModId + ".expand";
-
+        // ── 定价（唯一出处，改价只动这里）──
+        // 依据：原版 `WaterTankHelper` 扩容先例 ≈ 5 元/L（材料价）；本 mod 单档 +100 L 覆盖全部容器。
         internal const int TankCost = 500;
         internal const int CellCost = 250;
-
-        /// <summary>
-        /// 扩容服务单价（0.9.0）。定价依据：
-        ///   · 原版 `WaterTankHelper` 的扩容先例：废金属 10 元 = +2 L ⇒ 约 5 元/L（材料价）。
-        ///   · 本服务 150 元让**全部 17 个容器各 +100 L**（1,700 L 有效容量）⇒ 约 0.09 元/L，
-        ///     比整机（500 元 / 4.0 吨 ≈ 0.13 元/L）略便宜，符合"批量升级"的定位。
-        ///   · 满级总投入 = 150 × 19 档 = **2,850 元**（0.13.0 起 19 档：100 → 2000 L），
-        ///     相对水箱本体 500 + 16 内胆 4,000 的体系负担合理。
-        ///   · `NetworkUpgrade.cost` 是固定 int（GetCost 只叠加难度/声望乘数），
-        ///     因此**不支持递增定价**——想改价格只改这一个常量。
-        /// </summary>
         internal const int ExpandCost = 150;
 
+        /// <summary>0.15.x 用过的页签名，0.16.0 起退役；仅用于清掉遗留标签。</summary>
+        private const string LegacyTab = "Water";
+
+        // ── 冷却（ModData，随存档走）──
+        // 语义与 `NetworkUpgrade.OnDayStart` 对齐：买完置 1，起床（新的一天）减到 0。
+        private const string CdTankKey = "svc_cd_tank";
+        private const string CdCellKey = "svc_cd_cell";
+        private const int CooldownDays = 1;
+
         /// <summary>
-        /// 扩容服务的冷却天数：**0 = 不设冷却，可以当天连买**（用户 2026-11-20 拍板）。
-        ///
-        /// 代价与对策（源码推导，动它之前先看这段）：
-        ///   `AddNetworkUpgrade` 里 `cooldownDays=0` ⇒ `isRepeatable=false` + `cooldownDuration=0`
-        ///   （ModHelper.cs）。而 `Unlock()`（NetworkUpgrade.cs）只有在
-        ///   `cooldownDuration != 0` 时才会把 `state` 从 2 打回 1 ⇒ **不设冷却的话，
-        ///   买一次后 state 停在 2，IsUnlocked() 恒 true，按钮从此置灰再也买不了**。
-        ///   对策：`GrantExpand` 在购买成功后手动把 state 复位成 1（未满级时），
-        ///   满级时交给 `SyncExpandState` 保持 2（= 置灰）。onUnlock 是在 Unlock() 内部
-        ///   `state = 2` 之后才回调的（L884→L885），所以覆盖得住。
+        /// 进档 / 新开局就绪：清 0.15.x 的遗留注册，并把存档里的冷却脏值夹回来。
+        /// 幂等 —— 每次进档都跑，代价只是两次字典查询。
         /// </summary>
-        internal const int ExpandCooldownDays = 0;
-
-        private static bool _done;
-
-        internal static void EnsureRegistered()
+        internal static void BootReady()
         {
-            if (_done) return;
-
-            try
-            {
-                bool missing = NetworkUpgrade.GetDefinition(TankSvc) == null
-                               || NetworkUpgrade.GetDefinition(CellSvc) == null
-                               || NetworkUpgrade.GetDefinition(ExpandSvc) == null;
-
-                if (missing) Register();
-
-                // 无论是否刚注册，进档都要同步一次：isRepeatable 是存档字段，
-                // 别的存档/旧版本可能和当前扩容等级不一致（满级置灰靠它）。
-                SyncExpandState();
-
-                try
-                {
-                    ModHelper.SetNetworkTabLabel(Tab, () => Text.T("megatank.svc.tab", "储水", "Water"));
-                }
-                catch (Exception e)
-                {
-                    Log.Once("svc-tab", "页签命名失败：" + e.Message);
-                }
-
-                _done = true;
-            }
-            catch (Exception e)
-            {
-                // 不置 _done：下次进档重试（例如 PlayerStore 还没就绪）
-                Log.Once("svc-init", "服务注册失败（下次进档重试）：" + e.Message);
-            }
+            PurgeLegacy();
+            ClampCd(CdTankKey);
+            ClampCd(CdCellKey);
         }
 
-        /// <summary>
-        /// 停用时撤销注册：把三条服务从定义表与 `UnlockActions` 里摘掉。
-        ///
-        /// 为什么必须撤（根 AGENTS 硬规则 25）：`AddNetworkUpgrade` 是 `Add*` 系注册，
-        /// 不配 `Remove*` 就是"关了 mod 设置还在"——同进程内停用后服务页仍能看到三条，
-        /// 点下去还会调到本 mod 的 `onUnlock`（等于 mod 还在跑）。
-        ///
-        /// 语义（game-kb `UPG-023` / `UPG-025`）：`RemoveNetworkUpgrades` 只摘静态定义与
-        /// 解锁动作，**不动** `PlayerStore.networkUpgrade` 里的存档记录 ⇒
-        /// 重装/重开 mod 时购买记录与等级都还在，不丢数据。
-        /// `_done` 必须一起复位，否则重新启用时 `EnsureRegistered` 直接早退、服务再也回不来。
-        /// </summary>
+        /// <summary>停用 / 退出时撤销：把 0.15.x 的静态注册和页签标签摘干净。</summary>
         internal static void Unregister()
+        {
+            PurgeLegacy();
+        }
+
+        private static void PurgeLegacy()
         {
             try
             {
                 int n = ModHelper.RemoveNetworkUpgrades(Ids.ModId);
-                if (n > 0) Log.Info("服务注册已撤销（" + n + " 条）");
+                if (n > 0) Log.Info("已摘除 0.15.x 的人脉升级注册（" + n + " 条），商品改走电话对话");
             }
             catch (Exception e)
             {
-                Log.Once("svc-unreg", "撤销服务注册失败：" + e.Message);
+                Log.Once("svc-purge-upg", "摘除旧人脉升级注册失败：" + e.Message);
             }
-            finally
+
+            try
             {
-                _done = false;
+                // `tabLabels` 是静态表，没有公开 Remove；传 null 即摘除（NetworkUpgrade.RegisterTabLabel）。
+                // 不清的话，同一进程内重开 mod 会把旧 lambda 一直挂在静态表上。
+                NetworkUpgrade.RegisterTabLabel(LegacyTab, null);
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-purge-tab", "清除旧页签标签失败：" + e.Message);
             }
         }
 
-        private static void Register()
+        // ───────────────────────── 冷却 ─────────────────────────
+
+        /// <summary>起床（新的一天）时递减冷却。由 <c>ModHook.OnWakingUpLate</c> 触发。</summary>
+        internal static void OnWakingUp()
         {
-            Add(TankSvc, TankCost, "megatank.svc.tank", "mega_tank_icon", GrantTank);
-            Add(CellSvc, CellCost, "megatank.svc.cell", "mega_cell_icon", GrantCell);
-            Add(ExpandSvc, ExpandCost, "megatank.svc.expand", "mega_expand_icon", GrantExpand,
-                cooldownDays: ExpandCooldownDays);
+            DecCd(CdTankKey);
+            DecCd(CdCellKey);
         }
 
-        private static void Add(string id, int cost, string keyPrefix, string iconKey, Action onUnlock,
-                                int cooldownDays = 1)
-        {
-            // 扩容项的"已购完"文案要带当前容量，其它项用通用文案
-            bool isExpand = id == ExpandSvc;
-            ModHelper.AddNetworkUpgrade(
-                Ids.ModId,
-                id,
-                cost,
-                subtitle: Text.T("megatank.svc.subtitle", "储水", "Water"),
-                title: () => Text.T(keyPrefix + ".title", "服务", "Service"),
-                // 扩容项的文案随等级变：未满级报"当前→下一档"，满级改成"已达上限"。
-                // 否则满级时描述仍写"可重复购买"，与下方"已扩容至上限"自相矛盾（实机截图反馈）。
-                description: isExpand
-                    ? (Func<string>)(() =>
-                    {
-                        int curL = Capacity.CurrentMl / 1000;
-                        int maxL = Ids.CapacityMl / 1000;
-                        return Capacity.CanUpgrade
-                            ? Text.T("megatank.svc.expand.desc",
-                                "把水箱和内胆的容量永久提升 100 L。当前 {0} L → 下一档 {1} L（上限 {2} L）。全部容器同时生效，可重复购买。",
-                                "Permanently raises the capacity of every tank and cell by 100 L. Now {0} L -> next {1} L (max {2} L). Applies to all containers at once. Repeatable.",
-                                curL, curL + Ids.ExpandStepMl / 1000, maxL)
-                            : Text.T("megatank.svc.expand.desc.maxed",
-                                "已到上限 {0} L，全部容器都已满容量，无法继续扩建。",
-                                "Already at the {0} L ceiling; every container is maxed out.",
-                                maxL);
-                    })
-                    : (() => Text.T(keyPrefix + ".desc", "", "")),
-                onUnlock: () =>
-                {
-                    try { onUnlock(); }
-                    catch (Exception e) { Log.Once("svc-unlock-" + id, id + " 发放失败：" + e.Message); }
-                },
-                tab: Tab,
-                iconKey: Ids.ModId + ":" + iconKey,
-                prerequisites: null,
-                cooldownDays: cooldownDays,
-                alreadyBought: isExpand
-                    ? (Func<string>)(() => Text.T("megatank.svc.expand.maxed",
-                        "已扩容至上限 {0} L", "Fully expanded to {0} L", Ids.CapacityAt(Ids.MaxExpandLevel) / 1000))
-                    : (() => Text.T("megatank.svc.repeat", "可重复购买", "Repeatable")));
-        }
-
-        private static void GrantTank()
-        {
-            Grant(Ids.Tank);
-            Grant(Ids.Cell);   // 首购：主池 + 1 个内胆（0.10.0 起起步各 100 L，0.13.0 满级共 4.0 吨）
-        }
-
-        private static void GrantCell()
-        {
-            Grant(Ids.Cell);
-        }
-
-        /// <summary>
-        /// 扩容服务：等级 +1 并立即应用到场上所有容器（用户要求"购买后马上生效"）。
-        /// 满级时不该走到这里——按钮已被 SyncExpandState 置灰；
-        /// 万一被点（竞态/其它 mod 改状态），这里直接拒绝且**不扣费**做不到（扣费在官方 UI），
-        /// 所以补一次退款并提示。
-        /// </summary>
-        /// <summary>
-        /// 取扩容项的**运行时副本**——这是 UI 真正读的那个对象。
-        ///
-        /// ★ 0.9.1 的坑：`NetworkUpgrade.GetDefinition(id)` 返回的是**静态模板**
-        ///   （`definitions` 字典），而 `WildNetworkUI` 全程读
-        ///   `PlayerStore.Instance.networkUpgrade[id]`（`ShowInfo` 的 L492、
-        ///   `RefreshSlot` 的 L396）。运行时副本由 `CopyForRuntime()` 在**首次注册**时
-        ///   一次性拷出、之后随存档走；`RegisterModUpgrade` 只在 key 不存在时才 Add
-        ///   （NetworkUpgrade.cs），**已存在的运行时副本永远不跟着模板更新**。
-        ///   所以老存档里 `cooldownDuration=1` 会一直留着，改模板完全无效
-        ///   （实机表现：日志无"状态已同步"、面板仍写"冷却（1天）"）。
-        ///
-        /// 结论：凡是改 state / cooldownDuration / cooldownCurrent，**必须改运行时副本**；
-        /// 模板只在"新存档第一次注册"时有意义。
-        /// </summary>
-        private static NetworkUpgrade Runtime()
+        private static int GetCd(string key)
         {
             try
             {
-                var store = PlayerStore.Instance;
-                if (store?.networkUpgrade != null
-                    && store.networkUpgrade.TryGetValue(ExpandSvc, out var rt)
-                    && rt != null)
-                {
-                    return rt;
-                }
+                int v = ModHelper.GetModDataInt(Ids.ModId, key, 0);
+                return v < 0 ? 0 : v;
             }
             catch (Exception e)
             {
-                Log.Once("expand-rt", "取扩容运行时副本失败：" + e.Message);
+                Log.Once("svc-cd-read-" + key, "读冷却失败（按可购买处理）：" + e.Message);
+                return 0;
             }
-            return NetworkUpgrade.GetDefinition(ExpandSvc);   // 兜底：刚注册还没进存档时
         }
 
-        private static void GrantExpand()
+        private static void SetCd(string key, int days)
         {
-            int lv = Capacity.Upgrade();
-            if (lv >= 0)
+            try
             {
-                // 无冷却（ExpandCooldownDays=0）时官方 Unlock() 不会把 state 打回 1，
-                // 买完就停在 2 ⇒ IsUnlocked() 恒 true ⇒ 按钮置灰、再也买不了。
-                // 这里手动复位：未满级回到可购买态(1)，满级留给 SyncExpandState 设成 2。
-                if (Capacity.CanUpgrade)
-                {
-                    try
+                ModHelper.SetModDataInt(Ids.ModId, key, days);
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-cd-write-" + key, "写冷却失败（下次进档会自愈）：" + e.Message);
+            }
+        }
+
+        private static void DecCd(string key)
+        {
+            int v = GetCd(key);
+            if (v > 0) SetCd(key, v - 1);
+        }
+
+        private static void ClampCd(string key)
+        {
+            int v = GetCd(key);
+            if (v > CooldownDays) SetCd(key, CooldownDays);
+        }
+
+        // ───────────────────────── 状态查询 ─────────────────────────
+
+        /// <summary>钱包口径 = 现金 + 人情（与 `WildNetworkUI` 的可用额度一致）。</summary>
+        private static int Funds()
+        {
+            try
+            {
+                var ps = PlayerStore.Instance;
+                if (ps == null) return 0;
+                return ps.playerCash + ps.wildFavor;
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-funds", "读余额失败（按 0 处理）：" + e.Message);
+                return 0;
+            }
+        }
+
+        private static int CostOf(ShopItem item)
+        {
+            switch (item)
+            {
+                case ShopItem.Tank: return TankCost;
+                case ShopItem.Cell: return CellCost;
+                default: return ExpandCost;
+            }
+        }
+
+        /// <summary>能不能买（供对话选项的 `choiceEnabled` 用，每次显示都会重新求值）。</summary>
+        internal static bool CanBuy(ShopItem item)
+        {
+            if (item == ShopItem.Tank && GetCd(CdTankKey) > 0) return false;
+            if (item == ShopItem.Cell && GetCd(CdCellKey) > 0) return false;
+            if (item == ShopItem.Expand && !Capacity.CanUpgrade) return false;
+            return Funds() >= CostOf(item);
+        }
+
+        // ───────────────────────── 菜单文案 ─────────────────────────
+
+        /// <summary>
+        /// 三个商品选项的按钮文字。
+        /// ★ 电话对话里**按钮文字 = 选项指向的那句对话的正文**（`DialoguePhoneUIManager.DisplayChoice`
+        ///   读的是 `choices[i].Item2.plainText`），所以文案必须在 PhoneCard 建图时写进那些节点，
+        ///   而且买完要刷新一次，否则玩家会看到上一轮的状态。
+        /// </summary>
+        internal static string Label(ShopItem item)
+        {
+            switch (item)
+            {
+                case ShopItem.Tank:
+                    return Text.T("megatank.shop.tank",
+                        "巨型水箱 · {0}：主池 + 1 个内胆",
+                        "Mega Water Tank - {0}: tank + 1 cell", TankCost) + Suffix(item);
+
+                case ShopItem.Cell:
+                    return Text.T("megatank.shop.cell",
+                        "追加内胆 · {0}：1 个内胆",
+                        "Extra cell - {0}: 1 cell", CellCost) + Suffix(item);
+
+                default:
+                    if (!Capacity.CanUpgrade)
                     {
-                        NetworkUpgrade def = Runtime();
-                        if (def != null)
+                        return Text.T("megatank.shop.expand.maxed",
+                            "扩容 · 已到上限 {0} L",
+                            "Expand - already at {0} L", Ids.CapacityMl / 1000);
+                    }
+                    return Text.T("megatank.shop.expand",
+                        "扩容 · {0}：全部容器 {1} → {2} L",
+                        "Expand - {0}: every container {1} -> {2} L",
+                        ExpandCost, Capacity.CurrentMl / 1000, (Capacity.CurrentMl + Ids.ExpandStepMl) / 1000)
+                        + Suffix(item);
+            }
+        }
+
+        /// <summary>后缀：当天已购 / 钱不够。</summary>
+        private static string Suffix(ShopItem item)
+        {
+            bool cooling = (item == ShopItem.Tank && GetCd(CdTankKey) > 0)
+                           || (item == ShopItem.Cell && GetCd(CdCellKey) > 0);
+            if (cooling)
+            {
+                return Text.T("megatank.shop.suffix.cooldown", "（今天已经买过）", " (already bought today)");
+            }
+            if (Funds() < CostOf(item))
+            {
+                return Text.T("megatank.shop.suffix.nomoney", "（余额不足）", " (not enough funds)");
+            }
+            return "";
+        }
+
+        // ───────────────────────── 购买 ─────────────────────────
+
+        /// <summary>
+        /// 下单。**先校验再扣费**，任何一步失败都不动钱。
+        /// 返回给玩家看的结果文案（成交 / 拒绝原因），由 PhoneCard 显示在下一句对话里。
+        /// </summary>
+        internal static string Buy(ShopItem item)
+        {
+            try
+            {
+                // 1) 状态闸（选项已置灰时点不动，这里是防竞态 / 防旧文案的第二道）
+                if (item == ShopItem.Tank && GetCd(CdTankKey) > 0) return CooldownText();
+                if (item == ShopItem.Cell && GetCd(CdCellKey) > 0) return CooldownText();
+                if (item == ShopItem.Expand && !Capacity.CanUpgrade)
+                {
+                    return Text.T("megatank.shop.refuse.maxed",
+                        "已经扩到上限 {0} L 了，没得再扩。",
+                        "Already at the {0} L ceiling.", Ids.CapacityMl / 1000);
+                }
+
+                int cost = CostOf(item);
+                if (Funds() < cost)
+                {
+                    return Text.T("megatank.shop.refuse.money",
+                        "这单要 {0}，现金加人情不够。",
+                        "That costs {0}; cash plus favours does not cover it.", cost);
+                }
+
+                // 2) 扣费（人情优先，与原版一致）
+                if (!TryPay(cost)) return CooldownText();
+
+                // 3) 发货
+                switch (item)
+                {
+                    case ShopItem.Tank:
+                        SetCd(CdTankKey, CooldownDays);
+                        Grant(Ids.Tank);
+                        Grant(Ids.Cell);      // 首购：主池 + 1 个内胆
+                        PlayRegister();
+                        Log.Info("电话下单：水箱（-" + cost + "），余额 " + Funds());
+                        return Text.T("megatank.shop.bought.tank",
+                            "成交。水箱和 1 个内胆已经放到后仓，余额 {0}。",
+                            "Deal. The tank and 1 cell are in the back room. Balance {0}.", Funds());
+
+                    case ShopItem.Cell:
+                        SetCd(CdCellKey, CooldownDays);
+                        Grant(Ids.Cell);
+                        PlayRegister();
+                        Log.Info("电话下单：内胆（-" + cost + "），余额 " + Funds());
+                        return Text.T("megatank.shop.bought.cell",
+                            "成交。1 个内胆已经放到后仓，余额 {0}。",
+                            "Deal. 1 cell is in the back room. Balance {0}.", Funds());
+
+                    default:
+                        int lv = Capacity.Upgrade();
+                        if (lv < 0)
                         {
-                            def.state = 1;
-                            def.cooldownCurrent = 0;
+                            // 写档失败：退款，避免玩家白花钱
+                            Refund(cost);
+                            Log.Once("svc-expand-fail", "扩容写档失败，已退款 " + cost);
+                            return Text.T("megatank.shop.refuse.fail",
+                                "扩容没写进存档，钱已经退给你了。",
+                                "The expansion did not reach the save; your money was refunded.");
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Once("expand-reset", "扩容后复位可购买态失败（可能需重进电话）：" + e.Message);
-                    }
+                        PlayRegister();
+                        Log.Info("电话下单：扩容 Lv." + lv + "（-" + cost + "），余额 " + Funds());
+                        return Text.T("megatank.shop.bought.expand",
+                            "成交。全部容器现在是 {0} L，余额 {1}。",
+                            "Deal. Every container is now {0} L. Balance {1}.",
+                            Ids.CapacityAt(lv) / 1000, Funds());
                 }
-
-                SyncExpandState();
-                return;
-            }
-
-            // 满级却仍被购买：退回等额现金，避免玩家白花钱
-            try
-            {
-                PlayerStore.Instance.playerCash += ExpandCost;
-                Log.Once("expand-maxed", "已在满级仍收到扩容购买，已退款 " + ExpandCost + "；请把这条日志报给作者");
             }
             catch (Exception e)
             {
-                Log.Once("expand-refund", "满级退款失败：" + e.Message);
+                Fault.Mark(Fault.Protection);
+                Log.Once("svc-buy", "下单异常（未扣费或已退款）：" + e.Message);
+                return Text.T("megatank.shop.refuse.error",
+                    "这单出岔子了，钱没动。把这条日志报给作者。",
+                    "Something broke; you were not charged. Please report this log line.");
             }
         }
 
-        /// <summary>
-        /// 满级时把扩容项切成"已完成"态，官方 UI 就会自动**置灰并隐藏购买按钮**
-        /// （需求里的"满级置灰"），不需要任何新补丁。
-        ///
-        /// 判据链（源码 WildNetworkUI.cs，两处读取点都要照顾）：
-        ///   · 卡片 `RefreshSlot`：`flag = IsUnlocked()`；
-        ///       flag=true ⇒ 价格标签整块 `SetActive(false)`、图标 alpha 降到 0.7（视觉变灰）。
-        ///   · 详情 `ShowInfo`：`flag2 = IsUnlocked()`；
-        ///       命中 `isRepeatable &amp; flag2` 分支 ⇒ `useButton.SetActive(false)`，
-        ///       并显示 `alreadyBoughtProvider` 文案「已扩容至上限 2000 L」。
-        ///   而 `IsUnlocked()` 只认 `state == 2`。
-        ///
-        /// ★ 关键坑（第一版踩过）：光设 `state = 2` 不够——可重复项每次购买后
-        ///   `Unlock()` 会把 `state` 从 2 打回 1（NetworkUpgrade.cs，
-        ///   条件是 `cooldownDuration != 0`）。所以满级时必须**同时把
-        ///   `cooldownDuration` 置 0**，state 才停得住。
-        ///   未满级时恢复 `cooldownDuration = 1` + `state = 1`（正常可购买状态）。
-        ///
-        /// 自愈：三个字段都是 [ES3Serializable]，可能跟着存档走；每次进档
-        /// `EnsureRegistered` 都会调本方法重设一次，所以存档里的脏值会被纠正。
-        /// </summary>
-        private static void SyncExpandState()
+        private static string CooldownText()
+        {
+            return Text.T("megatank.shop.refuse.cooldown",
+                "这个今天已经买过了，明天再来。",
+                "You already bought that today. Come back tomorrow.");
+        }
+
+        /// <summary>扣费：先人情后现金。返回 false = 余额不足（不动钱）。</summary>
+        private static bool TryPay(int cost)
         {
             try
             {
-                // ★ 必须改运行时副本，不能改 GetDefinition 返回的静态模板（见 Runtime() 注释）
-                NetworkUpgrade rt = Runtime();
-                if (rt == null) return;
+                var ps = PlayerStore.Instance;
+                if (ps == null) return false;
+                if (ps.playerCash + ps.wildFavor < cost) return false;
 
-                bool maxed = !Capacity.CanUpgrade;
-                int wantState = maxed ? 2 : 1;
-                int wantCooldownDur = maxed ? 0 : ExpandCooldownDays;   // 现在两条分支都是 0
-                bool wantRepeatable = maxed;
-
-                bool changed = false;
-                if (rt.isRepeatable != wantRepeatable) { rt.isRepeatable = wantRepeatable; changed = true; }
-                if (rt.state != wantState) { rt.state = wantState; changed = true; }
-                if (rt.cooldownDuration != wantCooldownDur) { rt.cooldownDuration = wantCooldownDur; changed = true; }
-                // 无冷却 ⇒ 残留的冷却计数必须清掉，否则面板仍会显示"冷却（N天）"
-                if (rt.cooldownCurrent != 0) { rt.cooldownCurrent = 0; changed = true; }
-
-                // 静态模板也同步一份：新存档首次注册会从它 CopyForRuntime()
-                try
+                int cashSpent = 0;
+                if (ps.wildFavor >= cost)
                 {
-                    NetworkUpgrade tpl = NetworkUpgrade.GetDefinition(ExpandSvc);
-                    if (tpl != null && !ReferenceEquals(tpl, rt))
-                    {
-                        tpl.isRepeatable = wantRepeatable;
-                        tpl.cooldownDuration = wantCooldownDur;
-                    }
+                    ps.wildFavor -= cost;
                 }
-                catch { }
-
-                if (changed)
+                else
                 {
-                    Log.Info("扩容服务状态已同步（运行时副本）：满级=" + maxed
-                        + " state=" + rt.state + " cooldownDuration=" + rt.cooldownDuration
-                        + " cooldownCurrent=" + rt.cooldownCurrent);
-                    try { WildNetworkUI.RefreshAll(); } catch { }
+                    cashSpent = cost - ps.wildFavor;
+                    ps.wildFavor = 0;
+                    ps.playerCash -= cashSpent;
                 }
+
+                try { RunStats.OnWildUpgradeBought(cashSpent); } catch (Exception) { }
+                return true;
             }
             catch (Exception e)
             {
-                Log.Once("expand-sync", "同步扩容服务状态失败：" + e.Message);
+                Log.Once("svc-pay", "扣费失败（视为未扣）：" + e.Message);
+                return false;
+            }
+        }
+
+        private static void Refund(int amount)
+        {
+            try
+            {
+                var ps = PlayerStore.Instance;
+                if (ps != null) ps.playerCash += amount;
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-refund", "退款失败：" + e.Message);
+            }
+        }
+
+        private static void PlayRegister()
+        {
+            try
+            {
+                if (EmporiumAudioPlayer.Instance != null) EmporiumAudioPlayer.Instance.PlayRegister();
+            }
+            catch (Exception e)
+            {
+                Log.Once("svc-sound", "播放收银音效失败：" + e.Message);
             }
         }
 

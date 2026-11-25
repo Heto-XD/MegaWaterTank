@@ -1,6 +1,6 @@
 # Mega Water Tank
 
-Version: 0.15.0 · 2026-11-24
+Version: 0.16.0 · 2026-11-25
 
 ## What it is
 
@@ -14,17 +14,19 @@ The water inside is **real**: hydroponics, purifiers and the water scanner all r
 
 ## How to get one
 
-Open the phone in the store. Your speed dial already has **Hetao Water Co. #21474836#** (added automatically even on a new game) — tap it, and the last line opens the service page. Order from the "Water" tab:
+Open the phone in the store. Your speed dial already has **Hetao Water Co. #21474836#** (added automatically even on a new game) — tap it and **order right in the call**. The menu has three options; after a purchase you land back on the menu, so you can keep buying. Hanging up: the phone's red button (or the "End the call" option).
 
-| Service | Price | You get |
+| Item | Price | You get |
 |---|---:|---|
 | Mega Water Tank | 500 | One tank + one cell (200 L to start) |
 | Extra Tank Cell | 250 | One cell (100 L to start) |
 | **Expand Capacity** | **150** | +100 L for every container, 19 times (100 to 2000 L) |
 
-Tanks and cells are **repeatable once a day**; **expansion has no cooldown** — buy it back to back. Deliveries go to the back room.
+Tanks and cells are **one per day** (it resets next morning; the option greys out and says "already bought today" until then). **Expansion has no cooldown** — buy it back to back. Options you cannot afford are greyed out too. Deliveries go to the back room.
 
-**Expand Capacity** works on your whole setup at once: each purchase makes your tank **and every cell** 100 L larger — no need to upgrade them one by one. Nineteen purchases reach the 2.0 t ceiling; the button then greys out and reads "Fully expanded to 2000 L".
+Prices come out of **cash plus Wild favours**, favours first — the same rule the vanilla Wild network uses.
+
+**Expand Capacity** works on your whole setup at once: each purchase makes your tank **and every cell** 100 L larger — no need to upgrade them one by one. Nineteen purchases reach the 2.0 t ceiling; the option then reads "already at the 2000 L ceiling" and greys out.
 Any container you obtain later already carries your current level.
 
 > All 24 slots are free — the tank ships with them unlocked. You only pay for cells to fill them.

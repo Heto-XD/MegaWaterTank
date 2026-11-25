@@ -1,5 +1,48 @@
 # 更新日志
 
+## 0.16.0 — 2026-11-25
+
+**不再占用原版界面：商品从王尔德「人脉」窗口搬到电话对话里下单。**
+
+### 背景
+
+玩家反馈「mod 的王尔德升级 UI 抢了原版高科技升级界面」。查源码后确认根因是**共窗**，不是补丁：
+
+- 0.15.x 用 `ModHelper.AddNetworkUpgrade(..., tab:"Water")` 把三件商品塞进原版 `WildNetworkUI`，
+  而这个窗口同时承载原版「基础」与「高科技（`tab="Advanced"`）」两页；
+- 页签是**全局静态命名空间**（`NetworkUpgrade.tab` + `tabLabels`），`SetNetworkTabLabel` 没有官方撤销口；
+- 窗口是单例 id `wilds_network`，`WildNetworkUI.Open()` 里 `if (IsOpen) return RefreshAll()` 会早退——
+  电话 UI 还压着时窗口就已 `Show()`，之后原版入口再打开只会刷新一个看不见的窗；
+- `tab` 是 `[ES3NonSerializable]`、`subtitle` 却进存档，读档后口径不一致。
+
+### 改动
+
+- **下单改在电话对话内完成**：拨「核桃水商」，菜单三个选项（水箱 500 / 内胆 250 / 扩容 150），
+  买完自动回菜单可续买；选项随余额/冷却/满级自动置灰。
+- 删除 `AddNetworkUpgrade` / `SetNetworkTabLabel` / `OpenWildNetwork` 三处调用——不再注册升级、不加页签、
+  不开原版窗口，对原版界面**零占用**（满足根 `AGENTS.md` 硬规则 25 的「Add* 必配 Remove*」）。
+- 扣费口径照抄原版 `WildNetworkUI.OnUseClicked`：**先人情后现金**，并记账 `RunStats.OnWildUpgradeBought`。
+- 冷却自持：水箱/内胆买完当天置 1，`ModHook.OnWakingUpLate`（起床）减到 0；扩容无冷却。
+- 「结束通话」选项只在场景选项气泡 ≥ 4 时才挂（引擎对超出的选项会直接丢弃并报错）；
+  气泡只有 3 个时用手机自带的挂断键，`Log.Info` 里有记录。
+- 停用/退出时清理 0.15.x 遗留：`RemoveNetworkUpgrades` + `RegisterTabLabel("Water", null)`。
+
+### 兼容
+
+- 老档里 `PlayerStore.networkUpgrade` 可能还留着 `megatank.tank/cell/expand` 三条记录：
+  没有对应定义就永远不会被画出来，属惰性数据，**不删存档**。
+- 扩容等级在 ModData（`expand_level`），与本次改动无关，买过的档位一点不变。
+- 新增本地化键 `megatank.shop.*`，删除已无读取点的 `megatank.svc.*`（中/英/俄三语同步）。
+
+### 实机验证
+
+- 2026-11-25 实机（游戏 1.0.0.16 / `VerboseLog=True`；本地 `Mods\megatank` 0.16.0，工坊 0.15.0 副本被
+  `Duplicate mod ID 'megatank' … the local copy wins over the Workshop copy` 挡掉）：
+  电话下单全流程通过 —— `电话下单：水箱（-500）` → `扩容 Lv.1~Lv.3（各 -150）` → `电话下单：内胆（-250）`，
+  余额逐笔递减（1106530 → 1105830），`容器索引` 随发货递增，水库搬运正常；
+  全程 `Player.log` **0 条 Exception / 0 条 Error、0 条 `[Dialogue]` 选项报错、0 条 `[NetworkUpgrade]` 警告**。
+- 原版王尔德窗口只剩「基础 / 高科技」两页，无「储水」页（玩家确认）。
+
 ## 0.15.0 — 2026-11-24
 
 **巨型水箱 0.15.0：4×6 / 24 个内胆槽、4 个过滤器槽、全局水库模式、机器预腾配置化。**

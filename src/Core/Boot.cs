@@ -41,7 +41,8 @@ namespace MegaTank
             // 0.14.0：读档后把机器槽水箱回填到满（默认夜间模式）；Continuous 模式会在 Tick 里自己维持。
             Step("机器预腾回填", TankRuntime.RestoreOnLoad);
 
-            Step("服务注册", Services.EnsureRegistered);
+            // 0.16.0：商品改走电话对话，这里只做旧版（0.15.x）人脉升级注册/页签标签的清理，幂等。
+            Step("旧服务清理", Services.BootReady);
         }
 
         /// <summary>
@@ -77,7 +78,7 @@ namespace MegaTank
 
             Step("新档属性对齐", () => TankAttributes.ApplyAll());
 
-            Step("新档服务注册", Services.EnsureRegistered);
+            Step("新档旧服务清理", Services.BootReady);
         }
 
         private static void Step(string what, Action action)

@@ -8,18 +8,23 @@ megatank.tooltip.cells,Cells {0} / {1}
 megatank.tooltip.total,Total {0} / {1} ml
 megatank.phone.name,Hetao Water Co.
 megatank.phone.greeting,We sell water. Nothing else.
-megatank.phone.offer,Tanks and cells are both on the list. Buy as many as your store can swallow.
-megatank.svc.tab,Water
-megatank.svc.subtitle,Water
-megatank.svc.tank.title,Mega Water Tank
-megatank.svc.tank.desc,Delivers one Mega Water Tank and one cell (4.0 t total). Repeatable.
-megatank.svc.cell.title,Extra Tank Cell
-megatank.svc.cell.desc,Delivers one tank cell (2.0 t). Repeatable - fill all 16 slots.
-megatank.svc.repeat,Repeatable
-megatank.svc.expand.title,Expand Capacity
-megatank.svc.expand.desc,Permanently raises the capacity of every tank and cell by 100 L. Now {0} L -> next {1} L (max {2} L). Applies to all containers at once. Repeatable.
-megatank.svc.expand.desc.maxed,Already at the {0} L ceiling; every container is maxed out.
-megatank.svc.expand.maxed,Fully expanded to {0} L
+megatank.phone.offer,What will it be - a tank, a cell, or more capacity?
+megatank.phone.bye,Call again if you need more.
+megatank.shop.tank,Mega Water Tank - {0}: tank + 1 cell
+megatank.shop.cell,Extra cell - {0}: 1 cell
+megatank.shop.expand,Expand - {0}: every container {1} -> {2} L
+megatank.shop.expand.maxed,Expand - already at the {0} L ceiling
+megatank.shop.suffix.cooldown, (already bought today)
+megatank.shop.suffix.nomoney, (not enough funds)
+megatank.shop.bought.tank,Deal. The tank and 1 cell are in the back room. Balance {0}.
+megatank.shop.bought.cell,Deal. 1 cell is in the back room. Balance {0}.
+megatank.shop.bought.expand,Deal. Every container is now {0} L. Balance {1}.
+megatank.shop.refuse.money,That costs {0}; cash plus favours does not cover it.
+megatank.shop.refuse.cooldown,You already bought that today. Come back tomorrow.
+megatank.shop.refuse.maxed,Already at the {0} L ceiling - nothing left to expand.
+megatank.shop.refuse.fail,The expansion did not reach the save; your money was refunded.
+megatank.shop.refuse.error,Something broke; you were not charged. Please report this log line.
+megatank.shop.hangup,End the call
 
 megatank.cfg.sec.diagnostics,Diagnostics
 megatank.cfg.verbose,Verbose log

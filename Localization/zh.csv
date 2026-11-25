@@ -8,18 +8,23 @@ megatank.tooltip.cells,内胆 {0} / {1}
 megatank.tooltip.total,合计 {0} / {1} ml
 megatank.phone.name,核桃水商
 megatank.phone.greeting,这里只卖水，不卖别的东西。
-megatank.phone.offer,水箱和内胆都在单子上，买多少看你店的胃口。
-megatank.svc.tab,储水
-megatank.svc.subtitle,储水
-megatank.svc.tank.title,巨型水箱
-megatank.svc.tank.desc,送一个巨型水箱和一个内胆（合计 4.0 吨容量）。可以重复购买。
-megatank.svc.cell.title,追加内胆
-megatank.svc.cell.desc,送一个水箱内胆（2.0 吨）。可以重复购买，用来填满水箱的 16 个槽位。
-megatank.svc.repeat,可重复购买
-megatank.svc.expand.title,扩容水箱
-megatank.svc.expand.desc,把水箱和内胆的容量永久提升 100 L。当前 {0} L → 下一档 {1} L（上限 {2} L）。全部容器同时生效，可重复购买。
-megatank.svc.expand.desc.maxed,已到上限 {0} L，全部容器都已满容量，无法继续扩建。
-megatank.svc.expand.maxed,已扩容至上限 {0} L
+megatank.phone.offer,要什么直接说：水箱、内胆，还是扩容？
+megatank.phone.bye,有需要再打。
+megatank.shop.tank,巨型水箱 · {0}：主池 + 1 个内胆
+megatank.shop.cell,追加内胆 · {0}：1 个内胆
+megatank.shop.expand,扩容 · {0}：全部容器 {1} → {2} L
+megatank.shop.expand.maxed,扩容 · 已到上限 {0} L
+megatank.shop.suffix.cooldown,（今天已经买过）
+megatank.shop.suffix.nomoney,（余额不足）
+megatank.shop.bought.tank,成交。水箱和 1 个内胆已经放到后仓，余额 {0}。
+megatank.shop.bought.cell,成交。1 个内胆已经放到后仓，余额 {0}。
+megatank.shop.bought.expand,成交。全部容器现在是 {0} L，余额 {1}。
+megatank.shop.refuse.money,这单要 {0}，现金加人情不够。
+megatank.shop.refuse.cooldown,这个今天已经买过了，明天再来。
+megatank.shop.refuse.maxed,已经扩到上限 {0} L 了，没得再扩。
+megatank.shop.refuse.fail,扩容没写进存档，钱已经退给你了。
+megatank.shop.refuse.error,这单出岔子了，钱没动。把这条日志报给作者。
+megatank.shop.hangup,结束通话
 
 megatank.cfg.sec.diagnostics,诊断
 megatank.cfg.verbose,详细日志

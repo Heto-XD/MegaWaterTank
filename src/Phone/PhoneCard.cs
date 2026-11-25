@@ -274,6 +274,22 @@ namespace MegaTank
             return found;
         }
 
+        /// <summary>
+        /// 通话内容 = 一个自成一体的商城菜单（0.16.0 起不再打开原版「王尔德人脉」窗口）。
+        ///
+        /// 电话对话的三条硬约束（已核对 `DialoguePhoneUIManager` 1.0.0.16 源码）：
+        ///   · **按钮文字来自「选项指向的那句对话」的正文**（`DisplayChoice` 读
+        ///     `choices[i].Item2.plainText`），不是 item 名字 ⇒ 文案写进 label 节点，
+        ///     买完刷新一次（`refreshLabels`），否则玩家看到的是上一轮状态。
+        ///   · **选项指向的节点本身不会被朗读**：`SelectChoice` 把 `currentDialog` 设成它，
+        ///     0.5 秒后 `ContinueConversation` 直接走到它的 `nextDialogue` ⇒ 结果句必须
+        ///     在动作里 `label.NextDialogue().SetText(...)` 现造。
+        ///   · **每行选项数受场景气泡数限制**（`dialogChoiceBubbles.Count`，超出直接不显示并报错）
+        ///     ⇒ 商品固定 3 个；「结束通话」只在气泡 ≥ 4 时才加，否则靠手机本身的挂断键
+        ///     （`PhoneUIManager.StopCall` 支持通话中挂断）。
+        ///
+        /// 买完回到菜单而不是挂断：扩容要买 19 次，来回拨号不现实。
+        /// </summary>
         private static Dialogue BuildDialog(StorePhoneClient caller)
         {
             var d = new Dialogue();
@@ -281,31 +297,147 @@ namespace MegaTank
             {
                 string speaker = Text.T("megatank.phone.name", "核桃水商", "Hetao Water Co.");
 
+                // 菜单节点（带三个选项）+ 三个「只用来装按钮文字」的 label 节点
+                var menu = new Dialogue();
+                var labelTank = new Dialogue();
+                var labelCell = new Dialogue();
+                var labelExpand = new Dialogue();
+
+                Action refreshLabels = () =>
+                {
+                    labelTank.SetText("PLAYER", Services.Label(ShopItem.Tank));
+                    labelCell.SetText("PLAYER", Services.Label(ShopItem.Cell));
+                    labelExpand.SetText("PLAYER", Services.Label(ShopItem.Expand));
+                };
+                refreshLabels();
+
+                menu.SetText(speaker, Text.T("megatank.phone.offer",
+                    "要什么直接说：水箱、内胆，还是扩容？",
+                    "What will it be - a tank, a cell, or more capacity?"));
+
+                AddItem(menu, labelTank, speaker, menu, ShopItem.Tank, refreshLabels);
+                AddItem(menu, labelCell, speaker, menu, ShopItem.Cell, refreshLabels);
+                AddItem(menu, labelExpand, speaker, menu, ShopItem.Expand, refreshLabels);
+
+                int bubbles = ChoiceCapacity();
+                if (bubbles >= 4)
+                {
+                    var labelBye = new Dialogue();
+                    labelBye.SetText("PLAYER", Text.T("megatank.shop.hangup", "结束通话", "End the call"));
+                    menu.AddChoice(ChoiceIcon(), "", "", labelBye, () =>
+                    {
+                        labelBye.NextDialogue()
+                                .SetText(speaker, Text.T("megatank.phone.bye", "有需要再打。", "Call again if you need more."))
+                                .SetEndAction(EndCall);
+                    });
+                }
+                else
+                {
+                    // 气泡只有 3 个：不硬塞第四个（会被引擎丢弃并打 LogError），提示玩家用挂断键
+                    Log.Info("电话选项气泡 " + bubbles + " 个，省略「结束通话」（点手机上的挂断键即可）");
+                }
+
+                // 首次通话先寒暄一句；快速拨号直接进菜单（与原版 PhoneWild 的行为一致）
                 d.SetText(speaker, Text.T("megatank.phone.greeting",
                         "这里只卖水，不卖别的东西。",
                         "We sell water. Nothing else."))
-                 .NextDialogue()
-                 .SetText(speaker, Text.T("megatank.phone.offer",
-                        "水箱和内胆都在单子上，买多少看你店的胃口。",
-                        "Tanks and cells are both on the list. Buy as many as your store can swallow."))
-                 .SetEndAction(OpenShop);
+                 .SetNextDialogue(menu);
+
+                return IsQuickDial() ? menu : d;
             }
             catch (Exception e)
             {
                 Log.Once("phone-dialog", "对话构建失败：" + e.Message);
+
+                // ★ 必须给 title/text 兜底：`DialoguePhoneUIManager.StartDialogue` 第一句就是
+                //   `currentDialog.title.Equals("PLAYER")`，title 为 null 会直接 NRE 把电话整条挂掉。
+                d.SetText("Hetao Water Co.", "We sell water. Nothing else.");
             }
             return d;
         }
 
-        private static void OpenShop()
+        /// <summary>
+        /// 挂一个商品选项：点击 → 下单 → 把结果写进「结果句」，结果句再指回菜单。
+        /// `choiceEnabled` 每次显示菜单都会重新求值（`Dialogue.IsDisabled`），所以按钮会随
+        /// 余额/冷却/满级自动置灰；文字用 <paramref name="refresh"/> 现刷。
+        /// </summary>
+        private static void AddItem(Dialogue menu, Dialogue label, string speaker, Dialogue backTo,
+                                    ShopItem item, Action refresh)
+        {
+            menu.AddChoice(ChoiceIcon(), "", "", label, () =>
+            {
+                string msg;
+                try
+                {
+                    msg = Services.Buy(item);
+                }
+                catch (Exception e)
+                {
+                    Log.Once("phone-buy-" + item, "下单异常：" + e.Message);
+                    msg = Text.T("megatank.shop.refuse.error",
+                        "这单出岔子了，钱没动。把这条日志报给作者。",
+                        "Something broke; you were not charged. Please report this log line.");
+                }
+
+                refresh();   // 让下一轮菜单显示正确的价格/「今天已买过」后缀
+                label.NextDialogue().SetText(speaker, msg).SetNextDialogue(backTo);
+            }, () => Services.CanBuy(item));
+        }
+
+        /// <summary>选项图标：原版所有电话选项都用 `$`（钱），这里保持一致。</summary>
+        private static GameItem ChoiceIcon()
         {
             try
             {
-                ModHelper.OpenWildNetwork();
+                var icon = DirectoryMaster.Item("$");
+                if (icon != null) return icon;
             }
             catch (Exception e)
             {
-                Log.Once("phone-open", "打开服务页失败：" + e.Message);
+                Log.Once("phone-choice-icon", "取选项图标失败：" + e.Message);
+            }
+            Log.Once("phone-choice-icon-null", "取不到 `$` 选项图标，下单选项不会显示");
+            return null;
+        }
+
+        /// <summary>当前场景给了几个选项气泡（商品 3 个是硬需求，第 4 个才轮到「结束通话」）。</summary>
+        private static int ChoiceCapacity()
+        {
+            try
+            {
+                var ui = DialoguePhoneUIManager.Instance;
+                if (ui != null && ui.dialogChoiceBubbles != null && ui.dialogChoiceBubbles.Count > 0)
+                    return ui.dialogChoiceBubbles.Count;
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-bubbles", "读选项气泡数失败（按 3 处理）：" + e.Message);
+            }
+            return 3;
+        }
+
+        private static bool IsQuickDial()
+        {
+            try
+            {
+                var ui = PhoneUIManager.Instance;
+                return ui != null && ui.isQuickDialCall;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static void EndCall()
+        {
+            try
+            {
+                if (PhoneUIManager.Instance != null) PhoneUIManager.Instance.OnPhoneDialogEnd();
+            }
+            catch (Exception e)
+            {
+                Log.Once("phone-endcall", "结束通话失败：" + e.Message);
             }
         }
     }

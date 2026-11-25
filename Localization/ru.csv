@@ -8,18 +8,23 @@ megatank.tooltip.cells,Ячейки {0} / {1}
 megatank.tooltip.total,Всего {0} / {1} мл
 megatank.phone.name,Водная лавка Хэтао
 megatank.phone.greeting,Мы продаём только воду. Ничего больше.
-megatank.phone.offer,Баки и ячейки есть в списке. Берите столько, сколько выдержит ваш магазин.
-megatank.svc.tab,Вода
-megatank.svc.subtitle,Вода
-megatank.svc.tank.title,Мега-бак для воды
-megatank.svc.tank.desc,Доставляет один мега-бак и одну ячейку (всего 4,0 т). Можно покупать повторно.
-megatank.svc.cell.title,Дополнительная ячейка
-megatank.svc.cell.desc,Доставляет одну ячейку бака (2,0 т). Можно покупать повторно — заполните все 16 слотов.
-megatank.svc.repeat,Можно покупать повторно
-megatank.svc.expand.title,Расширить объём
-megatank.svc.expand.desc,Навсегда увеличивает объём каждого бака и ячейки на 100 л. Сейчас {0} л -> следующий {1} л (предел {2} л). Действует на все контейнеры сразу. Можно покупать повторно.
-megatank.svc.expand.desc.maxed,Достигнут предел {0} л, все контейнеры заполнены до максимума.
-megatank.svc.expand.maxed,Достигнут предел {0} л
+megatank.phone.offer,Что нужно: бак, ячейка или больше объёма?
+megatank.phone.bye,Звоните, если понадобится ещё.
+megatank.shop.tank,Мега-бак · {0}: бак + 1 ячейка
+megatank.shop.cell,Дополнительная ячейка · {0}: 1 ячейка
+megatank.shop.expand,Расширение · {0}: все контейнеры {1} → {2} л
+megatank.shop.expand.maxed,Расширение · уже предел {0} л
+megatank.shop.suffix.cooldown, (уже куплено сегодня)
+megatank.shop.suffix.nomoney, (недостаточно средств)
+megatank.shop.bought.tank,Готово. Бак и 1 ячейка в подсобке. Баланс {0}.
+megatank.shop.bought.cell,Готово. 1 ячейка в подсобке. Баланс {0}.
+megatank.shop.bought.expand,Готово. Все контейнеры теперь {0} л. Баланс {1}.
+megatank.shop.refuse.money,Это стоит {0}; наличных и услуг не хватает.
+megatank.shop.refuse.cooldown,Это уже куплено сегодня. Приходите завтра.
+megatank.shop.refuse.maxed,Уже предел {0} л, расширять некуда.
+megatank.shop.refuse.fail,Расширение не сохранилось; деньги возвращены.
+megatank.shop.refuse.error,Что-то пошло не так; деньги не списаны. Сообщите об этой строке лога.
+megatank.shop.hangup,Завершить звонок
 
 megatank.cfg.sec.diagnostics,Диагностика
 megatank.cfg.verbose,Подробные логи
